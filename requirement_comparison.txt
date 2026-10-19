@@ -1,0 +1,374 @@
+# Lab 1: Hướng dẫn hoàn thành báo cáo (GUIDE.md)
+
+> File này liệt kê **toàn bộ các lệnh cần chạy** để thu thập dữ liệu cho báo cáo Lab 1.
+> Chỉ tạo file hướng dẫn — **KHÔNG CHẠY** các lệnh dưới đây.
+
+---
+
+## 0. Chuẩn bị môi trường
+
+### Windows (MSYS2 mingw64)
+```bash
+# Mở "MSYS2 MinGW 64-bit" terminal
+cd D:\UIT\NT219\crypto-labs\lab1
+
+# Cài dependencies (chạy 1 lần)
+pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-clang
+```
+
+### Linux (Ubuntu/Kali)
+```bash
+sudo apt update
+sudo apt install -y build-essential cmake g++ clang libssl-dev
+# Crypto++ tự build hoặc cài từ source vào ~/Desktop/nt219lib/cryptopp/{gcc,clang}/
+```
+
+---
+
+## 1. Build cho 3 compiler trên Windows
+
+```bash
+cd D:\UIT\NT219\crypto-labs\lab1
+
+# MSVC (chạy trong "x64 Native Tools Command Prompt for VS 2022")
+scripts\build_windows.bat msvc
+
+# GCC (trong MSYS2 mingw64 shell)
+scripts\build_windows.bat gcc
+
+# Clang (trong MSYS2 mingw64 shell)
+scripts\build_windows.bat clang
+```
+
+**Kết quả mong đợi:** 3 thư mục build:
+- `build_windows_msvc/Release/aestool.exe`
+- `build_windows_gcc/aestool.exe`
+- `build_windows_clang/aestool.exe`
+
+---
+
+## 2. Build cho 2 compiler trên Linux
+
+```bash
+cd ~/crypto-labs/lab1   # hoặc nơi clone repo
+
+# GCC
+scripts/build_linux.sh gcc
+
+# Clang
+scripts/build_linux.sh clang
+```
+
+**Kết quả mong đợi:**
+- `build_ubuntu_gcc/aestool`
+- `build_ubuntu_clang/aestool`
+
+---
+
+## 3. Chạy KAT (Known Answer Tests) — Bắt buộc cho báo cáo
+
+```bash
+# Windows MSVC
+cd D:\UIT\NT219\crypto-labs\lab1
+.\build_windows_msvc\Release\aestool.exe --kat kat\vectors.json > kat_msvc.txt 2>&1
+
+# Windows GCC
+.\build_windows_gcc\aestool.exe --kat kat\vectors.json > kat_gcc.txt 2>&1
+
+# Windows Clang
+.\build_windows_clang\aestool.exe --kat kat\vectors.json > kat_clang.txt 2>&1
+
+# Linux GCC
+./build_ubuntu_gcc/aestool --kat kat/vectors.json > kat_ubuntu_gcc.txt 2>&1
+
+# Linux Clang
+./build_ubuntu_clang/aestool --kat kat/vectors.json > kat_ubuntu_clang.txt 2>&1
+```
+
+**Lưu file output:** Mỗi file `kat_*.txt` phải có `9 passed, 0 failed`. Copy vào báo cáo.
+
+---
+
+## 4. Chạy Unit Tests (Catch2) — Bắt buộc
+
+```bash
+# Windows MSVC
+cd D:\UIT\NT219\crypto-labs\lab1\build_windows_msvc
+ctest -C Release --output-on-failure > test_msvc.txt 2>&1
+
+# Windows GCC
+cd D:\UIT\NT219\crypto-labs\lab1\build_windows_gcc
+ctest --output-on-failure > test_gcc.txt 2>&1
+
+# Windows Clang
+cd D:\UIT\NT219\crypto-labs\lab1\build_windows_clang
+ctest --output-on-failure > test_clang.txt 2>&1
+
+# Linux GCC
+cd ~/crypto-labs/lab1/build_ubuntu_gcc
+ctest --output-on-failure > test_ubuntu_gcc.txt 2>&1
+
+# Linux Clang
+cd ~/crypto-labs/lab1/build_ubuntu_clang
+ctest --output-on-failure > test_ubuntu_clang.txt 2>&1
+```
+
+---
+
+## 5. Negative Tests (Kiểm thử âm) — Bắt buộc cho báo cáo
+
+Tạo script test riêng hoặc chạy thủ công:
+
+```bash
+cd D:\UIT\NT219\crypto-labs\lab1
+
+# Test sai key
+.\build_windows_gcc\aestool.exe decrypt --mode cbc --key key_wrong.bin --in ct.bin --out out.txt 2>&1 | tee neg_key.txt
+
+# Test sai IV
+.\build_windows_gcc\aestool.exe decrypt --mode cbc --key key.bin --iv iv_wrong.bin --in ct.bin --out out.txt 2>&1 | tee neg_iv.txt
+
+# Test sửa ciphertext (non-AEAD)
+# 1. Mã hóa
+.\build_windows_gcc\aestool.exe encrypt --mode cbc --key key.bin --in plain.txt --out ct.bin
+# 2. Sửa 1 byte trong ct.bin (dùng hex editor hoặc script Python)
+# 3. Giải mã → quan sát đầu ra bị hỏng
+
+# Test AEAD tag sai (GCM)
+.\build_windows_gcc\aestool.exe encrypt --mode gcm --aead --key key.bin --in plain.txt --out ct.bin
+# Sửa tag trong file sidecar JSON hoặc ciphertext
+.\build_windows_gcc\aestool.exe decrypt --mode gcm --aead --key key.bin --in ct.bin --out out.txt 2>&1 | tee neg_tag.txt
+
+# Test IV độ dài sai
+.\build_windows_gcc\aestool.exe encrypt --mode cbc --key key.bin --iv short_iv.bin --in plain.txt --out ct.bin 2>&1 | tee neg_ivlen.txt
+
+# Test ECB file lớn (không có --allow-ecb)
+dd if=/dev/zero of=large.bin bs=1K count=32
+.\build_windows_gcc\aestool.exe encrypt --mode ecb --key key.bin --in large.bin --out ct.bin 2>&1 | tee neg_ecb.txt
+# Phải bị chặn (WARNING + fail)
+```
+
+**Lưu tất cả output** vào thư mục `neg_results/` để đính kèm báo cáo.
+
+---
+
+## 6. Benchmark Hiệu năng — Bắt buộc (Core của báo cáo)
+
+### 6.1 Tạo file test dữ liệu
+
+```bash
+cd D:\UIT\NT219\crypto-labs\lab1
+
+# Tạo các file payload: 1KB, 4KB, 16KB, 256KB, 1MB, 8MB
+for size in 1 4 16 256 1024 8192; do
+    dd if=/dev/urandom of=payload_${size}KB.bin bs=1K count=$size 2>nul
+done
+# Linux: thay /dev/urandom, bỏ 2>nul
+```
+
+### 6.2 Chạy benchmark cho từng mode / compiler / platform
+
+**Windows GCC (ví dụ):**
+```bash
+cd D:\UIT\NT219\crypto-labs\lab1
+
+# AES-256-GCM
+.\build_windows_gcc\aestool.exe bench --mode gcm --key key.bin --size 1024 --runs 1000 --out bench_gcc_gcm_1KB.csv
+.\build_windows_gcc\aestool.exe bench --mode gcm --key key.bin --size 4096 --runs 1000 --out bench_gcc_gcm_4KB.csv
+.\build_windows_gcc\aestool.exe bench --mode gcm --key key.bin --size 16384 --runs 1000 --out bench_gcc_gcm_16KB.csv
+.\build_windows_gcc\aestool.exe bench --mode gcm --key key.bin --size 262144 --runs 100 --out bench_gcc_gcm_256KB.csv
+.\build_windows_gcc\aestool.exe bench --mode gcm --key key.bin --size 1048576 --runs 50 --out bench_gcc_gcm_1MB.csv
+.\build_windows_gcc\aestool.exe bench --mode gcm --key key.bin --size 8388608 --runs 20 --out bench_gcc_gcm_8MB.csv
+```
+
+**Lặp lại cho các mode:** `cbc`, `ctr`, `ccm`, `xts`, `ofb`, `cfb`, `ecb` (với `--allow-ecb`)
+
+**Lặp lại cho MSVC:** dùng `.\build_windows_msvc\Release\aestool.exe`
+
+**Lặp lại cho Clang:** dùng `.\build_windows_clang\aestool.exe`
+
+**Lặp lại trên Linux:** dùng `./build_ubuntu_gcc/aestool` và `./build_ubuntu_clang/aestool`
+
+### 6.3 Format CSV output mong đợi
+Mỗi file CSV nên có các cột:
+```
+run,mode,size_bytes,encrypt_us,decrypt_us,throughput_encrypt_MBps,throughput_decrypt_MBps
+```
+
+Nếu tool chưa hỗ trợ `--bench` đủ tham số, viết wrapper Python/Script để:
+- Warm-up 2 giây
+- Chạy N lần, ghi latency mỗi lần
+- Tính mean, median, stddev, 95% CI
+
+---
+
+## 7. So sánh Cross-Platform — Bắt buộc cho báo cáo
+
+Tạo bảng tổng hợp (Excel/CSV) từ các file benchmark:
+
+| Platform | Compiler | Mode | Size | Enc Mean (μs) | Enc Median | Enc StdDev | Dec Mean (μs) | Throughput Enc (MB/s) | Throughput Dec (MB/s) |
+|----------|----------|------|------|---------------|------------|------------|---------------|----------------------|----------------------|
+| Windows  | MSVC     | GCM  | 16KB | ...           | ...        | ...        | ...           | ...                  | ...                  |
+| Windows  | GCC      | GCM  | 16KB | ...           | ...        | ...        | ...           | ...                  | ...                  |
+| Windows  | Clang    | GCM  | 16KB | ...           | ...        | ...        | ...           | ...                  | ...                  |
+| Ubuntu   | GCC      | GCM  | 16KB | ...           | ...        | ...        | ...           | ...                  | ...                  |
+| Ubuntu   | Clang    | GCM  | 16KB | ...           | ...        | ...        | ...           | ...                  | ...                  |
+| ...      | ...      | ...  | ...  | ...           | ...        | ...        | ...           | ...                  | ...                  |
+
+**Vẽ đồ thị** (Python matplotlib):
+- Bar chart: Throughput theo mode (grouped by platform)
+- Line chart: Latency theo payload size
+- Box plot: Phân bố latency 100 runs
+
+---
+
+## 8. Phân tích bảo mật (Security Hygiene) — 15 điểm
+
+Tài liệu hóa trong báo cáo:
+
+1. **RNG**: Kiểm tra code dùng `AutoSeededRandomPool` — grep source:
+   ```bash
+   grep -r "AutoSeededRandomPool" src/
+   ```
+
+2. **IV/Nonce handling**: Kiểm tra sinh, lưu, kiểm tra độ dài:
+   ```bash
+   grep -r "nonce\|IV" src/ | head -30
+   ```
+
+3. **Fail-closed**: Tìm chỗ trả về error thay vì plaintext khi tag sai:
+   ```bash
+   grep -r "verify\|tag" src/
+   ```
+
+4. **ECB restriction**: Tìm logic chặn ECB > 16KB:
+   ```bash
+   grep -r "allow-ecb\|16.*KB\|16384" src/
+   ```
+
+5. **Nonce reuse detection**: Mô tả logic (file sidecar JSON, database, v.v.)
+
+---
+
+## 9. Xuất thư viện (Optional +5 điểm)
+
+```bash
+# Build static lib đã có sẵn: aescore.lib / libaescore.a
+# Build shared lib:
+cd D:\UIT\NT219\crypto-labs\lab1
+
+# Windows MSVC
+cmake -S . -B build_windows_msvc_shared -G "Visual Studio 18 2026" -A x64 -DBUILD_SHARED_LIBS=ON ...
+cmake --build build_windows_msvc_shared --config Release
+# Output: aescore.dll, aestool.exe
+
+# Windows GCC
+cmake -S . -B build_windows_gcc_shared -G "MinGW Makefiles" -DBUILD_SHARED_LIBS=ON ...
+cmake --build build_windows_gcc_shared
+# Output: libaescore.dll.a, aestool.exe
+
+# Linux
+cmake -S . -B build_ubuntu_gcc_shared -DBUILD_SHARED_LIBS=ON ...
+cmake --build build_ubuntu_gcc_shared
+# Output: libaescore.so, aestool
+```
+
+**Test GUI (nếu làm):** Python `ctypes` hoặc C# `DllImport` gọi `aescore.dll/.so`.
+
+---
+
+## 10. Checklist nộp bài (Trước khi nén `MSV.All6labs.rar`)
+
+### Mã nguồn & Build
+- [ ] `lab1/CMakeLists.txt` build pass 5/5 config (Win MSVC/GCC/Clang, Linux GCC/Clang)
+- [ ] `lab1/README.md` đầy đủ: dependency, cài đặt, build, CLI, hạn chế
+- [ ] `lab1/src/` có đủ: `aescore.hpp/cpp`, `cryptopp_all.hpp`, `main.cpp`
+- [ ] `lab1/tests/test_core.cpp` unit test pass
+- [ ] `lab1/scripts/build_windows.bat` và `build_linux.sh` chạy được
+
+### Test & KAT
+- [ ] `kat_msvc.txt`, `kat_gcc.txt`, `kat_clang.txt`, `kat_ubuntu_gcc.txt`, `kat_ubuntu_clang.txt` — tất cả 9/9 PASS
+- [ ] `test_*.txt` — ctest PASS
+- [ ] `neg_*.txt` — negative tests có output chứng minh fail-closed
+
+### Benchmark
+- [ ] CSV benchmark cho 6 payload sizes × 8 modes × 5 compiler/platform = ~240 file CSV
+- [ ] Bảng tổng hợp (Excel/CSV) trong báo cáo
+- [ ] Đồ thị: throughput bar, latency line, box plot
+
+### Báo cáo (PDF/DOCX)
+- [ ] Mục tiêu, phạm vi thuật toán
+- [ ] Chi tiết cài đặt (mode, AEAD, IV/nonce, misuse prevention)
+- [ ] Kết quả KAT + Negative tests
+- [ ] Phương pháp đo (warm-up, runs, thống kê)
+- [ ] Bảng & đồ thị hiệu năng
+- [ ] Phân tích bảo mật (15 điểm mục)
+- [ ] So sánh đa nền tảng (Windows vs Linux, compiler, mode)
+- [ ] Bài học rút ra
+
+### Tự chấm điểm & Cam kết
+- [ ] Bảng tự chấm điểm (100 + 5 điểm)
+- [ ] Cam kết liêm chính học thuật (khai báo AI nếu dùng)
+
+---
+
+## 11. Lệnh tóm tắt (Quick Reference)
+
+```bash
+# ===== WINDOWS =====
+cd D:\UIT\NT219\crypto-labs\lab1
+
+# Build all 3
+scripts\build_windows.bat msvc
+scripts\build_windows.bat gcc
+scripts\build_windows.bat clang
+
+# KAT all
+.\build_windows_msvc\Release\aestool.exe --kat kat\vectors.json > kat_msvc.txt
+.\build_windows_gcc\aestool.exe --kat kat\vectors.json > kat_gcc.txt
+.\build_windows_clang\aestool.exe --kat kat\vectors.json > kat_clang.txt
+
+# Test all
+cd build_windows_msvc && ctest -C Release --output-on-failure > ..\test_msvc.txt
+cd ..\build_windows_gcc && ctest --output-on-failure > ..\test_gcc.txt
+cd ..\build_windows_clang && ctest --output-on-failure > ..\test_clang.txt
+
+# Benchmark (ví dụ GCM 16KB GCC)
+.\build_windows_gcc\aestool.exe bench --mode gcm --size 16384 --runs 1000 --out bench_gcc_gcm_16KB.csv
+
+# ===== LINUX =====
+cd ~/crypto-labs/lab1
+scripts/build_linux.sh gcc
+scripts/build_linux.sh clang
+
+./build_ubuntu_gcc/aestool --kat kat/vectors.json > kat_ubuntu_gcc.txt
+./build_ubuntu_clang/aestool --kat kat/vectors.json > kat_ubuntu_clang.txt
+
+cd build_ubuntu_gcc && ctest --output-on-failure > ../test_ubuntu_gcc.txt
+cd ../build_ubuntu_clang && ctest --output-on-failure > ../test_ubuntu_clang.txt
+
+./build_ubuntu_gcc/aestool bench --mode gcm --size 16384 --runs 1000 --out bench_ubuntu_gcc_gcm_16KB.csv
+```
+
+---
+
+## 12. Lưu ý quan trọng
+
+1. **CPU Governor**: Trên Linux, set `performance` trước benchmark:
+   ```bash
+   echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+   ```
+
+2. **Warm-up**: Chạy 1-2 giây trước khi đo (tool có hỗ trợ `--warmup` thì bật).
+
+3. **Isolation**: Tắt ứng dụng khác, chạy benchmark khi máy idle.
+
+4. **Lặp lại**: Chạy 30-100 lần tùy payload size (file nhỏ chạy nhiều lần hơn).
+
+5. **Ghi chú phần cứng**: CPU model, RAM, OS version, compiler version vào báo cáo.
+
+6. **Fail-closed**: Mọi test negative phải chứng minh chương trình **không bao giờ** trả plaintext khi lỗi.
+
+---
+
+*Tạo file: `lab1/GUIDE.md` — Chỉ dùng để tham khảo, không chạy tự động.*

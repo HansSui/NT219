@@ -1,0 +1,119 @@
+# Batch benchmarks
+
+`scripts/run_benchmarks.sh` (Linux) and `scripts/run_benchmarks.bat` (Windows)
+run every mode at every required payload size, with **1000 runs per CSV** by
+default:
+
+- Modes: `ecb cbc ofb cfb ctr xts ccm gcm`
+- Sizes: `1024 4096 16384 262144 1048576 8388608` bytes (1 KB ... 8 MB)
+- Runs: `1000` per size
+- Output: 48 CSV files per compiler/platform, each with 1000 rows
+
+The 8 MB case processes about 8 GB for encryption and 8 GB for decryption per
+mode, so a full run takes minutes. Start with a smaller smoke run if needed.
+Each completed CSV has one header plus 1000 run rows (1001 lines). ECB prints a
+security warning for every invocation; the runner logs stderr to `bench.log`
+instead of repeating the warning in the terminal.
+
+## Linux
+
+```bash
+scripts/build_linux.sh gcc
+scripts/run_benchmarks.sh gcc
+scripts/run_benchmarks.sh clang
+```
+
+Output goes to `output/ubuntu/benchmarks/`:
+
+```
+bench_ubuntu_gcc_gcm_1KB.csv
+bench_ubuntu_gcc_gcm_4KB.csv
+...
+bench_ubuntu_gcc_ecb_8MB.csv
+```
+
+Each CSV has:
+
+```
+run,mode,size_bytes,encrypt_us,decrypt_us,throughput_encrypt_MBps,throughput_decrypt_MBps
+```
+
+The runner also writes statistics tables when Python is available:
+
+```
+output/ubuntu/benchmarks/summary.csv
+output/ubuntu/benchmarks/summary_tag_overhead.csv
+output/ubuntu/benchmarks/summary_classes.csv
+```
+
+`summary.csv` contains mean, median, standard deviation, CI95 and coefficient of
+variation for every compiler/mode/size. `summary_tag_overhead.csv` compares GCM
+and CCM against CTR. `summary_classes.csv` aggregates stream, block, AEAD and
+non-AEAD classes.
+
+Generate comparison plots after the run:
+
+```bash
+PLOT=1 scripts/run_benchmarks.sh gcc
+# or, from existing CSVs:
+python3 scripts/summarize_bench.py --dir output/ubuntu/benchmarks
+python3 scripts/plot_compare.py --dir output/ubuntu/benchmarks --out-dir output/ubuntu/benchmarks/graph
+```
+
+This writes seven combined PNGs into `graph/`:
+
+```
+comparison_throughput_by_mode_1MB.png
+comparison_throughput_vs_size.png
+comparison_latency_vs_size.png
+comparison_latency_box_16KB.png
+comparison_stream_vs_block.png
+comparison_aead_vs_nonaead.png
+comparison_tag_overhead.png
+```
+
+Use `scripts/plot_bench.py` only if you want the per-CSV run-by-run plots
+instead of the comparison charts.
+
+## Windows
+
+```bat
+scripts\build_windows.bat msvc
+scripts\run_benchmarks.bat msvc
+```
+
+Output goes to `output\windows\benchmarks\`. Use `gcc` or `clang` instead of
+`msvc` for the MinGW builds.
+
+## Overrides
+
+Both scripts accept environment variables:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `RUNS` | `1000` | runs per CSV |
+| `WARMUP` | `1` | warm-up seconds per invocation |
+| `SIZES` | all six sizes | space-separated byte sizes |
+| `MODES` | all eight modes | space-separated modes |
+| `OUT` | `output/<platform>/benchmarks` | output directory |
+| `KEY` | `output/<platform>/key_bin/key.bin` | 32-byte key file |
+| `PLOT` | `0` | set to `1` to generate plots |
+
+Examples:
+
+```bash
+# quick smoke test
+RUNS=10 SIZES=1024 MODES=gcm scripts/run_benchmarks.sh gcc
+
+# 30 repetitions for a shorter report run
+RUNS=30 scripts/run_benchmarks.sh gcc
+```
+
+The script creates a random 32-byte key if the key file does not exist. ECB runs
+automatically add `--allow-ecb`. Each benchmark operation uses a fresh
+counter-derived IV, so the benchmark itself does not reuse nonces.
+
+After the CSVs exist, run `scripts/summarize_bench.py` for the statistics tables
+and `scripts/plot_compare.py` (or `PLOT=1`) for the seven combined comparison
+graphs in `benchmarks/graph/`. `scripts/plot_bench.py` still produces one
+throughput and one latency plot per CSV if needed.
