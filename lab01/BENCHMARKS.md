@@ -85,6 +85,44 @@ scripts\run_benchmarks.bat msvc
 Output goes to `output\windows\benchmarks\`. Use `gcc` or `clang` instead of
 `msvc` for the MinGW builds.
 
+## Cross-platform comparison (Windows vs Linux)
+
+`scripts/plot_crossplatform.py` pools all runs per mode/size from a Linux and a
+Windows directory and writes comparison charts plus heatmaps:
+
+```bat
+python scripts\plot_crossplatform.py ^
+    --linux-dir output/ubuntu/benchmarks ^
+    --windows-dir output/x64/benchmarks ^
+    --out-dir output/compare/graph
+```
+
+`--windows-dir` defaults to `output/windows/benchmarks` when it contains CSVs
+and falls back to `output/x64/benchmarks`. Relative paths are resolved against
+the repository root, so the script can be started from any directory.
+
+It writes into `output/compare/graph/`:
+
+```
+cross_throughput_by_mode_1MB.png
+cross_latency_by_mode_16KB.png
+cross_throughput_vs_size.png
+cross_latency_vs_size.png
+heatmap_throughput_ubuntu.png
+heatmap_throughput_windows.png
+heatmap_throughput_ratio_windows_vs_ubuntu.png
+heatmap_latency_ratio_windows_vs_ubuntu.png
+```
+
+and the underlying table into `output/compare/cross_platform_summary.csv`
+(per mode/size: both platforms' throughput and latency plus the
+Windows/Ubuntu ratio). Throughput ratios above 1 mean Windows is faster;
+latency ratios above 1 mean Windows is slower. Runs from different hosts are
+not a controlled experiment, which the figure footers state explicitly.
+
+The default bar charts use the 1 MB payload (`--bar-size`) and the latency
+chart uses 16 KB (`--latency-size`); both sizes are adjustable.
+
 ## Overrides
 
 Both scripts accept environment variables:

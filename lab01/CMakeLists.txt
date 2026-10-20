@@ -6,6 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_TESTING "Build unit tests" ON)
+option(CRYPTOPP_STATIC_CRT "Link the MSVC static runtime (/MT) to match a static-CRT Crypto++" ON)
+
+# The Windows Crypto++ static library (cryptlib.lib) is normally built with
+# /MT. Mixing it with CMake's default /MD fails at link time with LNK2038
+# ("MT_StaticRelease doesn't match MD_DynamicRelease"). Use /MT everywhere,
+# /MTd for Debug. Pass -DCRYPTOPP_STATIC_CRT=OFF (or an explicit
+# -DCMAKE_MSVC_RUNTIME_LIBRARY=...) for a /MD Crypto++ build such as vcpkg.
+if(MSVC AND CRYPTOPP_STATIC_CRT AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 find_path(CRYPTOPP_INCLUDE_DIR
     NAMES cryptopp/aes.h

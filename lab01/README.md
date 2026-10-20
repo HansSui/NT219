@@ -23,6 +23,7 @@ scripts/
   run_benchmarks.sh     all modes x all sizes x 1000 runs (Linux)
   run_benchmarks.bat    all modes x all sizes x 1000 runs (Windows)
   plot_compare.py       combined comparison charts from all benchmark CSVs
+  plot_crossplatform.py Windows-vs-Linux charts, ratios and heatmaps
   summarize_bench.py    mean/median/SD/CI95 tables and class/tag summaries
   plot_bench.py         throughput/latency plots from one benchmark CSV
 BENCHMARKS.md           batch benchmark instructions and output naming
