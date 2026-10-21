@@ -1,0 +1,10 @@
+timestamp: 2026-10-21T22:18:37+07:00
+kernel: Linux 7.0.0-38-generic x86_64
+cpu: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+logical_cpus: 8
+governor: performance
+pin_cpus: 0
+threads: 1
+runs: 1000
+warmup_s: 1
+tool: /home/han-sui/Downloads/NT219/lab01/build_ubuntu_clang/aestool

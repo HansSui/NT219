@@ -147,6 +147,7 @@ Both scripts accept environment variables:
 | `RUNS` | `1000` | runs per CSV |
 | `WARMUP` | `1` | warm-up seconds per invocation |
 | `THREADS` | `1` | benchmark worker threads (`--threads`); keep 1 for report data |
+| `PIN_CPUS` | unset | Linux `taskset` CPU list, e.g. `0` for the default single-thread run |
 | `SIZES` | all six sizes | space-separated byte sizes |
 | `MODES` | all eight modes | space-separated modes |
 | `OUT` | `output/<platform>/benchmarks` | output directory |
@@ -166,6 +167,37 @@ RUNS=30 scripts/run_benchmarks.sh gcc
 The script creates a random 32-byte key if the key file does not exist. ECB runs
 automatically add `--allow-ecb`. Each benchmark operation uses a fresh
 counter-derived IV, so the benchmark itself does not reuse nonces.
+
+### Controlled CPU run
+
+For report data, fix the governor and pin the benchmark process, then rerun the
+whole matrix. Do not mix old and new CSVs.
+
+```bash
+# once per boot; needs root
+sudo cpupower frequency-set -g performance
+
+# default single-thread benchmark, pinned to logical CPU 0
+PIN_CPUS=0 scripts/run_benchmarks.sh gcc
+PIN_CPUS=0 scripts/run_benchmarks.sh clang
+```
+
+`PIN_CPUS` uses `taskset -c`, so `0-3` works for a multi-thread run. The script
+writes `bench_environment.txt` next to the CSVs with timestamp, CPU, governor and
+pinning. It warns if the governor is not `performance`; it does not change system
+settings itself.
+
+On Windows, run the batch inside an affinity mask and record the power plan
+before starting:
+
+```bat
+powercfg /setactive SCHEME_MIN
+powercfg /getactivescheme > output\windows\benchmarks\bench_environment.txt
+start /affinity FF /wait cmd /c scripts\run_benchmarks.bat msvc
+```
+
+`FF` pins the process tree to eight logical CPUs; adjust for the host. The batch
+itself still defaults to `THREADS=1`.
 
 After the CSVs exist, run `scripts/summarize_bench.py` for the statistics tables
 and `scripts/plot_compare.py` (or `PLOT=1`) for the seven combined comparison

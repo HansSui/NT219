@@ -20,11 +20,18 @@ fi
 runs="${RUNS:-1000}"
 warmup="${WARMUP:-1}"
 threads="${THREADS:-1}"
+pin="${PIN_CPUS:-}"
 platform="${PLATFORM:-ubuntu}"
 out="${OUT:-output/$platform/benchmarks}"
 key="${KEY:-output/$platform/key_bin/key.bin}"
 sizes="${SIZES:-1024 4096 16384 262144 1048576 8388608}"
 modes="${MODES:-ecb cbc ofb cfb ctr xts ccm gcm}"
+
+if [[ -n "$pin" ]] && ! command -v taskset >/dev/null 2>&1; then
+    echo "PIN_CPUS is set but taskset is not available" >&2
+    exit 1
+fi
+governor="$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || echo unknown)"
 
 mkdir -p "$out" "$(dirname "$key")"
 if [[ ! -f "$key" ]]; then
@@ -33,12 +40,32 @@ if [[ ! -f "$key" ]]; then
 fi
 
 log="$out/bench.log"
+: > "$log"
 echo "tool:  $tool"
 echo "runs:  $runs per mode/size"
 echo "threads: $threads"
+echo "pin:   ${pin:-none}"
+echo "gov:   $governor"
 echo "modes: $modes"
 echo "sizes: $sizes"
 echo "out:   $out"
+
+if [[ "$governor" != "performance" ]]; then
+    echo "warning: governor is '$governor'; use 'sudo cpupower frequency-set -g performance' for controlled data" >&2
+fi
+
+{
+    echo "timestamp: $(date -Is)"
+    echo "kernel: $(uname -srm)"
+    echo "cpu: $(awk -F': ' '/model name/ {print $2; exit}' /proc/cpuinfo 2>/dev/null || echo unknown)"
+    echo "logical_cpus: $(nproc 2>/dev/null || echo unknown)"
+    echo "governor: $governor"
+    echo "pin_cpus: ${pin:-none}"
+    echo "threads: $threads"
+    echo "runs: $runs"
+    echo "warmup_s: $warmup"
+    echo "tool: $tool"
+} > "$out/bench_environment.txt"
 
 size_label() {
     case "$1" in
@@ -52,6 +79,11 @@ size_label() {
     esac
 }
 
+runner=()
+if [[ -n "$pin" ]]; then
+    runner=(taskset -c "$pin")
+fi
+
 for mode in $modes; do
     for size in $sizes; do
         label="$(size_label "$size")"
@@ -60,7 +92,7 @@ for mode in $modes; do
               --warmup "$warmup" --threads "$threads" --out "$csv")
         [[ "$mode" == "ecb" ]] && args+=(--allow-ecb)
         echo "benchmarking $mode $label ($runs runs)"
-        if ! "$tool" "${args[@]}" >/dev/null 2>>"$log"; then
+        if ! "${runner[@]}" "$tool" "${args[@]}" >/dev/null 2>>"$log"; then
             echo "failed: $csv (see $log)" >&2
             exit 1
         fi

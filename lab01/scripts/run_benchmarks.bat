@@ -40,6 +40,7 @@ set "sizes=%SIZES%"
 if "%sizes%"=="" set "sizes=1024 4096 16384 262144 1048576 8388608"
 
 if not exist "%out%" mkdir "%out%"
+if exist "%out%\bench.log" del "%out%\bench.log" >nul 2>nul
 if not exist "%out%" (
     echo cannot create output directory: %out% >&2
     exit /b 1

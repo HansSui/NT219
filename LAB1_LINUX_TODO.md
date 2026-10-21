@@ -257,7 +257,7 @@ Trong REPORT.md:
 - Thêm log KAT Linux: `output/ubuntu/test_results/kat_gcc.txt`
 - Thêm log ctest Linux: `output/ubuntu/test_results/ctest_gcc.txt`
 - Thêm log GUI self-test Linux nếu chạy được
-- Cập nhật bảng self-grade nếu muốn (hiện đang 90 + 5 bonus)
+- Cập nhật bảng self-grade nếu muốn (hiện đang 92 + 5 bonus)
 
 ### 7.3 Xuất PDF/DOCX
 

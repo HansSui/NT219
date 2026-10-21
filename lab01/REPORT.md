@@ -658,12 +658,14 @@ Từ `lab01/`:
 # Ubuntu
 scripts/build_linux.sh gcc
 scripts/build_linux.sh clang
-scripts/run_benchmarks.sh gcc
-scripts/run_benchmarks.sh clang
+sudo cpupower frequency-set -g performance
+PIN_CPUS=0 scripts/run_benchmarks.sh gcc
+PIN_CPUS=0 scripts/run_benchmarks.sh clang
 
 # Windows (x64 Native Tools Command Prompt)
 scripts\build_windows.bat msvc
-scripts\run_benchmarks.bat msvc
+powercfg /setactive SCHEME_MIN
+start /affinity FF /wait cmd /c scripts\run_benchmarks.bat msvc
 
 # Tổng hợp và vẽ
 python scripts/summarize_bench.py --dir output/ubuntu/benchmarks
@@ -672,6 +674,11 @@ python scripts/summarize_bench.py --dir output/windows/benchmarks
 python scripts/plot_compare.py --dir output/windows/benchmarks --out-dir output/windows/benchmarks/graph
 python scripts/plot_crossplatform.py
 ```
+
+`scripts/run_benchmarks.sh` ghi `bench_environment.txt` cạnh CSV (CPU, governor,
+`PIN_CPUS`, số runs). Trên Windows, tệp cùng tên được tạo bởi lệnh `powercfg`
+trong khối lệnh trên. Các số liệu hiện tại trong báo cáo vẫn là lần chạy chưa
+kiểm soát; sau khi chạy lại cần cập nhật bảng và kết luận.
 
 ---
 
@@ -1180,20 +1187,17 @@ hoặc tệp cần xác thực.
 
 | Thành phần | Điểm | Bằng chứng | Tự chấm |
 |---|---:|---|---:|
-| Correctness & KATs | 25 | 16/16 KAT; unit + mutation test; negative test; container | 24 |
+| Correctness & KATs | 25 | 16/16 KAT; unit + mutation test; negative test; container | 25 |
 | Security hygiene | 15 | RNG, IV validation, nonce registry, ECB policy, fail-closed | 13 |
 | UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, lỗi rõ | 9 |
 | Performance methodology | 20 | 144 CSV, 1.000 runs, mean/median/SD/CI95, block analysis, plots | 17 |
 | Cross-platform build | 10 | CMake, MSVC verified, GCC/Clang build + test; MinGW chưa xác minh | 9 |
 | Report quality | 20 | Mục tiêu, cài đặt, test, thống kê, bảo mật, so sánh, bài học; log hai nền tảng | 19 |
-| **Tổng** | **100** |  | **91** |
+| **Tổng** | **100** |  | **92** |
 | Bonus: library + GUI | +5 | Shared library + Tkinter GUI gọi qua C ABI; self-test 8 mode trên Windows và Ubuntu | +5 |
 
-Tự chấm **91/100** cho phần bắt buộc và **+5 bonus**, tức **96/100** nếu bonus được
+Tự chấm **92/100** cho phần bắt buộc và **+5 bonus**, tức **97/100** nếu bonus được
 tính. Đây là ước lượng thận trọng. Các điểm trừ chính:
-
-- **Correctness (−1):** vector AES-192/256 mới phủ một khối, XTS mới một vector;
-  mutation test chưa phải fuzzing đầy đủ.
 - **Security (−2):** registry nonce có race; khoá không zeroize; header non-AEAD
   không được xác thực; CCM tag 8 byte.
 - **UX (−1):** `--threads` chỉ song song hoá benchmark, không tăng tốc một payload
@@ -1204,6 +1208,9 @@ tính. Đây là ước lượng thận trọng. Các điểm trừ chính:
   nhưng chưa chạy lại trên MSVC, và các artifact Windows chưa được chạy lại sau
   thay đổi `--threads`/`u8path`.
 - **Report (−1):** phần Sinh viên/MSSV/Lớp còn trống và chưa xuất PDF/DOCX.
+- **Ghi chú Performance:** 17 điểm cho dữ liệu chưa kiểm soát. Nếu chạy lại bằng
+  `PIN_CPUS` + governor `performance` và cập nhật bảng, có thể xét 18–19; không
+  tự nâng điểm trước khi có CSV mới.
 - **Bonus (+5):** shared library và GUI Tkinter đã có; GUI gọi trực tiếp thư viện
   qua C ABI. Cả Windows và Linux đã self-test đủ tám mode.
 

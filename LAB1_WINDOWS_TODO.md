@@ -135,22 +135,29 @@ already be rejected as a reuse.
 ## 7. Benchmarks (only if you need numbers from the current binary)
 
 Default `--threads` is 1, so the benchmark methodology is unchanged. Re-running
-is optional unless the report should use timings from the rebuilt binary:
+is optional unless the report should use timings from the rebuilt binary. For a
+controlled run, set a fixed power plan and pin the process tree:
 
 ```bat
-scripts\run_benchmarks.bat msvc
+powercfg /setactive SCHEME_MIN
+powercfg /getactivescheme > output\windows\benchmarks\bench_environment.txt
+start /affinity FF /wait cmd /c scripts\run_benchmarks.bat msvc
 python scripts\summarize_bench.py --dir output\windows\benchmarks
 python scripts\plot_compare.py --dir output\windows\benchmarks --out-dir output\windows\benchmarks\graph
 ```
 
-This overwrites the 48 Windows CSVs and summaries. Then regenerate the
-cross-platform tables/plots from the repository root:
+`SCHEME_MIN` is the High performance alias; use the GUID from
+`powercfg /list` if your machine uses another scheme. `FF` pins eight logical
+CPUs; adjust the affinity mask for the host. Then regenerate the cross-platform
+tables/plots from the repository root:
 
 ```bat
 python scripts\plot_crossplatform.py
 ```
 
-Do not mix old and new CSVs in one summary.
+This overwrites the 48 Windows CSVs and summaries. Do not mix old and new CSVs in
+one summary. If only the old CSVs are used, keep the existing "uncontrolled
+host" limitation in the report.
 
 ## 8. Optional: MinGW GCC/Clang (closes the last cross-platform gap)
 

@@ -11,6 +11,7 @@ output/
   ubuntu/
     benchmarks/          bench_ubuntu_gcc_*.csv, bench_ubuntu_clang_*.csv
                          summary.csv, summary_tag_overhead.csv, summary_classes.csv
+                         bench_environment.txt (controlled-run metadata)
                          graph/  (7 comparison PNGs)
     key_bin/             key and payload files used by the CLI tests
     test_results/        kat_gcc.txt, kat_clang.txt, ctest_*.txt,
@@ -19,6 +20,7 @@ output/
   windows/
     benchmarks/          bench_windows_msvc_*.csv + summaries
                          benchmark matrix for the MSVC build
+                         bench_environment.txt (power plan, if recorded)
                          graph/  (7 comparison PNGs)
     key_bin/             key.bin used for the Windows run
     test_results/        kat_msvc.txt, ctest_msvc.txt, gui_selftest.txt,
