@@ -1,0 +1,2 @@
+$ aestool decrypt --mode ecb --key key.bin --in rt_ecb.bin --out rt_ecb.txt --allow-ecb
+WARNING: ECB mode has no semantic security and leaks plaintext structure.

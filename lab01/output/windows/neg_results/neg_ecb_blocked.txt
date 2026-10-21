@@ -1,0 +1,3 @@
+$ aestool encrypt --mode ecb --key key.bin --in large.bin --out ecb.bin
+WARNING: ECB mode has no semantic security and leaks plaintext structure.
+error: ECB is blocked for payloads larger than 16 KiB; pass --allow-ecb to override

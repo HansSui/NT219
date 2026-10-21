@@ -1,0 +1,1 @@
+$ aestool decrypt --mode gcm --aead --key key.bin --in gcm.bin --out gcm.out

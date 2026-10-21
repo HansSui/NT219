@@ -1,0 +1,1 @@
+$ aestool decrypt --mode cbc --key key.bin --in rt_cbc.bin --out rt_cbc.txt

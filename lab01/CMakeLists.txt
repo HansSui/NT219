@@ -33,7 +33,7 @@ endif()
 message(STATUS "Crypto++ headers: ${CRYPTOPP_INCLUDE_DIR}")
 message(STATUS "Crypto++ library: ${CRYPTOPP_LIBRARY}")
 
-add_library(aescore src/aescore.cpp)
+add_library(aescore src/aescore.cpp src/aesgui.cpp)
 target_include_directories(aescore
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src"
     PUBLIC "${CRYPTOPP_INCLUDE_DIR}")
@@ -71,3 +71,4 @@ if(BUILD_TESTING)
 endif()
 
 install(TARGETS aestool aescore RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+install(FILES src/aesgui.h DESTINATION include)

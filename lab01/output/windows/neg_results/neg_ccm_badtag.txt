@@ -1,0 +1,2 @@
+$ aestool decrypt --mode ccm --aead --key key.bin --in ccm_badtag.bin --out ccm_bad.out
+error: authentication failed: HashVerificationFilter: message hash or MAC not valid

@@ -1,0 +1,2 @@
+$ aestool decrypt --mode cbc --key key.bin --in cbc_tampered.bin --out cbc_tampered.out
+error: StreamTransformationFilter: invalid PKCS #7 block padding found

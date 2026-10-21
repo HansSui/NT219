@@ -1,0 +1,1 @@
+$ aestool encrypt --mode ctr --key key.bin --nonce 00112233445566778899aabbccddeeff --text nonce test --out ctr1.bin

@@ -1,0 +1,1 @@
+$ aestool decrypt --mode ctr --key key.bin --in rt_ctr.bin --out rt_ctr.txt

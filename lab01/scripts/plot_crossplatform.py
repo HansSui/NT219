@@ -16,7 +16,7 @@ writes comparison charts plus throughput/latency heatmaps:
 Example:
   python scripts/plot_crossplatform.py \
       --linux-dir output/ubuntu/benchmarks \
-      --windows-dir output/x64/benchmarks \
+      --windows-dir output/windows/benchmarks \
       --out-dir output/compare/graph
 """
 import argparse
@@ -403,10 +403,6 @@ def write_csv(platforms, out_path):
 
 
 def default_windows_dir(root):
-    for candidate in ("output/windows/benchmarks", "output/x64/benchmarks"):
-        path = root / candidate
-        if path.is_dir() and any(path.glob("bench_*.csv")):
-            return path
     return root / "output/windows/benchmarks"
 
 
@@ -416,7 +412,7 @@ def main():
     parser.add_argument(
         "--windows-dir",
         default=None,
-        help="default: output/windows/benchmarks, else output/x64/benchmarks",
+        help="default: output/windows/benchmarks",
     )
     parser.add_argument("--linux-label", default="Ubuntu (GCC+Clang)")
     parser.add_argument("--windows-label", default="Windows (MSVC 2026)")

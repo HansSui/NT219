@@ -1,0 +1,2 @@
+$ aestool decrypt --mode gcm --aead --key key.bin --in cbc.bin --out x.out
+error: --mode does not match the ciphertext header

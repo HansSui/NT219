@@ -1,0 +1,1 @@
+$ aestool encrypt --mode gcm --aead --key key.bin --in msg.txt --out gcm.bin

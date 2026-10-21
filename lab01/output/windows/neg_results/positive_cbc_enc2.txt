@@ -1,0 +1,1 @@
+$ aestool encrypt --mode cbc --key key.bin --iv iv.bin --in msg_cbc.txt --out cbc.bin

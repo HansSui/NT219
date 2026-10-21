@@ -9,6 +9,21 @@ default:
 - Runs: `1000` per size
 - Output: 48 CSV files per compiler/platform, each with 1000 rows
 
+## Current matrix status
+
+| Platform | Compiler | CSVs | Status |
+|---|---|---:|---|
+| Ubuntu | GCC 15.2 | 48 | measured |
+| Ubuntu | Clang 21.1.8 | 48 | measured |
+| Windows | MSVC 19.51 x64 | 48 | measured |
+| Windows | MinGW GCC/Clang | 0 | scripts supported, not run |
+
+The measured 144 CSVs and their summaries are committed under `output/`. The
+report (`REPORT.md`) adds a post-hoc 30-block confidence-interval analysis on the
+Windows rows: with 1,000 single-run samples the per-run CI95 reflects only
+within-run timer noise, not the run-to-run drift visible at block level. Keep
+that distinction when quoting CI95 from `summary.csv`.
+
 The 8 MB case processes about 8 GB for encryption and 8 GB for decryption per
 mode, so a full run takes minutes. Start with a smaller smoke run if needed.
 Each completed CSV has one header plus 1000 run rows (1001 lines). ECB prints a
@@ -93,13 +108,13 @@ Windows directory and writes comparison charts plus heatmaps:
 ```bat
 python scripts\plot_crossplatform.py ^
     --linux-dir output/ubuntu/benchmarks ^
-    --windows-dir output/x64/benchmarks ^
+    --windows-dir output/windows/benchmarks ^
     --out-dir output/compare/graph
 ```
 
-`--windows-dir` defaults to `output/windows/benchmarks` when it contains CSVs
-and falls back to `output/x64/benchmarks`. Relative paths are resolved against
-the repository root, so the script can be started from any directory.
+`--windows-dir` defaults to `output/windows/benchmarks`. Relative paths are
+resolved against the repository root, so the script can be started from any
+directory.
 
 It writes into `output/compare/graph/`:
 

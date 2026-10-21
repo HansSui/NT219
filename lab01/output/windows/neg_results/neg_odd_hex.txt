@@ -1,0 +1,2 @@
+$ aestool encrypt --mode cbc --key-hex abc --text x --out x.bin
+error: hex input has an odd number of digits

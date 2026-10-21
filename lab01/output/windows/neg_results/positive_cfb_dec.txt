@@ -1,0 +1,1 @@
+$ aestool decrypt --mode cfb --key key.bin --in rt_cfb.bin --out rt_cfb.txt

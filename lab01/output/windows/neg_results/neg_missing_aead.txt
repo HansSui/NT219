@@ -1,0 +1,2 @@
+$ aestool encrypt --mode gcm --key key.bin --text x --out x.bin
+error: mode GCM is AEAD; pass --aead

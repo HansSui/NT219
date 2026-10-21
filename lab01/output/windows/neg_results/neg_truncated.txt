@@ -1,0 +1,2 @@
+$ aestool decrypt --mode gcm --aead --key key.bin --in truncated.bin --out x.out
+error: ciphertext header lengths are out of range

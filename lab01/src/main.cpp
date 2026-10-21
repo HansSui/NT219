@@ -570,7 +570,7 @@ Options parseOptions(int argc, char** argv) {
 
 }  // namespace
 
-int main(int argc, char** argv) {
+int realMain(int argc, char** argv) {
     try {
         const Options options = parseOptions(argc, argv);
         if (options.command.empty() || options.command == "help") {
@@ -591,3 +591,54 @@ int main(int argc, char** argv) {
         return 1;
     }
 }
+
+#ifdef _WIN32
+
+// Windows passes command-line arguments in the system ANSI code page (CP_ACP),
+// which mangles non-ASCII text such as Vietnamese. Use the wide-character API
+// instead and re-encode every argument as UTF-8 so --text, --aad-text and file
+// paths keep their original UTF-8 bytes.
+#include <windows.h>
+
+extern "C" __declspec(dllimport) wchar_t ** __stdcall CommandLineToArgvW(
+    const wchar_t *cmdline, int *argc);
+
+int wmain_impl() {
+    int argc = 0;
+    LPWSTR* wargv = CommandLineToArgvW(GetCommandLineW(), &argc);
+    if (!wargv) {
+        std::cerr << "error: cannot parse command line\n";
+        return 1;
+    }
+
+    std::vector<std::string> utf8Args;
+    utf8Args.reserve(static_cast<size_t>(argc));
+    for (int i = 0; i < argc; ++i) {
+        const int len = WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, nullptr, 0,
+                                            nullptr, nullptr);
+        if (len <= 0) {
+            LocalFree(wargv);
+            std::cerr << "error: cannot convert argument " << i << " to UTF-8\n";
+            return 1;
+        }
+        std::string buf(static_cast<size_t>(len), '\0');
+        WideCharToMultiByte(CP_UTF8, 0, wargv[i], -1, &buf[0], len, nullptr, nullptr);
+        buf.pop_back();  // drop the terminating NUL that WideCharToMultiByte writes
+        utf8Args.push_back(std::move(buf));
+    }
+    LocalFree(wargv);
+
+    std::vector<char*> argvPtrs;
+    argvPtrs.reserve(utf8Args.size());
+    for (auto& s : utf8Args) argvPtrs.push_back(s.data());
+
+    return realMain(static_cast<int>(utf8Args.size()), argvPtrs.data());
+}
+
+int main() { return wmain_impl(); }
+
+#else
+
+int main(int argc, char** argv) { return realMain(argc, argv); }
+
+#endif

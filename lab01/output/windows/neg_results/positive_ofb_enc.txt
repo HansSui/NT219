@@ -1,0 +1,1 @@
+$ aestool encrypt --mode ofb --key key.bin --in msg_cbc.txt --out rt_ofb.bin

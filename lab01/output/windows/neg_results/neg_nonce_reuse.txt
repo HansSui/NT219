@@ -1,0 +1,2 @@
+$ aestool encrypt --mode ctr --key key.bin --nonce 00112233445566778899aabbccddeeff --text nonce test --out ctr2.bin
+error: nonce reuse rejected: this key and nonce were already used

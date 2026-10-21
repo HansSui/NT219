@@ -1,0 +1,1 @@
+$ aestool encrypt --mode ctr --key key.bin --in msg_cbc.txt --out rt_ctr.bin

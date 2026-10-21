@@ -1,0 +1,1 @@
+$ aestool decrypt --mode xts --key key_xts.bin --in rt_xts.bin --out rt_xts.txt

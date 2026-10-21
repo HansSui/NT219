@@ -1,0 +1,1 @@
+$ aestool encrypt --mode ccm --aead --key key.bin --nonce nonce.bin --in msg.txt --out ccm.bin

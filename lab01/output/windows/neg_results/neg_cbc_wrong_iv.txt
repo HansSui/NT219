@@ -1,0 +1,1 @@
+$ aestool decrypt --mode cbc --key key.bin --iv iv_wrong.bin --in cbc.bin --out cbc_wrongiv.out

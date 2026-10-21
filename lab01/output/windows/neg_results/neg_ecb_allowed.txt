@@ -1,0 +1,2 @@
+$ aestool encrypt --mode ecb --key key.bin --allow-ecb --in large.bin --out ecb.bin
+WARNING: ECB mode has no semantic security and leaks plaintext structure.

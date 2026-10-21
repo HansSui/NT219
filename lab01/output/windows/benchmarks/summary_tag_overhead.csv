@@ -1,0 +1,13 @@
+platform,compiler,size_bytes,size,mode,enc_overhead_us,enc_overhead_pct,dec_overhead_us,dec_overhead_pct,enc_throughput_loss_pct,dec_throughput_loss_pct
+windows,msvc,1024,1KB,GCM,2.685,54.89,4.279,87.41,28.89,47.93
+windows,msvc,1024,1KB,CCM,3.828,78.25,6.904,141.03,39.34,55.30
+windows,msvc,4096,4KB,GCM,3.507,42.98,7.879,95.53,22.50,37.17
+windows,msvc,4096,4KB,CCM,13.254,162.42,18.358,222.58,52.38,59.15
+windows,msvc,16384,16KB,GCM,8.432,35.50,12.785,55.23,27.98,35.45
+windows,msvc,16384,16KB,CCM,32.824,138.20,36.813,159.02,59.43,62.05
+windows,msvc,262144,256KB,GCM,141.344,43.87,108.448,33.37,30.38,26.05
+windows,msvc,262144,256KB,CCM,547.057,169.79,543.595,167.28,63.30,62.70
+windows,msvc,1048576,1MB,GCM,878.013,81.11,589.254,55.49,46.59,37.29
+windows,msvc,1048576,1MB,CCM,2112.229,195.11,2117.423,199.40,68.12,68.61
+windows,msvc,8388608,8MB,GCM,10141.639,83.18,7043.025,57.15,45.64,35.90
+windows,msvc,8388608,8MB,CCM,16577.371,135.97,16818.669,136.47,59.36,59.13

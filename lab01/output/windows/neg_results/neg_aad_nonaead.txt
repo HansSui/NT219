@@ -1,0 +1,2 @@
+$ aestool encrypt --mode cbc --key key.bin --aad-text x --text x --out x.bin
+error: AAD is only valid with ccm or gcm

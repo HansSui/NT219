@@ -1,0 +1,1 @@
+$ aestool decrypt --mode ofb --key key.bin --in rt_ofb.bin --out rt_ofb.txt
