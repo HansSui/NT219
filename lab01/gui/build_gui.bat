@@ -39,13 +39,13 @@ if not defined CRYPTOPP_ARGS (
 set "ARCH_ARG=-A x64"
 echo %CMAKE_GENERATOR% | findstr /b /c:"Visual Studio" >nul || set "ARCH_ARG="
 
-"%CMAKE_EXE%" -S . -B build_gui -G "%CMAKE_GENERATOR%" %ARCH_ARG% ^
+"%CMAKE_EXE%" -S . -B build\windows-msvc-shared -G "%CMAKE_GENERATOR%" %ARCH_ARG% ^
       -DBUILD_SHARED_LIBS=ON ^
       %CRYPTOPP_ARGS% || exit /b 1
-"%CMAKE_EXE%" --build build_gui --config Release || exit /b 1
+"%CMAKE_EXE%" --build build\windows-msvc-shared --config Release || exit /b 1
 
 echo.
 echo Built the shared library. Expected path:
-echo     build_gui\Release\aescore.dll
+echo     build\windows-msvc-shared\Release\aescore.dll
 echo Run the GUI with:
 echo     gui\run_gui.bat

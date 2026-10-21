@@ -42,8 +42,8 @@ set CRYPTOPP_ROOT=C:\vcpkg\installed\x64-windows
 gui\build_gui.bat
 ```
 
-Expected output: `build_gui\Release\aescore.dll` (Visual Studio generator) or
-`build_gui\aescore.dll` (Ninja).
+Expected output: `build\windows-msvc-shared\Release\aescore.dll` (Visual Studio
+generator) or `build\windows-msvc-shared\aescore.dll` (Ninja).
 
 ### Linux
 
@@ -56,7 +56,8 @@ cd lab01
 ```
 
 `python3-tk` is only needed to display the window; `--self-test` works without
-it as long as `import tkinter` succeeds. Expected output: `build_gui/libaescore.so`.
+it as long as `import tkinter` succeeds. Expected output:
+`build/ubuntu-gcc-shared/libaescore.so`.
 
 If you link a self-built static Crypto++ into the shared library, build Crypto++
 with `-fPIC`; distribution packages such as `libcryptopp-dev` already are.
@@ -78,9 +79,9 @@ python gui/aestool_gui.py
 python3 gui/aestool_gui.py
 ```
 
-Library discovery order: `--library PATH`, `AESGUI_LIBRARY`, then the usual
-`build_gui`, `build_ubuntu_gcc_shared`, `build_windows_msvc`,
-`build_ubuntu_gcc`, `build_ubuntu_clang` and `build` directories.
+Library discovery order: `--library PATH`, `AESGUI_LIBRARY`, then
+`build/ubuntu-gcc-shared` on Linux or `build/windows-msvc-shared` on Windows,
+followed by the `build` directory.
 
 ### Headless self-test
 

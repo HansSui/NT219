@@ -35,6 +35,14 @@ scripts/
   plot_crossplatform.py Windows-vs-Linux charts, ratios and heatmaps
   summarize_bench.py    mean/median/SD/CI95 tables and class/tag summaries
   plot_bench.py         throughput/latency plots from one benchmark CSV
+build/                  CMake build trees (gitignored):
+  ubuntu-gcc/           Ubuntu GCC CLI
+  ubuntu-clang/         Ubuntu Clang CLI
+  ubuntu-gcc-shared/    Ubuntu shared library for the GUI
+  windows-msvc/         Windows MSVC CLI
+  windows-msvc-shared/  Windows shared library for the GUI
+  windows-gcc/          MinGW GCC CLI
+  windows-clang/        MinGW Clang CLI
 output/
   ubuntu/benchmarks/    GCC + Clang benchmark CSVs, summaries and graph/
   windows/benchmarks/   MSVC benchmark CSVs, summaries and graph/
@@ -78,7 +86,7 @@ Use vcpkg:
 
 ```bat
 vcpkg install cryptopp:x64-windows
-cmake -S . -B build_windows_msvc -G "Visual Studio 18 2026" -A x64 ^
+cmake -S . -B build/windows-msvc -G "Visual Studio 18 2026" -A x64 ^
       -DCRYPTOPP_ROOT=C:\path\to\vcpkg\installed\x64-windows
 ```
 
@@ -87,7 +95,7 @@ library directly (this also works with a `cryptlib.lib` that CMake's
 `find_library` would not guess):
 
 ```bat
-cmake -S . -B build_windows_msvc -G "Visual Studio 18 2026" -A x64 ^
+cmake -S . -B build/windows-msvc -G "Visual Studio 18 2026" -A x64 ^
       -DCRYPTOPP_INCLUDE_DIR=D:/cryptolibrary/include ^
       -DCRYPTOPP_LIBRARY=D:/cryptolibrary/libs/cryptopp/msvc/cryptlib.lib
 ```
@@ -107,17 +115,16 @@ pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-cryptopp
 Out-of-source build (the required form):
 
 ```bash
-mkdir build && cd build
-cmake ..
-cmake --build .
-ctest --output-on-failure
+cmake -S . -B build/ubuntu-gcc
+cmake --build build/ubuntu-gcc
+(cd build/ubuntu-gcc && ctest --output-on-failure)
 ```
 
 Compiler-specific helper scripts:
 
 ```bash
-scripts/build_linux.sh gcc      # build_ubuntu_gcc/aestool
-scripts/build_linux.sh clang    # build_ubuntu_clang/aestool
+scripts/build_linux.sh gcc      # build/ubuntu-gcc/aestool
+scripts/build_linux.sh clang    # build/ubuntu-clang/aestool
 ```
 
 ```bat
@@ -129,8 +136,8 @@ scripts\build_windows.bat clang
 Shared-library (bonus) build:
 
 ```bash
-cmake -S . -B build_ubuntu_gcc_shared -DBUILD_SHARED_LIBS=ON
-cmake --build build_ubuntu_gcc_shared
+cmake -S . -B build/ubuntu-gcc-shared -DBUILD_SHARED_LIBS=ON
+cmake --build build/ubuntu-gcc-shared
 ```
 
 ## GUI (bonus)
@@ -204,14 +211,14 @@ aestool encrypt --mode ctr \
 Known-answer tests:
 
 ```bash
-./build_ubuntu_gcc/aestool --kat kat/vectors.json
-# PASS ... for every vector, then: 9 passed, 0 failed
+./build/ubuntu-gcc/aestool --kat kat/vectors.json
+# PASS ... for every vector, then: 16 passed, 0 failed
 ```
 
 Benchmark AES-256-GCM at 16 KiB and write one CSV row per run:
 
 ```bash
-./build_ubuntu_gcc/aestool bench --mode gcm --key key.bin --size 16384 \
+./build/ubuntu-gcc/aestool bench --mode gcm --key key.bin --size 16384 \
     --runs 1000 --out output/ubuntu/benchmarks/bench_gcc_gcm_16KB.csv
 ```
 
@@ -343,7 +350,7 @@ plaintext defaults to raw bytes.
 ## Tests
 
 ```bash
-cd build_ubuntu_gcc && ctest --output-on-failure
+cd build/ubuntu-gcc && ctest --output-on-failure
 ```
 
 The unit suite covers hex handling, all modes, XTS ciphertext stealing, AEAD

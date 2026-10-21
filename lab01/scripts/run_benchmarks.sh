@@ -7,7 +7,7 @@ cd "$root"
 
 compiler="${1:-gcc}"
 if [[ "$compiler" == "gcc" || "$compiler" == "clang" ]]; then
-    tool="$root/build_ubuntu_$compiler/aestool"
+    tool="$root/build/ubuntu-$compiler/aestool"
 else
     tool="$compiler"
     compiler="${COMPILER_NAME:-custom}"

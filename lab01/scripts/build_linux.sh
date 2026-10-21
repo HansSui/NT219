@@ -10,7 +10,7 @@ case "$compiler" in
     *)     echo "usage: $0 [gcc|clang]" >&2; exit 1 ;;
 esac
 
-build="$root/build_ubuntu_$compiler"
+build="$root/build/ubuntu-$compiler"
 args=(-S "$root" -B "$build" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER="$cxx")
 if [[ -n "${CRYPTOPP_ROOT:-}" ]]; then
     args+=(-DCRYPTOPP_ROOT="$CRYPTOPP_ROOT")

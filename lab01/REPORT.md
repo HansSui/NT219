@@ -345,13 +345,14 @@ self-test OK: E:\NT219\lab01\build_gui\Release\aescore.dll
   round-trip, header mode check and wrong-key rejection passed
 ```
 
-Nhật ký: `output/windows/test_results/gui_selftest.txt`.
+Nhật ký: `output/windows/test_results/gui_selftest.txt` (log lưu trữ trước khi
+đổi layout build; lần chạy lại dùng `build/windows-msvc-shared`).
 
 Bằng chứng trên Ubuntu:
 
 ```text
 $ python3 gui/aestool_gui.py --self-test
-self-test OK: .../build_ubuntu_gcc_shared/libaescore.so
+self-test OK: .../build/ubuntu-gcc-shared/libaescore.so
   modes tested: ECB CBC OFB CFB CTR XTS CCM GCM
   round-trip, header mode check and wrong-key rejection passed
 ```
@@ -471,7 +472,7 @@ Bộ test Catch2 trong `tests/test_core.cpp` gồm các nhóm:
 | Container | Serialize/parse; header bị cắt; magic sai |
 | Key file | File raw và file `hex:` |
 
-Trên Windows:
+Trên Windows (log lưu trữ, layout cũ):
 
 ```text
 Test project E:/NT219/lab01/build_windows_msvc
@@ -480,12 +481,13 @@ Test project E:/NT219/lab01/build_windows_msvc
 100% tests passed, 0 tests failed out of 1
 ```
 
-Nhật ký: `output/windows/test_results/ctest_msvc.txt`.
+Nhật ký: `output/windows/test_results/ctest_msvc.txt`. Lần chạy lại dùng
+`build/windows-msvc` và kỳ vọng 2/2 test.
 
 Trên Ubuntu GCC và Clang:
 
 ```text
-Test project .../build_ubuntu_gcc
+Test project .../build/ubuntu-gcc
     Start 1: aescore
 1/2 Test #1: aescore ..........................   Passed
     Start 2: cli

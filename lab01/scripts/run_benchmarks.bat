@@ -10,9 +10,9 @@ set "compiler=%~1"
 if "%compiler%"=="" set "compiler=msvc"
 
 if /i "%compiler%"=="msvc" (
-    set "tool=%root%\build_windows_msvc\Release\aestool.exe"
+    set "tool=%root%\build\windows-msvc\Release\aestool.exe"
 ) else (
-    set "tool=%root%\build_windows_%compiler%\aestool.exe"
+    set "tool=%root%\build\windows-%compiler%\aestool.exe"
 )
 if not exist "%tool%" (
     echo missing executable: %tool%

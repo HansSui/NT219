@@ -1,6 +1,6 @@
 # Windows negative / edge-case test evidence
 
-Generated from the Release MSVC build (`build_windows_msvc/Release/aestool.exe`)
+Generated from the Release MSVC build (`build/windows-msvc/Release/aestool.exe`)
 with a 32-byte AES-256 key and a UTF-8 Vietnamese plaintext. Each case has a
 captured command log in this directory. The `.aestool_nonces` registry used by
 the nonce-reuse case was created in a temporary working directory, not in the

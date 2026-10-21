@@ -1,6 +1,6 @@
 # Ubuntu negative / edge-case test evidence
 
-Generated from the Release GCC build (`build_ubuntu_gcc/aestool`) with a random
+Generated from the Release GCC build (`build/ubuntu-gcc/aestool`) with a random
 32-byte AES-256 key (64-byte key for XTS). Each case has a captured command log
 in this directory: the command line, combined stdout/stderr and the exit code.
 The `.aestool_nonces` registry used by the nonce-reuse case was created in a

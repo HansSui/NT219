@@ -61,18 +61,18 @@ echo [msvc] cmake:     %cmake%
 echo [msvc] generator: %generator%
 if defined CRYPTOPP_ROOT echo [msvc] cryptopp:  %CRYPTOPP_ROOT%
 
-"%cmake%" -S "%root%" -B "%root%\build_windows_msvc" -G "%generator%" -A x64 %crypto_args%
+"%cmake%" -S "%root%" -B "%root%\build\windows-msvc" -G "%generator%" -A x64 %crypto_args%
 if errorlevel 1 exit /b 1
-"%cmake%" --build "%root%\build_windows_msvc" --config Release --parallel
+"%cmake%" --build "%root%\build\windows-msvc" --config Release --parallel
 if errorlevel 1 exit /b 1
-pushd "%root%\build_windows_msvc"
+pushd "%root%\build\windows-msvc"
 ctest -C Release --output-on-failure
 set "result=%errorlevel%"
 popd
 exit /b %result%
 
 :mingw
-set "build=%root%\build_windows_%compiler%"
+set "build=%root%\build\windows-%compiler%"
 if /i "%compiler%"=="gcc" set "cxx=g++"
 if /i "%compiler%"=="clang" set "cxx=clang++"
 "%cmake%" -S "%root%" -B "%build%" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=%cxx% %crypto_args%

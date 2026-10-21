@@ -2,7 +2,9 @@
 
 Everything under `output/` is measurement evidence produced by `aestool bench`
 and by the negative-test runs. Raw CSVs and summaries are kept as evidence;
-`graph/` folders are produced by the plotting scripts.
+`graph/` folders are produced by the plotting scripts. Paths recorded inside
+older logs refer to the build layout used at run time; current builds live under
+`lab01/build/` (for example `build/ubuntu-gcc/aestool`).
 
 ## Layout
 

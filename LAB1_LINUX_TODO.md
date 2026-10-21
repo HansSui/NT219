@@ -46,18 +46,18 @@ scripts/build_linux.sh clang # Clang 21.1.8 (nếu có)
 Hoặc thủ công:
 
 ```bash
-mkdir -p build_ubuntu_gcc && cd build_ubuntu_gcc
-cmake ..
+mkdir -p build/ubuntu-gcc && cd build/ubuntu-gcc
+cmake ../..
 cmake --build .
-cd ..
+cd ../..
 ```
 
-Binary sẽ xuất hiện tại: `build_ubuntu_gcc/Release/aestool` (hoặc `Debug/aestool`).
+Binary sẽ xuất hiện tại: `build/ubuntu-gcc/aestool` (CMake single-config).
 
 Kiểm tra:
 
 ```bash
-./build_ubuntu_gcc/aestool help
+./build/ubuntu-gcc/aestool help
 ```
 
 ---
@@ -67,11 +67,11 @@ Kiểm tra:
 Cần cho GUI:
 
 ```bash
-cmake -S . -B build_ubuntu_gcc_shared -DBUILD_SHARED_LIBS=ON
-cmake --build build_ubuntu_gcc_shared --config Release
+cmake -S . -B build/ubuntu-gcc-shared -DBUILD_SHARED_LIBS=ON
+cmake --build build/ubuntu-gcc-shared --config Release
 ```
 
-Thư viện mong đợi: `build_ubuntu_gcc_shared/libaescore.so` (CMake single-config;
+Thư viện mong đợi: `build/ubuntu-gcc-shared/libaescore.so` (CMake single-config;
 với generator multi-config thì nằm trong `Release/`).
 
 ---
@@ -81,7 +81,7 @@ với generator multi-config thì nằm trong `Release/`).
 ### 3.1 KAT (Known Answer Tests)
 
 ```bash
-./build_ubuntu_gcc/aestool --kat kat/vectors.json
+./build/ubuntu-gcc/aestool --kat kat/vectors.json
 ```
 
 Kết quả mong đợi:
@@ -96,27 +96,34 @@ PASS NIST GCM AES-128 test case 3
 PASS NIST GCM AES-128 test case 4 with AAD
 PASS RFC 3610 CCM packet vector 1
 PASS RFC 3610 CCM packet vector 2
-9 passed, 0 failed
+PASS NIST SP 800-38A AES-192 ECB (first block)
+PASS NIST SP 800-38A AES-192 CBC (first block)
+PASS NIST SP 800-38A AES-192 CTR (first block)
+PASS NIST SP 800-38A AES-256 ECB (first block)
+PASS NIST SP 800-38A AES-256 CBC (first block)
+PASS NIST SP 800-38A AES-256 CTR (first block)
+PASS IEEE P1619/D16 XTS-AES-128 vector 1
+16 passed, 0 failed
 ```
 
 Lưu log:
 
 ```bash
-./build_ubuntu_gcc/aestool --kat kat/vectors.json | tee output/ubuntu/test_results/kat_gcc.txt
+./build/ubuntu-gcc/aestool --kat kat/vectors.json | tee output/ubuntu/test_results/kat_gcc.txt
 ```
 
 ### 3.2 Unit test (Catch2 + ctest)
 
 ```bash
-cd build_ubuntu_gcc && ctest --output-on-failure
-cd ..
+cd build/ubuntu-gcc && ctest --output-on-failure
+cd ../..
 ```
 
 Lưu log:
 
 ```bash
-cd build_ubuntu_gcc && ctest --output-on-failure | tee ../output/ubuntu/test_results/ctest_gcc.txt
-cd ..
+cd build/ubuntu-gcc && ctest --output-on-failure | tee ../../output/ubuntu/test_results/ctest_gcc.txt
+cd ../..
 ```
 
 Mong đợi: `2/2 tests passed` (suite `aescore` + CLI test `cli`).
@@ -200,7 +207,7 @@ python gui/aestool_gui.py --self-test
 Kết quả mong đợi:
 
 ```text
-self-test OK: build_ubuntu_gcc_shared/Release/libaescore.so
+self-test OK: build/ubuntu-gcc-shared/libaescore.so
   modes tested: ECB CBC OFB CFB CTR XTS CCM GCM
   round-trip, header mode check and wrong-key rejection passed
 ```
@@ -304,12 +311,12 @@ scripts/build_linux.sh gcc
 scripts/build_linux.sh clang
 
 # KAT
-./build_ubuntu_gcc/aestool --kat kat/vectors.json | tee output/ubuntu/test_results/kat_gcc.txt
-./build_ubuntu_clang/aestool --kat kat/vectors.json | tee output/ubuntu/test_results/kat_clang.txt
+./build/ubuntu-gcc/aestool --kat kat/vectors.json | tee output/ubuntu/test_results/kat_gcc.txt
+./build/ubuntu-clang/aestool --kat kat/vectors.json | tee output/ubuntu/test_results/kat_clang.txt
 
 # ctest
-(cd build_ubuntu_gcc && ctest --output-on-failure) | tee output/ubuntu/test_results/ctest_gcc.txt
-(cd build_ubuntu_clang && ctest --output-on-failure) | tee output/ubuntu/test_results/ctest_clang.txt
+(cd build/ubuntu-gcc && ctest --output-on-failure) | tee output/ubuntu/test_results/ctest_gcc.txt
+(cd build/ubuntu-clang && ctest --output-on-failure) | tee output/ubuntu/test_results/ctest_clang.txt
 
 # Benchmark
 scripts/run_benchmarks.sh gcc
