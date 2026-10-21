@@ -1,0 +1,3 @@
+$ aestool decrypt --mode ctr --key key_wrong.bin --in ctr_wrongkey.bin --out ctr_wrongkey.out
+exit=0
+corrupted=true

@@ -1,0 +1,4 @@
+$ aestool decrypt --mode gcm --aead --key key_wrong.bin --in gcm.bin --out gcm_wrongkey.out
+error: authentication failed: HashVerificationFilter: message hash or MAC not valid
+exit=1
+output_created=false

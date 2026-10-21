@@ -13,9 +13,14 @@ printf 'round trip payload' > plain.txt
 "$tool" decrypt --mode cbc --key key.bin --in ct.bin --out out.txt
 cmp plain.txt out.txt
 
+mkdir -p "thư mục"
+"$tool" encrypt --mode cbc --key key.bin --in plain.txt --out "thư mục/ct.bin"
+"$tool" decrypt --mode cbc --key key.bin --in "thư mục/ct.bin" --out "thư mục/out.txt"
+cmp plain.txt "thư mục/out.txt"
+
 nonce=00112233445566778899aabbccddeeff
 "$tool" encrypt --mode ctr --key key.bin --iv "$nonce" --text first --out first.bin
-if "$tool" encrypt --mode gcm --aead --key key.bin --nonce "$nonce" --text second \
+if "$tool" encrypt --mode ctr --key key.bin --iv "$nonce" --text second \
         --out second.bin 2>/dev/null; then
     echo "nonce reuse was not rejected" >&2
     exit 1
@@ -30,6 +35,13 @@ fi
 head -c 8 /dev/urandom > short.iv
 if "$tool" encrypt --mode cbc --key key.bin --iv short.iv --text data --out bad.bin 2>/dev/null; then
     echo "short IV was accepted" >&2
+    exit 1
+fi
+
+"$tool" bench --mode ctr --key key.bin --size 1024 --runs 8 --warmup 0 \
+    --threads 2 --out bench.csv >/dev/null
+if [[ "$(wc -l < bench.csv)" -ne 9 ]]; then
+    echo "threaded bench did not write one row per run" >&2
     exit 1
 fi
 

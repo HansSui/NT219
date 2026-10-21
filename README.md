@@ -8,6 +8,7 @@ CMake, and uses Crypto++ for the cryptographic primitives.
 ```
 NT219/
   README.md           this file
+  LAB1_WINDOWS_TODO.md Windows-only verification steps still to run
   docs/               course brief, objectives and execution guides
   lab01/              Lab 1 - symmetric encryption CLI (aestool)
 ```

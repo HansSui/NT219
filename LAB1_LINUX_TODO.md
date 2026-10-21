@@ -7,7 +7,7 @@
 ## 0. Chuẩn bị môi trường
 
 ```bash
-cd E:\NT219\lab01   # hoặc /path/to/NT219/lab01
+cd /path/to/NT219/lab01
 ```
 
 ### Cài đặt dependency
@@ -71,7 +71,8 @@ cmake -S . -B build_ubuntu_gcc_shared -DBUILD_SHARED_LIBS=ON
 cmake --build build_ubuntu_gcc_shared --config Release
 ```
 
-Thư viện mong đợi: `build_ubuntu_gcc_shared/Release/libaescore.so`
+Thư viện mong đợi: `build_ubuntu_gcc_shared/libaescore.so` (CMake single-config;
+với generator multi-config thì nằm trong `Release/`).
 
 ---
 
@@ -118,7 +119,7 @@ cd build_ubuntu_gcc && ctest --output-on-failure | tee ../output/ubuntu/test_res
 cd ..
 ```
 
-Mong đợi: `1/1 tests passed` (suite `aescore`).
+Mong đợi: `2/2 tests passed` (suite `aescore` + CLI test `cli`).
 
 ### 3.3 Kiểm thử âm (negative tests)
 
@@ -128,6 +129,9 @@ Chạy thủ công các trường hợp và lưu log vào `output/ubuntu/neg_res
 |---|---|---|
 | GCM sai khoá | `aestool decrypt --mode gcm --aead --key-hex ...` | exit 1, `authentication failed` |
 | GCM sửa tag | sửa 1 byte tag rồi decrypt | exit 1, không tạo output |
+| GCM sửa ciphertext | sửa 1 byte ciphertext rồi decrypt | exit 1, không tạo output |
+| CTR sai khoá | decrypt CTR với key khác | exit 0, plaintext hỏng |
+| CTR sửa ciphertext | sửa 1 byte ciphertext rồi decrypt | exit 0, plaintext hỏng |
 | CBC sai IV | sửa IV trong header | exit 0, plaintext hỏng |
 | IV ngắn 8 byte | `--iv 0001020304050607` | exit 1, `invalid IV/nonce length` |
 | ECB > 16 KiB | `--mode ecb` payload > 16384 byte | exit 1, `ECB is blocked` |
@@ -147,6 +151,9 @@ Ma trận đầy đủ: 8 mode × 6 kích thước × 1000 lần chạy = 48 CSV
 scripts/run_benchmarks.sh gcc
 scripts/run_benchmarks.sh clang
 ```
+
+`--threads N` (mặc định 1) chạy song song các lần đo trong `aestool bench`. Giữ
+mặc định khi lấy số liệu báo cáo vì N > 1 có tranh chấp luồng.
 
 Output: `output/ubuntu/benchmarks/bench_ubuntu_gcc_<mode>_<size>.csv`
 
@@ -270,17 +277,17 @@ pandoc lab01/REPORT.md -o lab01/REPORT.docx
 
 | Mục | Trạng thái |
 |---|---|
-| Build GCC (static) | ☐ |
-| Build Clang (static) | ☐ |
-| Build shared library | ☐ |
-| KAT 9/9 | ☐ |
-| ctest 1/1 | ☐ |
-| Negative tests (Ubuntu) | ☐ |
-| Benchmark 48 CSV (GCC) | ☐ |
-| Benchmark 48 CSV (Clang) | ☐ |
-| summary.csv / tag overhead / classes | ☐ |
-| Đồ thị Ubuntu (7 PNG) | ☐ |
-| GUI self-test | ☐ |
+| Build GCC (static) | ☑ |
+| Build Clang (static) | ☑ |
+| Build shared library | ☑ |
+| KAT 16/16 | ☑ |
+| ctest 2/2 | ☑ |
+| Negative tests (Ubuntu) | ☑ |
+| Benchmark 48 CSV (GCC) | ☑ |
+| Benchmark 48 CSV (Clang) | ☑ |
+| summary.csv / tag overhead / classes | ☑ |
+| Đồ thị Ubuntu (7 PNG) | ☑ |
+| GUI self-test | ☑ |
 | Điền Sinh viên / MSSV / Lớp | ☐ |
 | Xuất PDF/DOCX | ☐ |
 | Đóng gói `MSV.All6labs.rar` | ☐ |
@@ -290,32 +297,30 @@ pandoc lab01/REPORT.md -o lab01/REPORT.docx
 ## 9. Lệnh tắt (copy-paste)
 
 ```bash
-cd /d E:\NT219\lab01   # hoặc cd /path/to/NT219/lab01
+cd /path/to/NT219/lab01
 
 # Build
 scripts/build_linux.sh gcc
 scripts/build_linux.sh clang
 
 # KAT
-./build_ubuntu_gcc/aestool --kat kat\vectors.json | tee output\ubuntu\test_results\kat_gcc.txt
-./build_ubuntu_clang/aestool --kat kat\vectors.json | tee output\ubuntu\test_results\kat_clang.txt
+./build_ubuntu_gcc/aestool --kat kat/vectors.json | tee output/ubuntu/test_results/kat_gcc.txt
+./build_ubuntu_clang/aestool --kat kat/vectors.json | tee output/ubuntu/test_results/kat_clang.txt
 
 # ctest
-cd build_ubuntu_gcc && ctest --output-on-failure | tee ../output\ubuntu\test_results\ctest_gcc.txt
-cd ..
-cd build_ubuntu_clang && ctest --output-on-failure | tee ../output\ubuntu\test_results\ctest_clang.txt
-cd ..
+(cd build_ubuntu_gcc && ctest --output-on-failure) | tee output/ubuntu/test_results/ctest_gcc.txt
+(cd build_ubuntu_clang && ctest --output-on-failure) | tee output/ubuntu/test_results/ctest_clang.txt
 
 # Benchmark
-scripts\run_benchmarks.sh gcc
-scripts\run_benchmarks.sh clang
+scripts/run_benchmarks.sh gcc
+scripts/run_benchmarks.sh clang
 
 # Thống kê + đồ thị
-python scripts\summarize_bench.py --dir output\ubuntu\benchmarks
-python scripts\plot_compare.py --dir output\ubuntu\benchmarks --out-dir output\ubuntu\benchmarks\graph
+python3 scripts/summarize_bench.py --dir output/ubuntu/benchmarks
+python3 scripts/plot_compare.py --dir output/ubuntu/benchmarks --out-dir output/ubuntu/benchmarks/graph
 
 # GUI
-python gui\aestool_gui.py --self-test
+python3 gui/aestool_gui.py --self-test
 ```
 
 ---

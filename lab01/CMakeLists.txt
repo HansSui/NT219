@@ -48,8 +48,10 @@ if(CRYPTOPP_LIBRARY MATCHES "cryptopp-static")
     target_compile_definitions(aescore PUBLIC CRYPTOPP_STATIC_LIBRARY)
 endif()
 
+find_package(Threads REQUIRED)
+
 add_executable(aestool src/main.cpp)
-target_link_libraries(aestool PRIVATE aescore)
+target_link_libraries(aestool PRIVATE aescore Threads::Threads)
 
 if(MSVC)
     target_compile_options(aescore PRIVATE /W4)
@@ -65,7 +67,12 @@ if(BUILD_TESTING)
     target_include_directories(test_core PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests")
     target_link_libraries(test_core PRIVATE aescore)
     add_test(NAME aescore COMMAND test_core)
-    if(UNIX)
+    if(WIN32)
+        add_test(NAME cli COMMAND "${CMAKE_COMMAND}"
+                 "-DTOOL=$<TARGET_FILE:aestool>"
+                 "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/cli_test"
+                 -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_test.cmake")
+    else()
         add_test(NAME cli COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/tests/cli_test.sh" $<TARGET_FILE:aestool>)
     endif()
 endif()

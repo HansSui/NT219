@@ -1,0 +1,4 @@
+$ aestool decrypt --mode cbc --key key.bin --in truncated.bin --out truncated.out
+error: input is too short to contain an aestool header
+exit=1
+output_created=false

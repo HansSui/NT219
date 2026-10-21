@@ -1,0 +1,8 @@
+OS      : Ubuntu 26.04.1 LTS
+Kernel  : Linux 7.0.0-38-generic x86_64 GNU/Linux
+CPU     : 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+Cores   : 8 logical
+GCC     : g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+Clang   : Ubuntu clang version 21.1.8 (6ubuntu1)
+CMake   : cmake version 4.2.3
+Crypto++: 890 (static, /usr/local)

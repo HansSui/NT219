@@ -1,0 +1,3 @@
+$ aestool encrypt --mode xts --key key_xts.bin --text 0123456789 --out xts.bin
+error: XTS requires at least 16 bytes
+exit=1

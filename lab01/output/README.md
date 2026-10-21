@@ -13,7 +13,9 @@ output/
                          summary.csv, summary_tag_overhead.csv, summary_classes.csv
                          graph/  (7 comparison PNGs)
     key_bin/             key and payload files used by the CLI tests
-    neg_results/         captured output of the negative tests
+    test_results/        kat_gcc.txt, kat_clang.txt, ctest_*.txt,
+                         gui_selftest.txt, environment.txt
+    neg_results/         captured output of the negative tests + SUMMARY.md
   windows/
     benchmarks/          bench_windows_msvc_*.csv + summaries
                          benchmark matrix for the MSVC build

@@ -19,6 +19,7 @@ fi
 
 runs="${RUNS:-1000}"
 warmup="${WARMUP:-1}"
+threads="${THREADS:-1}"
 platform="${PLATFORM:-ubuntu}"
 out="${OUT:-output/$platform/benchmarks}"
 key="${KEY:-output/$platform/key_bin/key.bin}"
@@ -34,6 +35,7 @@ fi
 log="$out/bench.log"
 echo "tool:  $tool"
 echo "runs:  $runs per mode/size"
+echo "threads: $threads"
 echo "modes: $modes"
 echo "sizes: $sizes"
 echo "out:   $out"
@@ -55,7 +57,7 @@ for mode in $modes; do
         label="$(size_label "$size")"
         csv="$out/bench_${platform}_${compiler}_${mode}_${label}.csv"
         args=(bench --mode "$mode" --key "$key" --size "$size" --runs "$runs"
-              --warmup "$warmup" --out "$csv")
+              --warmup "$warmup" --threads "$threads" --out "$csv")
         [[ "$mode" == "ecb" ]] && args+=(--allow-ecb)
         echo "benchmarking $mode $label ($runs runs)"
         if ! "$tool" "${args[@]}" >/dev/null 2>>"$log"; then

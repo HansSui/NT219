@@ -3,7 +3,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 rem Run the full benchmark matrix: every mode x every required size.
 rem Usage: run_benchmarks.bat [msvc|gcc|clang]
-rem Optional environment: RUNS WARMUP SIZES MODES PLATFORM OUT KEY PLOT
+rem Optional environment: RUNS WARMUP THREADS SIZES MODES PLATFORM OUT KEY PLOT
 
 set "root=%~dp0.."
 set "compiler=%~1"
@@ -26,6 +26,10 @@ set "runs=%RUNS%"
 if "%runs%"=="" set "runs=1000"
 set "warmup=%WARMUP%"
 if "%warmup%"=="" set "warmup=1"
+set "threads=%THREADS%"
+if "%threads%"=="" set "threads=1"
+set "thread_arg="
+if not "%threads%"=="1" set "thread_arg=--threads %threads%"
 set "out=%OUT%"
 if "%out%"=="" set "out=%root%\output\%platform%\benchmarks"
 set "key=%KEY%"
@@ -54,6 +58,7 @@ if not exist "%key%" (
 echo tool:    %tool%
 echo runs:    %runs% per mode/size
 echo warmup:  %warmup%s
+echo threads: %threads%
 echo modes:   %modes%
 echo sizes:   %sizes%
 echo out:     %out%
@@ -73,7 +78,7 @@ for %%M in (%modes%) do (
         if /i "%%M"=="ecb" set "extra=--allow-ecb"
 
         echo benchmarking %%M !label! - %runs% runs
-        "%tool%" bench --mode %%M --key "%key%" --size %%S --runs %runs% --warmup %warmup% --out "%out%\bench_%platform%_%compiler%_%%M_!label!.csv" !extra! >nul 2>>"%out%\bench.log"
+        "%tool%" bench --mode %%M --key "%key%" --size %%S --runs %runs% --warmup %warmup% %thread_arg% --out "%out%\bench_%platform%_%compiler%_%%M_!label!.csv" !extra! >nul 2>>"%out%\bench.log"
         if errorlevel 1 (
             echo failed: %out%\bench_%platform%_%compiler%_%%M_!label!.csv ^(see %out%\bench.log^)
             exit /b 1

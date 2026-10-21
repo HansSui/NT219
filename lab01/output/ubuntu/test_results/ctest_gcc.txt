@@ -1,0 +1,9 @@
+Test project /home/han-sui/Downloads/NT219/lab01/build_ubuntu_gcc
+    Start 1: aescore
+1/2 Test #1: aescore ..........................   Passed    0.01 sec
+    Start 2: cli
+2/2 Test #2: cli ..............................   Passed    0.04 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.04 sec

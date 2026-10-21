@@ -19,6 +19,8 @@ src/
 tests/
   catch.hpp             Catch2 v2.13.10 single header (vendored)
   test_core.cpp         unit tests
+  cli_test.sh           CLI smoke test (Unix)
+  cli_test.cmake        CLI smoke test (Windows)
 kat/vectors.json        NIST SP 800-38A, NIST GCM and RFC 3610 CCM vectors
 gui/
   aestool_gui.py        Tkinter GUI calling aescore through ctypes
@@ -167,7 +169,8 @@ aestool decrypt --mode MODE [--in FILE | --text HEX] [--out FILE]
                 [--encode hex|base64|raw] [--allow-ecb] [--verbose]
 
 aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
-              [--runs N] [--warmup SECONDS] [--out CSV] [--allow-ecb]
+              [--runs N] [--warmup SECONDS] [--threads N] [--out CSV]
+              [--allow-ecb]
 
 aestool --kat vectors.json
 ```
@@ -211,6 +214,10 @@ Benchmark AES-256-GCM at 16 KiB and write one CSV row per run:
 ./build_ubuntu_gcc/aestool bench --mode gcm --key key.bin --size 16384 \
     --runs 1000 --out output/ubuntu/benchmarks/bench_gcc_gcm_16KB.csv
 ```
+
+`--threads N` (default 1) measures runs on N worker threads. It is only used by
+`bench`; the single-payload `encrypt` and `decrypt` commands stay single-threaded.
+Timings at N > 1 include thread contention, so keep the default for report data.
 
 Run the full matrix (8 modes x 6 sizes x 1000 runs):
 
@@ -310,7 +317,8 @@ plaintext defaults to raw bytes.
   The core accepts 7..13-byte CCM nonces, so the KAT vectors with 13-byte nonces
   work, but the CLI auto-generates 12-byte nonces.
 - The nonce reuse registry is per working directory and has no file locking.
-- `--threads` is accepted for CLI compatibility but currently ignored.
+- `--threads N` parallelises benchmark runs only; `encrypt`/`decrypt` remain
+  single-threaded, and threaded benchmark timings include contention.
 - There is no password-based key derivation or key storage/rotation. Keys are
   read from files or hex.
 - The container header is not independently authenticated. For AEAD, changing
@@ -319,18 +327,18 @@ plaintext defaults to raw bytes.
 - CBC encryption uses PKCS #7 padding. A decryption oracle that exposes padding
   errors would be vulnerable to a padding-oracle attack; this CLI reports only a
   generic failure.
-- `--text` on Windows now uses the wide-character command-line API, so non-ASCII input
-  such as Vietnamese is preserved as UTF-8. `--in FILE` reads raw UTF-8 bytes and is
-  also unaffected.
-- The CLI test (`tests/cli_test.sh`) is registered with `ctest` only on Unix.
-  On Windows the CLI paths are exercised manually and the logs are kept in
-  `output/windows/neg_results/`.
+- Windows uses the wide-character command-line API for UTF-8 `--text`, and
+  `std::filesystem::u8path` for `--in`, `--out`, `--key` and other file paths,
+  so non-ASCII paths work instead of being interpreted in the ANSI code page.
+- `ctest` runs `tests/cli_test.sh` on Unix and the portable
+  `tests/cli_test.cmake` on Windows. The archived MSVC `ctest` log predates the
+  Windows CLI test; the manual logs in `output/windows/neg_results/` remain the
+  Windows CLI evidence for now.
 - The GUI stores keys in the Python process and the Tk entry widget, does not
-  zeroize them and has no key store. It decrypts only the AESL1 container. The
-  Windows build was tested; the Linux path shares the same C ABI and build
-  script but was not executed in this environment.
-- No Linux binary is checked into the repository; only the Ubuntu benchmark CSVs
-  and their summaries are kept as evidence.
+  zeroize them and has no key store. It decrypts only the AESL1 container. Both
+  Windows (MSVC) and Linux (GCC) builds were self-tested.
+- No binary is checked into the repository; build outputs are ignored. The
+  committed evidence is the benchmark CSVs, summaries, plots and test logs.
 
 ## Tests
 
@@ -340,9 +348,11 @@ cd build_ubuntu_gcc && ctest --output-on-failure
 
 The unit suite covers hex handling, all modes, XTS ciphertext stealing, AEAD
 round-trips, tag/AAD/key/IV tampering, invalid lengths, container parsing and key
-file formats. A small CLI test checks round-trip, nonce-reuse rejection, the ECB
-size limit and short-IV rejection. KAT coverage: NIST SP 800-38A
-ECB/CBC/CFB/OFB/CTR, NIST GCM test cases 3 and 4, RFC 3610 CCM vectors 1 and 2.
+file formats. A small CLI test checks round-trip through a non-ASCII path,
+nonce-reuse rejection, the ECB size limit, short-IV rejection and threaded
+benchmark row counts. Unix uses `tests/cli_test.sh`; Windows uses the portable
+`tests/cli_test.cmake`. KAT coverage: NIST SP 800-38A ECB/CBC/CFB/OFB/CTR, NIST
+GCM test cases 3 and 4, RFC 3610 CCM vectors 1 and 2.
 
 KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 
@@ -356,22 +366,22 @@ KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 | Check | Ubuntu (GCC/Clang) | Windows (MSVC 19.51 x64) | Evidence |
 |---|---|---|---|
 | Build, Release | Passed | Passed | — |
-| KAT, 9 vectors | 9/9 passed | 9/9 passed | `output/windows/test_results/kat_msvc.txt` |
-| `ctest` | Passed (earlier run, no log kept) | 1/1 passed | `output/windows/test_results/ctest_msvc.txt` |
-| CLI negative/edge cases | 6 logged cases | 17 cases + positive round-trips | `output/ubuntu/neg_results/`, `output/windows/neg_results/` |
+| KAT, 16 vectors | 16/16 passed | 9/9 archived; rerun needed | `output/*/test_results/kat_*` |
+| `ctest` | 2/2 passed (Catch2 + CLI) | 1/1 passed | `output/*/test_results/ctest_*` |
+| CLI negative/edge cases | 12 logged cases | 17 cases + positive round-trips | `output/ubuntu/neg_results/`, `output/windows/neg_results/` |
 | Benchmark | 96 CSVs (GCC + Clang) | 48 CSVs | `output/ubuntu/benchmarks/`, `output/windows/benchmarks/` |
-| GUI `--self-test` | Not run (no Linux host) | 8/8 modes, negative cases | `output/windows/test_results/gui_selftest.txt` |
+| GUI `--self-test` | 8/8 modes, negative cases | 8/8 modes, negative cases | `output/*/test_results/gui_selftest.txt` |
 
-The Windows KAT, `ctest` and negative-test logs were produced for the report and
-are committed. The Ubuntu KAT/`ctest` results were observed during the earlier
-benchmark session but no separate log file was archived in the repository; only
-the Ubuntu benchmark CSVs are retained. MinGW GCC/Clang builds are supported by
-the scripts but were not re-verified for the report.
+The Windows KAT, `ctest`, GUI and negative-test logs are committed. The Ubuntu
+logs were regenerated with GCC 15.2 and Clang 21.1.8 and are in
+`output/ubuntu/test_results/`. MinGW GCC/Clang builds are supported by the
+scripts but were not re-verified for the report. Windows-only rerun steps are in
+`../LAB1_WINDOWS_TODO.md`.
 
 ## Report and deliverables
 
 `REPORT.md` is the completed Vietnamese lab report. It covers objectives,
-implementation, the 9 KAT vectors, unit and negative tests, the Windows-vs-Ubuntu
+implementation, the 16 KAT vectors, unit and negative tests, the Windows-vs-Ubuntu
 and compiler comparisons, statistical tables (mean, median, SD, CI95, CV),
 security engineering, the Tkinter GUI bonus, limitations and a self-grade table.
 The measured numbers come from the 144 CSVs under `output/`.

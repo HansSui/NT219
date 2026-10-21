@@ -1,0 +1,3 @@
+$ aestool encrypt --mode cbc --key key.bin --iv 0001020304050607 --text data --out short.bin
+error: invalid IV/nonce length for CBC: got 8 bytes
+exit=1

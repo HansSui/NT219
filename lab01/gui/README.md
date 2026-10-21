@@ -79,8 +79,8 @@ python3 gui/aestool_gui.py
 ```
 
 Library discovery order: `--library PATH`, `AESGUI_LIBRARY`, then the usual
-`build_gui`, `build_windows_msvc`, `build_ubuntu_gcc`, `build_ubuntu_clang` and
-`build` directories.
+`build_gui`, `build_ubuntu_gcc_shared`, `build_windows_msvc`,
+`build_ubuntu_gcc`, `build_ubuntu_clang` and `build` directories.
 
 ### Headless self-test
 
@@ -138,8 +138,8 @@ thread-local and valid until the next call on the same thread.
   from an earlier operation from breaking decryption.
 - The GUI does not call the CLI, so the CLI's local nonce-reuse registry is not
   involved. Random nonces come from the library; do not reuse an IV manually.
-- Windows was built and self-tested with MSVC 19.51 x64. The Linux path uses the
-  same Python code and C ABI and ships a build script, but was not executed in
-  this repository's environment (no Linux/WSL host available here).
+- Windows was built and self-tested with MSVC 19.51 x64; Linux was built and
+  self-tested with GCC 15.2 (`libaescore.so`). Logs are under
+  `output/windows/test_results/` and `output/ubuntu/test_results/`.
 - Tkinter is a platform widget set, so the window decoration differs between
   Windows and Linux; the layout and behaviour are the same.

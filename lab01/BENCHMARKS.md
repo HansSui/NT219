@@ -146,6 +146,7 @@ Both scripts accept environment variables:
 |---|---|---|
 | `RUNS` | `1000` | runs per CSV |
 | `WARMUP` | `1` | warm-up seconds per invocation |
+| `THREADS` | `1` | benchmark worker threads (`--threads`); keep 1 for report data |
 | `SIZES` | all six sizes | space-separated byte sizes |
 | `MODES` | all eight modes | space-separated modes |
 | `OUT` | `output/<platform>/benchmarks` | output directory |

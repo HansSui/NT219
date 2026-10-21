@@ -1,0 +1,3 @@
+self-test OK: /home/han-sui/Downloads/NT219/lab01/build_ubuntu_gcc_shared/libaescore.so
+  modes tested: ECB CBC OFB CFB CTR XTS CCM GCM
+  round-trip, header mode check and wrong-key rejection passed

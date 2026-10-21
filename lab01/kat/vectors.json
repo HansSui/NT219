@@ -89,6 +89,76 @@
       "ciphertext": "72c91a36e135f8cf291ca894085c87e3cc15c439c9e43a3b",
       "aad": "0001020304050607",
       "tag": "a091d56e10400916"
+    },
+    {
+      "name": "NIST SP 800-38A AES-192 ECB (first block)",
+      "mode": "ecb",
+      "key": "8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b",
+      "iv": "",
+      "plaintext": "6bc1bee22e409f96e93d7e117393172a",
+      "ciphertext": "bd334f1d6e45f25ff712a214571fa5cc",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST SP 800-38A AES-192 CBC (first block)",
+      "mode": "cbc",
+      "key": "8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b",
+      "iv": "000102030405060708090a0b0c0d0e0f",
+      "plaintext": "6bc1bee22e409f96e93d7e117393172a",
+      "ciphertext": "4f021db243bc633d7178183a9fa071e8",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST SP 800-38A AES-192 CTR (first block)",
+      "mode": "ctr",
+      "key": "8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b",
+      "iv": "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+      "plaintext": "6bc1bee22e409f96e93d7e117393172a",
+      "ciphertext": "1abc932417521ca24f2b0459fe7e6e0b",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST SP 800-38A AES-256 ECB (first block)",
+      "mode": "ecb",
+      "key": "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4",
+      "iv": "",
+      "plaintext": "6bc1bee22e409f96e93d7e117393172a",
+      "ciphertext": "f3eed1bdb5d2a03c064b5a7e3db181f8",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST SP 800-38A AES-256 CBC (first block)",
+      "mode": "cbc",
+      "key": "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4",
+      "iv": "000102030405060708090a0b0c0d0e0f",
+      "plaintext": "6bc1bee22e409f96e93d7e117393172a",
+      "ciphertext": "f58c4c04d6e5f1ba779eabfb5f7bfbd6",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST SP 800-38A AES-256 CTR (first block)",
+      "mode": "ctr",
+      "key": "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4",
+      "iv": "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff",
+      "plaintext": "6bc1bee22e409f96e93d7e117393172a",
+      "ciphertext": "601ec313775789a5b7a7f504bbf3d228",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "IEEE P1619/D16 XTS-AES-128 vector 1",
+      "mode": "xts",
+      "key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "iv": "00000000000000000000000000000000",
+      "plaintext": "0000000000000000000000000000000000000000000000000000000000000000",
+      "ciphertext": "917cf69ebd68b2ec9b9fe9a3eadda692cd43d2f59598ed858c02c2652fbf922e",
+      "aad": "",
+      "tag": ""
     }
   ]
 }

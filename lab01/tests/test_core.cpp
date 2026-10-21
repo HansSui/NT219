@@ -5,6 +5,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <random>
 #include <stdexcept>
 #include <string>
 
@@ -150,6 +151,33 @@ TEST_CASE("container round-trip and malformed headers") {
 
     REQUIRE_THROWS_AS(aes::parseRecord("short"), std::runtime_error);
     REQUIRE_THROWS_AS(aes::parseRecord("XXXXX" + bytes.substr(5)), std::runtime_error);
+}
+
+TEST_CASE("container parser handles mutated input without crashing") {
+    const std::string key = key256();
+    const std::string iv = pattern(12, 0x91);
+    const auto encrypted = aes::encrypt(aes::Mode::GCM, key, iv, "mutation payload");
+    const std::string bytes =
+        aes::serialize({aes::Mode::GCM, iv, "", encrypted.tag, encrypted.ciphertext});
+
+    std::mt19937 rng(0xA35EED);
+    int rejected = 0;
+    for (int i = 0; i < 300; ++i) {
+        std::string mutated = bytes;
+        if (i % 3 == 0) {
+            mutated.resize(rng() % (mutated.size() + 1));
+        } else {
+            mutated[rng() % mutated.size()] ^= static_cast<char>(1U << (rng() % 8));
+        }
+        try {
+            const aes::Record record = aes::parseRecord(mutated);
+            (void)aes::decrypt(record.mode, key, record.iv, record.ciphertext, record.aad,
+                               record.tag);
+        } catch (const std::exception&) {
+            ++rejected;
+        }
+    }
+    REQUIRE(rejected > 0);
 }
 
 TEST_CASE("key file supports raw bytes and hex-prefixed text") {

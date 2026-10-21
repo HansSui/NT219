@@ -1,1 +1,0 @@
-WARNING: ECB mode has no semantic security and leaks plaintext structure.

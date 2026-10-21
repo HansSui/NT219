@@ -1,0 +1,3 @@
+$ aestool encrypt --mode ecb --key-hex abc --text data --out odd.bin
+error: hex input has an odd number of digits
+exit=1

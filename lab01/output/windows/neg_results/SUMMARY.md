@@ -43,6 +43,10 @@ Notes:
   matters.
 - AEAD failures leave no plaintext output file: decryption writes the output
   only after the authentication tag has been verified.
-- The CLI test in `tests/cli_test.sh` is registered by CMake only on Unix. On
-  Windows, `ctest` runs the Catch2 `aescore` suite; the cases above cover the
-  CLI policy and fail-closed behaviour manually.
+- Unix registers `tests/cli_test.sh`; Windows registers the portable
+  `tests/cli_test.cmake`. The archived MSVC `ctest` log (1/1) predates the
+  Windows CLI test, so the cases above remain the Windows CLI evidence for that
+  build.
+- Wrong-key behaviour for non-AEAD modes is covered by the Ubuntu
+  `neg_ctr_wrongkey` case (corrupted plaintext). The Windows GCM wrong-key case
+  demonstrates the fail-closed AEAD behaviour instead.

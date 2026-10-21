@@ -2,6 +2,7 @@
 #include "minijson.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <cctype>
 #include <chrono>
 #include <cmath>
@@ -10,10 +11,12 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <mutex>
 #include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace {
@@ -68,7 +71,8 @@ Usage:
                   [--aead] [--aad FILE | --aad-text STRING]
                   [--encode hex|base64|raw] [--allow-ecb] [--verbose]
   aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
-                [--runs N] [--warmup SECONDS] [--out CSV] [--allow-ecb]
+                [--runs N] [--warmup SECONDS] [--threads N] [--out CSV]
+                [--allow-ecb]
   aestool --kat vectors.json
   aestool help
 
@@ -80,18 +84,19 @@ Keys:  16/24/32 bytes (AES-128/192/256); XTS uses 32 or 64 bytes.
 [[noreturn]] void fail(const std::string& message) { throw std::runtime_error(message); }
 
 std::string readAll(const std::string& path) {
-    std::ifstream file(path, std::ios::binary);
+    // u8path converts UTF-8 arguments to the native wide path on Windows.
+    std::ifstream file(std::filesystem::u8path(path), std::ios::binary);
     if (!file.good()) fail("cannot open input file: " + path);
     return std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 }
 
 void writeAll(const std::string& path, const std::string& data) {
-    std::filesystem::path target(path);
+    std::filesystem::path target = std::filesystem::u8path(path);
     if (target.has_parent_path()) {
         std::error_code error;
         std::filesystem::create_directories(target.parent_path(), error);
     }
-    std::ofstream file(path, std::ios::binary);
+    std::ofstream file(std::filesystem::u8path(path), std::ios::binary);
     if (!file.good()) fail("cannot open output file: " + path);
     file.write(data.data(), static_cast<std::streamsize>(data.size()));
     if (!file.good()) fail("failed while writing output file: " + path);
@@ -110,7 +115,7 @@ bool looksLikeHex(const std::string& text) {
 }
 
 std::string readValueOrFile(const std::string& value) {
-    std::ifstream file(value, std::ios::binary);
+    std::ifstream file(std::filesystem::u8path(value), std::ios::binary);
     if (file.good()) {
         file.close();
         return readAll(value);
@@ -260,15 +265,16 @@ int runBench(const Options& options) {
     const std::string aad = aes::isAead(mode) ? "aestool-benchmark" : std::string();
 
     // A fresh counter-derived IV per operation keeps the benchmark free of nonce reuse.
-    std::size_t nonceCounter = 0;
+    // The atomic counter keeps that true when runs are measured on several threads.
+    std::atomic<std::size_t> nonceCounter{0};
     auto nextIv = [&]() -> std::string {
         if (mode == aes::Mode::ECB) return {};
+        const std::size_t counter = nonceCounter.fetch_add(1);
         std::string iv = baseIv;
         for (int i = 0; i < 4; ++i) {
             iv[iv.size() - 1 - static_cast<std::size_t>(i)] =
-                static_cast<char>((nonceCounter >> (8 * i)) & 0xff);
+                static_cast<char>((counter >> (8 * i)) & 0xff);
         }
-        ++nonceCounter;
         return iv;
     };
 
@@ -306,27 +312,50 @@ int runBench(const Options& options) {
         double encryptUs;
         double decryptUs;
     };
-    std::vector<Row> rows;
-    rows.reserve(runs);
+    std::vector<Row> rows(runs);
+    std::atomic<std::size_t> nextRun{0};
+    std::mutex errorMutex;
+    std::string error;
+    auto measure = [&]() {
+        try {
+            for (;;) {
+                const std::size_t run = nextRun.fetch_add(1);
+                if (run >= runs) return;
+                const std::string iv = nextIv();
+                const auto encryptStart = std::chrono::steady_clock::now();
+                const aes::Encrypted encrypted = encryptOnce(iv);
+                const auto encryptEnd = std::chrono::steady_clock::now();
+                const std::string recovered = decryptOnce(iv, encrypted);
+                const auto decryptEnd = std::chrono::steady_clock::now();
+                if (recovered != plaintext)
+                    throw std::runtime_error("benchmark round-trip self-check failed");
 
-    for (std::size_t run = 0; run < runs; ++run) {
-        const std::string iv = nextIv();
-        const auto encryptStart = std::chrono::steady_clock::now();
-        const aes::Encrypted encrypted = encryptOnce(iv);
-        const auto encryptEnd = std::chrono::steady_clock::now();
-        const std::string recovered = decryptOnce(iv, encrypted);
-        const auto decryptEnd = std::chrono::steady_clock::now();
-        if (recovered != plaintext) fail("benchmark round-trip self-check failed");
+                const double encUs =
+                    std::chrono::duration<double, std::micro>(encryptEnd - encryptStart).count();
+                const double decUs =
+                    std::chrono::duration<double, std::micro>(decryptEnd - encryptEnd).count();
+                rows[run] = {run + 1, encUs, decUs};
+            }
+        } catch (const std::exception& failure) {
+            std::lock_guard<std::mutex> lock(errorMutex);
+            if (error.empty()) error = failure.what();
+        }
+    };
 
-        const double encUs =
-            std::chrono::duration<double, std::micro>(encryptEnd - encryptStart).count();
-        const double decUs =
-            std::chrono::duration<double, std::micro>(decryptEnd - encryptEnd).count();
-        encryptUs.push_back(encUs);
-        decryptUs.push_back(decUs);
-        encryptMbps.push_back(toMbps(size, encUs));
-        decryptMbps.push_back(toMbps(size, decUs));
-        rows.push_back({run + 1, encUs, decUs});
+    const std::size_t threads =
+        options.threads > 1 ? static_cast<std::size_t>(options.threads) : 1;
+    std::vector<std::thread> pool;
+    pool.reserve(threads - 1);
+    for (std::size_t i = 1; i < threads; ++i) pool.emplace_back(measure);
+    measure();
+    for (std::thread& worker : pool) worker.join();
+    if (!error.empty()) fail(error);
+
+    for (const Row& row : rows) {
+        encryptUs.push_back(row.encryptUs);
+        decryptUs.push_back(row.decryptUs);
+        encryptMbps.push_back(toMbps(size, row.encryptUs));
+        decryptMbps.push_back(toMbps(size, row.decryptUs));
     }
 
     const Stats encStats = computeStats(encryptUs);
@@ -335,7 +364,7 @@ int runBench(const Options& options) {
     const Stats decThroughput = computeStats(decryptMbps);
 
     std::cout << "mode=" << aes::modeName(mode) << " size=" << size << " runs=" << runs
-              << " warmup=" << warmup << "s\n";
+              << " threads=" << threads << " warmup=" << warmup << "s\n";
     printStats("encrypt_us", encStats, "us");
     printStats("decrypt_us", decStats, "us");
     printStats("encrypt_MBps", encThroughput, "MB/s");
@@ -548,12 +577,12 @@ Options parseOptions(int argc, char** argv) {
                 fail("--warmup must be a number of seconds");
             }
         } else if (argument == "--threads") {
-            // shortcut: accepted for CLI compatibility; crypto operations remain single-threaded.
             try {
                 options.threads = std::stoi(takeValue());
             } catch (const std::exception&) {
-                fail("--threads must be an integer");
+                fail("--threads must be a positive integer");
             }
+            if (options.threads < 1) fail("--threads must be a positive integer");
         } else if (argument.rfind("--", 0) == 0) {
             fail("unknown option: " + argument);
         } else if (options.command.empty()) {

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <stdexcept>
@@ -222,7 +223,8 @@ std::string sha256Hex(const std::string& bytes) {
 }
 
 std::string loadKeyFile(const std::string& path) {
-    std::ifstream file(path, std::ios::binary);
+    // u8path converts UTF-8 arguments to the native wide path on Windows.
+    std::ifstream file(std::filesystem::u8path(path), std::ios::binary);
     require(file.good(), "cannot open key file: " + path);
     std::string raw((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     std::string text = trim(raw);

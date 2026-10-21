@@ -69,6 +69,8 @@ def _library_candidates(explicit: str | None):
         names = ("libaescore.so", "aescore.so")
         directories = (
             ROOT / "build_gui",
+            ROOT / "build_ubuntu_gcc_shared",
+            ROOT / "build_ubuntu_gcc_shared" / "Release",
             ROOT / "build_ubuntu_gcc",
             ROOT / "build_ubuntu_clang",
             ROOT / "build",
