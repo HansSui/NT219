@@ -6,7 +6,7 @@
 
 ## 0. Initial Setup & Directory Preparation
 
-Run all commands from the repository root: `/home/dell/home-crypto/crypto-labs/lab1`
+Run all commands from the repository root: `/home/han-sui/Downloads/buildfilecrypto`
 
 ```bash
 cd /home/dell/home-crypto/crypto-labs/lab1
