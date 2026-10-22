@@ -1,5 +1,11 @@
 # Lab 1 — Windows verification TODO
 
+> **Status (21/10/2026):** steps 1–5 done on this host. KAT is 16/16, `ctest`
+> is 2/2 (`aescore` + `cli`), the GUI self-test passes, and the non-ASCII path
+> round-trip works. Step 6 (negative re-check) was not rerun; the existing 17
+> logs remain the evidence. Step 7 (benchmark) is left for the author. Step 8
+> (MinGW) is verified with GCC 16.2.0 and Clang 22.1.8.
+
 Run these steps on Windows; the Linux host cannot verify MSVC. Start from the
 lab directory:
 
@@ -7,9 +13,9 @@ lab directory:
 cd /d E:\NT219\lab01
 ```
 
-The archived Windows evidence is stale: `kat_msvc.txt` is 9/9 and
-`ctest_msvc.txt` is 1/1. Rebuild and replace both logs; do not reuse the old
-ones.
+The archived Windows evidence was stale (`kat_msvc.txt` 9/9 and
+`ctest_msvc.txt` 1/1). Both logs have been regenerated from the current
+`build\windows-msvc` tree; do not reuse the old ones.
 
 Prerequisites: Visual Studio 2022/2026 with the x64 C++ toolchain, CMake,
 Crypto++ (set `CRYPTOPP_ROOT`, normally `D:\cryptolibrary`) and Python 3 with
@@ -17,7 +23,7 @@ Tkinter for the GUI.
 
 ## 1. Build with MSVC
 
-- [ ] Release build succeeds.
+- [x] Release build succeeds. (verified)
 
 ```bat
 scripts\build_windows.bat msvc
@@ -27,7 +33,7 @@ Expected: `build\windows-msvc\Release\aestool.exe` exists.
 
 ## 2. KAT
 
-- [ ] All 16 vectors pass.
+- [x] All 16 vectors pass. (verified)
 
 ```bat
 build\windows-msvc\Release\aestool.exe --kat kat\vectors.json > output\windows\test_results\kat_msvc.txt
@@ -38,7 +44,7 @@ Expected last line: `16 passed, 0 failed`.
 
 ## 3. ctest
 
-- [ ] Both tests pass.
+- [x] Both tests pass. (verified)
 
 ```bat
 cd build\windows-msvc
@@ -61,7 +67,7 @@ Expected: `-- cli_test.cmake: all cases passed`.
 
 ## 4. GUI self-test
 
-- [ ] Shared library builds and the self-test passes.
+- [x] Shared library builds and the self-test passes. (verified)
 
 ```bat
 gui\build_gui.bat
@@ -80,7 +86,7 @@ python gui\aestool_gui.py --self-test | Out-File -Encoding utf8 output\windows\t
 
 ## 5. Non-ASCII path check
 
-- [ ] Round-trip through a Vietnamese directory succeeds.
+- [x] Round-trip through a Vietnamese directory succeeds. (verified)
 
 ```bat
 set "KEY=000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
@@ -134,17 +140,19 @@ python scripts\plot_compare.py --dir output\windows\benchmarks --out-dir output\
 `SCHEME_MIN` is the High performance alias; use the GUID from `powercfg /list`
 if needed. `FF` pins eight logical CPUs; adjust the mask for the host.
 
-This overwrites the 48 Windows CSVs and summaries. Do not mix old and new CSVs
-in one summary. Regenerate the cross-platform figures only after the Windows
-rerun, from `lab01`:
+This overwrites the 48 Windows CSVs and summaries. The runner deletes the old
+`bench_windows_<compiler>_*.csv` and summary files before starting, so a rerun
+cannot mix old and new rows; set `KEEP=1` only for deliberate subset runs. Do
+not mix old and new CSVs in one summary. Regenerate the cross-platform figures
+only after the Windows rerun, from `lab01`:
 
 ```bat
 python scripts\plot_crossplatform.py
 ```
 
-## 8. Optional MinGW GCC/Clang
+## 8. MinGW GCC/Clang
 
-- [ ] MinGW builds pass ctest 2/2.
+- [x] MinGW builds pass ctest 2/2. (verified with GCC 16.2.0 and Clang 22.1.8)
 
 Use an **MSYS2 MinGW 64-bit** shell. Build Crypto++ for MinGW first:
 
@@ -167,20 +175,25 @@ scripts\build_windows.bat clang
 
 If skipped, keep the report note "MinGW not verified".
 
+Result on this host: Crypto++ built from source with MSYS2 GCC 16.2.0, then
+`build\windows-gcc` and `build\windows-clang` both built and passed `ctest` 2/2
+and KAT 16/16. Logs: `output\windows\test_results\kat_mingw_gcc.txt`,
+`ctest_mingw_gcc.txt`, `kat_mingw_clang.txt`, `ctest_mingw_clang.txt`.
+
 ## 9. Update evidence and report
 
-- [ ] Windows logs replaced.
-- [ ] Report numbers refreshed.
+- [x] Windows logs replaced (KAT 16/16, ctest 2/2, GUI, non-ASCII path).
+- [ ] Report numbers refreshed after the benchmark rerun.
 
-1. Replace `output\windows\test_results\kat_msvc.txt` (16/16).
-2. Replace `output\windows\test_results\ctest_msvc.txt` (2/2).
-3. Replace `output\windows\test_results\gui_selftest.txt` (UTF-8).
-4. If benchmarks were rerun, replace the CSVs/summaries/graphs and then run
+1. Replaced `output\windows\test_results\kat_msvc.txt` (16/16).
+2. Replaced `output\windows\test_results\ctest_msvc.txt` (2/2).
+3. Replaced `output\windows\test_results\gui_selftest.txt` (UTF-8).
+4. Added `output\windows\test_results\non_ascii_path.txt`.
+5. If benchmarks were rerun, replace the CSVs/summaries/graphs and then run
    `python scripts\plot_crossplatform.py`.
-5. Update the Windows tables in `REPORT.md` (KAT 16/16, ctest 2/2) and remove
-   the stale "Windows CLI not rerun" limitation. Re-check the Performance score
-   if the new CSV numbers change.
-6. Re-export the report to PDF/DOCX.
+6. Updated the Windows tables in `REPORT.md` (KAT 16/16, ctest 2/2) and removed
+   the stale "Windows CLI not rerun" limitation.
+7. Re-export the report to PDF/DOCX after the benchmark rerun.
 
 ## 10. Package
 

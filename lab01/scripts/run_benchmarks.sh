@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Run every mode at every required payload size. Defaults: 1000 runs per CSV.
+# A rerun replaces this platform/compiler's CSVs and summaries. Set KEEP=1 to
+# keep older files (for example when running only a subset of modes/sizes).
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -34,6 +36,12 @@ fi
 governor="$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || echo unknown)"
 
 mkdir -p "$out" "$(dirname "$key")"
+if [[ "${KEEP:-0}" != "1" ]]; then
+    # Remove this platform/compiler's previous results so a rerun cannot mix old
+    # and new CSVs. Files from other platforms/compilers are left alone.
+    rm -f "$out"/bench_${platform}_${compiler}_*.csv
+    rm -f "$out"/summary.csv "$out"/summary_classes.csv "$out"/summary_tag_overhead.csv
+fi
 if [[ ! -f "$key" ]]; then
     head -c 32 /dev/urandom > "$key"
     echo "generated key: $key"

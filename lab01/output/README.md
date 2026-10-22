@@ -26,7 +26,9 @@ output/
                          graph/  (7 comparison PNGs)
     key_bin/             key.bin used for the Windows run
     test_results/        kat_msvc.txt, ctest_msvc.txt, gui_selftest.txt,
-                         environment.txt
+                         non_ascii_path.txt, environment.txt,
+                         kat_mingw_{gcc,clang}.txt, ctest_mingw_{gcc,clang}.txt
+    manual_checks/       files produced by the non-ASCII path check
     neg_results/         17 negative-test logs, 17 positive round-trip logs
                          (SUMMARY.md has the results table)
   compare/
@@ -49,6 +51,9 @@ run,mode,size_bytes,encrypt_us,decrypt_us,throughput_encrypt_MBps,throughput_dec
 | Runs per CSV | 1000 |
 | Platforms | Ubuntu (GCC 15.2 + Clang 21.1.8), Windows (MSVC 19.51, x64) |
 | CSV count | 96 Ubuntu + 48 Windows = 144 (144,000 encrypt/decrypt pairs) |
+
+MinGW GCC 16.2.0 and MinGW Clang 22.1.8 also build and pass KAT/`ctest`; they
+were not benchmarked, so the matrix stays at 144 CSVs.
 
 The report also uses a post-hoc 30-block analysis of the same Windows rows to
 show that the per-run CI95 understates run-to-run uncertainty; that analysis

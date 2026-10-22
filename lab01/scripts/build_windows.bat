@@ -23,6 +23,10 @@ if not defined CRYPTOPP_ROOT if exist "D:\cryptolibrary\include\cryptopp\aes.h" 
 set "crypto_args="
 if defined CRYPTOPP_ROOT set "crypto_args=-DCRYPTOPP_ROOT="%CRYPTOPP_ROOT%""
 
+rem Default CMake. The MSVC branch below prefers the CMake bundled with Visual
+rem Studio; the MinGW branches use this one from PATH.
+set "cmake=cmake"
+
 if /i "%compiler%"=="msvc" goto msvc
 if /i "%compiler%"=="gcc" goto mingw
 if /i "%compiler%"=="clang" goto mingw

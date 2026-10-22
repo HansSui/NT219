@@ -1,7 +1,9 @@
-﻿Test project E:/NT219/lab01/build_windows_msvc
+Test project E:/NT219/lab01/build/windows-msvc
     Start 1: aescore
-1/1 Test #1: aescore ..........................   Passed    0.03 sec
+1/2 Test #1: aescore ..........................   Passed    0.04 sec
+    Start 2: cli
+2/2 Test #2: cli ..............................   Passed    0.67 sec
 
-100% tests passed, 0 tests failed out of 1
+100% tests passed, 0 tests failed out of 2
 
-Total Test time (real) =   0.04 sec
+Total Test time (real) =   0.73 sec

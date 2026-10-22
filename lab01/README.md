@@ -104,10 +104,25 @@ The static Crypto++ library is normally built with `/MT`, so the project
 defaults to `/MT` (`/MTd` in Debug) on MSVC. Pass `-DCRYPTOPP_STATIC_CRT=OFF`
 for a `/MD` build such as vcpkg's.
 
-Or MSYS2 MinGW64:
+Or MSYS2 MinGW64. MSYS2 has no `cryptopp` package, so build Crypto++ from
+source first, then point CMake at the prefix:
 
 ```bash
-pacman -S mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-cryptopp
+pacman -S --needed git make mingw-w64-x86_64-cmake \
+    mingw-w64-x86_64-gcc mingw-w64-x86_64-clang
+git clone --depth 1 https://github.com/weidai11/cryptopp.git
+cd cryptopp
+make -f GNUmakefile -j"$(nproc)"
+make -f GNUmakefile install PREFIX=/c/cryptopp-mingw
+```
+
+Then, from `cmd.exe` with `C:\msys64\mingw64\bin` (or your MSYS2 root) on
+`PATH`:
+
+```bat
+set CRYPTOPP_ROOT=C:\cryptopp-mingw
+scripts\build_windows.bat gcc
+scripts\build_windows.bat clang
 ```
 
 ## Build
@@ -338,9 +353,12 @@ plaintext defaults to raw bytes.
   `std::filesystem::u8path` for `--in`, `--out`, `--key` and other file paths,
   so non-ASCII paths work instead of being interpreted in the ANSI code page.
 - `ctest` runs `tests/cli_test.sh` on Unix and the portable
-  `tests/cli_test.cmake` on Windows. The archived MSVC `ctest` log predates the
-  Windows CLI test; the manual logs in `output/windows/neg_results/` remain the
-  Windows CLI evidence for now.
+  `tests/cli_test.cmake` on Windows. Both tests pass on MSVC (2/2) and on Ubuntu
+  GCC/Clang (2/2); the manual logs in `output/windows/neg_results/` remain the
+  additional negative-test evidence.
+- MinGW Clang 22 may print duplicate-section COMDAT warnings when linking a
+  Crypto++ static library built by MinGW GCC. The link completes and `ctest`
+  passes; build Crypto++ with the same compiler for a warning-free link.
 - The GUI stores keys in the Python process and the Tk entry widget, does not
   zeroize them and has no key store. It decrypts only the AESL1 container. Both
   Windows (MSVC) and Linux (GCC) builds were self-tested.
@@ -358,8 +376,9 @@ round-trips, tag/AAD/key/IV tampering, invalid lengths, container parsing and ke
 file formats. A small CLI test checks round-trip through a non-ASCII path,
 nonce-reuse rejection, the ECB size limit, short-IV rejection and threaded
 benchmark row counts. Unix uses `tests/cli_test.sh`; Windows uses the portable
-`tests/cli_test.cmake`. KAT coverage: NIST SP 800-38A ECB/CBC/CFB/OFB/CTR, NIST
-GCM test cases 3 and 4, RFC 3610 CCM vectors 1 and 2.
+`tests/cli_test.cmake`. KAT coverage: NIST SP 800-38A ECB/CBC/CFB/OFB/CTR for
+AES-128 plus AES-192/256 ECB/CBC/CTR, IEEE P1619/D16 XTS-AES-128, NIST GCM test
+cases 3 and 4, RFC 3610 CCM vectors 1 and 2.
 
 KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 
@@ -373,16 +392,17 @@ KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 | Check | Ubuntu (GCC/Clang) | Windows (MSVC 19.51 x64) | Evidence |
 |---|---|---|---|
 | Build, Release | Passed | Passed | — |
-| KAT, 16 vectors | 16/16 passed | 9/9 archived; rerun needed | `output/*/test_results/kat_*` |
-| `ctest` | 2/2 passed (Catch2 + CLI) | 1/1 passed | `output/*/test_results/ctest_*` |
+| KAT, 16 vectors | 16/16 passed | 16/16 passed | `output/*/test_results/kat_*` |
+| `ctest` | 2/2 passed (Catch2 + CLI) | 2/2 passed (Catch2 + CLI) | `output/*/test_results/ctest_*` |
 | CLI negative/edge cases | 12 logged cases | 17 cases + positive round-trips | `output/ubuntu/neg_results/`, `output/windows/neg_results/` |
 | Benchmark | 96 CSVs (GCC + Clang) | 48 CSVs | `output/ubuntu/benchmarks/`, `output/windows/benchmarks/` |
 | GUI `--self-test` | 8/8 modes, negative cases | 8/8 modes, negative cases | `output/*/test_results/gui_selftest.txt` |
 
 The Windows KAT, `ctest`, GUI and negative-test logs are committed. The Ubuntu
 logs were regenerated with GCC 15.2 and Clang 21.1.8 and are in
-`output/ubuntu/test_results/`. MinGW GCC/Clang builds are supported by the
-scripts but were not re-verified for the report. Windows-only rerun steps are in
+`output/ubuntu/test_results/`. MinGW GCC 16.2.0 and MinGW Clang 22.1.8 also
+build the project and pass KAT 16/16 and `ctest` 2/2 on Windows; their logs are
+`output/windows/test_results/*_mingw_*.txt`. Windows-only rerun steps are in
 `../LAB1_WINDOWS_TODO.md`.
 
 ## Report and deliverables

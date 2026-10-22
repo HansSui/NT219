@@ -336,5 +336,6 @@ python3 gui/aestool_gui.py --self-test
 
 - **Không để `.aestool_nonces` trong repo root.** Negative tests nên chạy trong thư mục tạm.
 - **Không có binary Linux trong repo hiện tại.** Sau khi build trên Linux, bạn có thể commit binary hoặc chỉ lưu lại CSV/ log làm bằng chứng.
-- **MinGW trên Windows chưa xác minh** — nếu cần cross-compile, dùng `scripts\build_windows.bat gcc`.
+- **MinGW trên Windows đã xác minh** — GCC 16.2.0 và Clang 22.1.8 build được,
+  KAT 16/16 và ctest 2/2; xem `output/windows/test_results/*_mingw_*.txt`.
 - UTF-8 trên Linux làm việc bình thường qua stdin/file, không cần xử lý đặc biệt như Windows.

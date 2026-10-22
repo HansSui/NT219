@@ -16,7 +16,7 @@ default:
 | Ubuntu | GCC 15.2 | 48 | measured |
 | Ubuntu | Clang 21.1.8 | 48 | measured |
 | Windows | MSVC 19.51 x64 | 48 | measured |
-| Windows | MinGW GCC/Clang | 0 | scripts supported, not run |
+| Windows | MinGW GCC/Clang | 0 | build + KAT + ctest verified, benchmark not run |
 
 The measured 144 CSVs and their summaries are committed under `output/`. The
 report (`REPORT.md`) adds a post-hoc 30-block confidence-interval analysis on the
@@ -99,6 +99,11 @@ scripts\run_benchmarks.bat msvc
 
 Output goes to `output\windows\benchmarks\`. Use `gcc` or `clang` instead of
 `msvc` for the MinGW builds.
+
+Both runner scripts replace the previous CSVs and summaries for the selected
+platform/compiler before starting, so a rerun never mixes old and new data. Set
+`KEEP=1` when you intentionally run only a subset of modes or sizes and want to
+keep the other files.
 
 ## Cross-platform comparison (Windows vs Linux)
 

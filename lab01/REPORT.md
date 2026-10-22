@@ -48,11 +48,10 @@ Kết quả chính:
 - **Bonus GUI:** `gui/aestool_gui.py` (Python + Tkinter) gọi thư viện chia sẻ qua C ABI
   `aesgui_*`, không gọi CLI. Self-test trên Windows và Ubuntu đều chạy đủ tám mode,
   round-trip và từ chối sai khoá.
-- **Tính đúng đắn:** 16/16 vector KAT đạt trên Ubuntu GCC/Clang (NIST SP 800-38A
-  cho ECB/CBC/CFB/OFB/CTR, bổ sung AES-192/256 ECB/CBC/CTR và IEEE P1619/D16 XTS;
-  NIST GCM test case 3 và 4; RFC 3610 CCM vector 1 và 2). Log Windows lưu trữ là
-  9/9 trước khi bổ sung vector; cần chạy lại. Trên Ubuntu, `ctest` đạt 2/2
-  (Catch2 + CLI).
+- **Tính đúng đắn:** 16/16 vector KAT đạt trên cả Windows MSVC và Ubuntu
+  GCC/Clang (NIST SP 800-38A cho ECB/CBC/CFB/OFB/CTR, bổ sung AES-192/256
+  ECB/CBC/CTR và IEEE P1619/D16 XTS; NIST GCM test case 3 và 4; RFC 3610 CCM
+  vector 1 và 2). `ctest` đạt 2/2 trên cả hai nền tảng (Catch2 + CLI).
 - **Kiểm thử âm:** 17 trường hợp được chạy lại trên Windows và 12 trường hợp trọng
   tâm trên Ubuntu; tất cả đều từ chối đúng cách hoặc tạo đầu ra bị hỏng có kiểm
   soát đối với chế độ không có xác thực. AEAD không tạo tệp plaintext khi tag sai.
@@ -105,7 +104,7 @@ Theo đề bài và mục tiêu học phần, Lab 1 hướng tới các năng l�
 | IV đúng độ dài, tự sinh, lưu lại | Kiểm tra theo mode; `AutoSeededRandomPool`; lưu trong header | `checkIv`, `randomBytes`, `serialize` | Đạt |
 | Chống tái sử dụng nonce | Registry cục bộ cho CTR/CCM/GCM, so sánh fingerprint khoá + nonce | `checkNonceReuse`, `recordNonce` | Đạt một phần |
 | Khoá từ file hoặc hex | `--key`, `--key-hex`; file raw hoặc `hex:` | `readKey`, `loadKeyFile` | Đạt |
-| Input file hoặc text | `--in`, `--text`; file nhị phân an toàn | `readInput`, `readAll` | Đạt một phần trên Windows |
+| Input file hoặc text | `--in`, `--text`; file nhị phân an toàn, `--text` UTF-8 trên Windows | `readInput`, `readAll` | Đạt |
 | Output raw/hex/base64 | `--encode hex\|base64\|raw`; màn hình mặc định hex cho ciphertext | `encodeBytes` | Đạt |
 | Header tự mô tả | Magic, version, mode, IV length, tag length, AAD length, IV, tag, AAD | `serialize`, `parseRecord` | Đạt |
 | KAT bằng JSON | `--kat vectors.json`; PASS/FAIL và tổng kết | `runKat`, `kat/vectors.json` | Đạt |
@@ -114,9 +113,9 @@ Theo đề bài và mục tiêu học phần, Lab 1 hướng tới các năng l�
 | Thống kê mean/median/SD/CI95 | `summary.csv` và báo cáo | `summarize_bench.py` | Đạt |
 | So sánh Windows/Linux, stream/block, AEAD/non-AEAD, tag overhead | Các bảng và đồ thị trong mục 6 | `output/compare/`, `output/*/benchmarks/graph/` | Đạt |
 | CMake, build ngoài source | `CMakeLists.txt`; thư mục build riêng | `README.md` | Đạt |
-| Catch2/ctest trên Windows và Linux | Catch2 vendored; Windows 1/1, Ubuntu GCC/Clang 2/2 (Catch2 + CLI), log đã lưu | `tests/test_core.cpp`, `output/*/test_results/` | Đạt |
+| Catch2/ctest trên Windows và Linux | Catch2 vendored; Windows MSVC 2/2, Ubuntu GCC/Clang 2/2 (Catch2 + CLI), log đã lưu | `tests/test_core.cpp`, `tests/cli_test.*`, `output/*/test_results/` | Đạt |
 | Thư viện chia sẻ (bonus) | `BUILD_SHARED_LIBS=ON` tạo `aescore.dll` / `libaescore.so`; C ABI trong `src/aesgui.h` | `CMakeLists.txt`, `src/aesgui.*` | Đạt |
-| GUI (bonus) | Tkinter gọi thư viện qua `ctypes`; đã self-test 8 mode trên Windows | `gui/aestool_gui.py`, `gui/README.md` | Đạt (Windows) |
+| GUI (bonus) | Tkinter gọi thư viện qua `ctypes`; đã self-test 8 mode trên Windows và Ubuntu | `gui/aestool_gui.py`, `gui/README.md` | Đạt |
 
 ### 2.3 Phạm vi và giới hạn của báo cáo
 
@@ -340,13 +339,12 @@ Bằng chứng trên Windows:
 
 ```text
 > python gui\aestool_gui.py --self-test
-self-test OK: E:\NT219\lab01\build_gui\Release\aescore.dll
+self-test OK: E:\NT219\lab01\build\windows-msvc-shared\Release\aescore.dll
   modes tested: ECB CBC OFB CFB CTR XTS CCM GCM
   round-trip, header mode check and wrong-key rejection passed
 ```
 
-Nhật ký: `output/windows/test_results/gui_selftest.txt` (log lưu trữ trước khi
-đổi layout build; lần chạy lại dùng `build/windows-msvc-shared`).
+Nhật ký: `output/windows/test_results/gui_selftest.txt`.
 
 Bằng chứng trên Ubuntu:
 
@@ -421,7 +419,7 @@ Bộ vector nằm trong `kat/vectors.json`, gồm 16 trường hợp:
 | 15 | AES-256 CTR, 1 khối | CTR | 256-bit | NIST SP 800-38A | PASS |
 | 16 | XTS-AES-128 vector 1 | XTS | 256-bit (2×128) | IEEE P1619/D16 | PASS |
 
-Log lưu trữ trên Windows MSVC (9 vector cũ, trước khi bổ sung):
+Log chạy trên Windows MSVC (`build/windows-msvc`, 16/16):
 
 ```text
 PASS NIST SP 800-38A AES-128 ECB
@@ -433,12 +431,18 @@ PASS NIST GCM AES-128 test case 3
 PASS NIST GCM AES-128 test case 4 with AAD
 PASS RFC 3610 CCM packet vector 1
 PASS RFC 3610 CCM packet vector 2
-9 passed, 0 failed
+PASS NIST SP 800-38A AES-192 ECB (first block)
+PASS NIST SP 800-38A AES-192 CBC (first block)
+PASS NIST SP 800-38A AES-192 CTR (first block)
+PASS NIST SP 800-38A AES-256 ECB (first block)
+PASS NIST SP 800-38A AES-256 CBC (first block)
+PASS NIST SP 800-38A AES-256 CTR (first block)
+PASS IEEE P1619/D16 XTS-AES-128 vector 1
+16 passed, 0 failed
 ```
 
-Nhật ký: `output/ubuntu/test_results/kat_gcc.txt` và `kat_clang.txt` (16/16 PASS).
-`output/windows/test_results/kat_msvc.txt` là log lưu trữ 9/9 trước khi bổ sung
-vector; cần chạy lại trên Windows theo `../LAB1_WINDOWS_TODO.md`.
+Nhật ký: `output/windows/test_results/kat_msvc.txt`,
+`output/ubuntu/test_results/kat_gcc.txt` và `kat_clang.txt` (đều 16/16 PASS).
 
 Mỗi vector được kiểm tra hai chiều:
 
@@ -450,10 +454,11 @@ một chiều nhưng sai ở chiều còn lại.
 
 **Nhận xét về độ phủ KAT:**
 
-- Vector NIST SP 800-38A chỉ dùng AES-128. Chưa có KAT riêng cho AES-192/256.
-- Không có KAT cho XTS (IEEE P1619) và không có KAT cho ECB/CBC có padding PKCS #7.
+- Vector NIST SP 800-38A cho AES-128 phủ đủ bốn khối; AES-192/256 và XTS chỉ có
+  vector đầu tiên (một khối) để xác nhận đúng thuật toán, chưa phủ nhiều khối.
+- Không có KAT cho ECB/CBC có padding PKCS #7 (KAT dùng `pkcs7=false`).
 - GCM chỉ có hai test case; CCM chỉ có hai vector RFC 3610.
-- Chưa có KAT cho AAD dài, tag rỗng, hoặc các độ dài biên.
+- Chưa có KAT cho AAD dài, tag rỗng, hoặc các độ dài biên (0, 1, 15, 17 byte).
 
 Đây là các khoảng trống cần bổ sung nếu muốn tăng độ tin cậy lên mức production.
 
@@ -472,17 +477,19 @@ Bộ test Catch2 trong `tests/test_core.cpp` gồm các nhóm:
 | Container | Serialize/parse; header bị cắt; magic sai |
 | Key file | File raw và file `hex:` |
 
-Trên Windows (log lưu trữ, layout cũ):
+Trên Windows MSVC (`build/windows-msvc`, 2/2):
 
 ```text
-Test project E:/NT219/lab01/build_windows_msvc
+Test project E:/NT219/lab01/build/windows-msvc
     Start 1: aescore
-1/1 Test #1: aescore ..........................   Passed
-100% tests passed, 0 tests failed out of 1
+1/2 Test #1: aescore ..........................   Passed    0.04 sec
+    Start 2: cli
+2/2 Test #2: cli ..............................   Passed    0.67 sec
+
+100% tests passed, 0 tests failed out of 2
 ```
 
-Nhật ký: `output/windows/test_results/ctest_msvc.txt`. Lần chạy lại dùng
-`build/windows-msvc` và kỳ vọng 2/2 test.
+Nhật ký: `output/windows/test_results/ctest_msvc.txt`.
 
 Trên Ubuntu GCC và Clang:
 
@@ -499,8 +506,8 @@ Nhật ký: `output/ubuntu/test_results/ctest_gcc.txt` và `ctest_clang.txt`.
 
 **Lưu ý:** CMake đăng ký `tests/cli_test.sh` trên Unix và
 `tests/cli_test.cmake` trên Windows, nên `ctest` có cùng phạm vi CLI ở cả hai nền
-tảng. Log MSVC lưu trong repo được tạo trước khi test CLI Windows được thêm vào
-(1/1); các kiểm thử CLI thủ công vẫn nằm trong `output/windows/neg_results/`.
+tảng. Bộ CLI test trên Windows bao phủ đường dẫn không ASCII, nonce tái sử dụng,
+giới hạn ECB 16 KiB, IV ngắn, hex lẻ và benchmark nhiều luồng (`--threads 2`).
 
 ### 4.3 Kiểm thử âm và các trường hợp biên
 
@@ -556,12 +563,10 @@ thay thế.
 
 ### 4.5 Hạn chế của phần kiểm chứng
 
-- Chưa có KAT cho AES-192/256 và XTS.
+- KAT cho AES-192/256 và XTS mới phủ một khối; chưa có vector nhiều khối.
 - Chưa có fuzzing cho parser container/minijson.
-- Test CLI Windows (`tests/cli_test.cmake`) đã được đăng ký nhưng chưa chạy lại
-  trên MSVC trong phiên này; log lưu trong repo là 1/1 của bộ Catch2.
-- Chưa có test với tệp lớn hơn 8 MB; `--threads` mới được smoke-test, chưa có
-  benchmark nhiều luồng đầy đủ.
+- Chưa có test với tệp lớn hơn 8 MB; `--threads` mới được smoke-test qua CLI test,
+  chưa có benchmark nhiều luồng đầy đủ.
 - Chưa có test xác nhận registry nonce hoạt động đúng khi nhiều tiến trình chạy
   đồng thời (hiện tại nó không được thiết kế cho trường hợp đó).
 
@@ -1176,7 +1181,8 @@ hoặc tệp cần xác thực.
    registry cục bộ.
 4. Xác thực cả header (mode, version, độ dài) bằng AAD hoặc định dạng có xác thực.
 5. Lưu khoá trong OS key store/HSM; zeroize bộ nhớ; hạn chế quyền đọc tệp khoá.
-6. Bổ sung KAT cho AES-192/256, XTS, các độ dài biên; fuzz parser.
+6. Mở rộng KAT cho AES-192/256 và XTS sang nhiều khối, thêm các độ dài biên;
+   fuzz parser.
 7. Đo lại trên cùng một host với CPU pinning, governor `performance`, power plan cố
    định, và baseline tắt AES-NI/PCLMUL.
 8. Đo end-to-end có file I/O để tách chi phí syscall.
@@ -1193,12 +1199,12 @@ hoặc tệp cần xác thực.
 | Security hygiene | 15 | RNG, IV validation, nonce registry, ECB policy, fail-closed | 13 |
 | UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, lỗi rõ | 9 |
 | Performance methodology | 20 | 144 CSV, 1.000 runs, mean/median/SD/CI95, block analysis, plots | 17 |
-| Cross-platform build | 10 | CMake, MSVC verified, GCC/Clang build + test; MinGW chưa xác minh | 9 |
+| Cross-platform build | 10 | CMake, MSVC verified, GCC/Clang build + test, MinGW GCC/Clang verified | 10 |
 | Report quality | 20 | Mục tiêu, cài đặt, test, thống kê, bảo mật, so sánh, bài học; log hai nền tảng | 19 |
-| **Tổng** | **100** |  | **92** |
+| **Tổng** | **100** |  | **93** |
 | Bonus: library + GUI | +5 | Shared library + Tkinter GUI gọi qua C ABI; self-test 8 mode trên Windows và Ubuntu | +5 |
 
-Tự chấm **92/100** cho phần bắt buộc và **+5 bonus**, tức **97/100** nếu bonus được
+Tự chấm **93/100** cho phần bắt buộc và **+5 bonus**, tức **98/100** nếu bonus được
 tính. Đây là ước lượng thận trọng. Các điểm trừ chính:
 - **Security (−2):** registry nonce có race; khoá không zeroize; header non-AEAD
   không được xác thực; CCM tag 8 byte.
@@ -1206,9 +1212,8 @@ tính. Đây là ước lượng thận trọng. Các điểm trừ chính:
   `encrypt`/`decrypt`.
 - **Performance (−3):** hai host/OS không kiểm soát; không pin CPU; không baseline
   hardware acceleration; block analysis là hậu nghiệm.
-- **Cross-platform (−1):** MinGW chưa build/verify; test CLI Windows đã đăng ký
-  nhưng chưa chạy lại trên MSVC, và các artifact Windows chưa được chạy lại sau
-  thay đổi `--threads`/`u8path`.
+- **Cross-platform:** không trừ điểm; Windows MSVC, MinGW GCC/Clang và Ubuntu
+  GCC/Clang đều build, KAT 16/16 và `ctest` 2/2.
 - **Report (−1):** phần Sinh viên/MSSV/Lớp còn trống và chưa xuất PDF/DOCX.
 - **Ghi chú Performance:** 17 điểm cho dữ liệu chưa kiểm soát. Nếu chạy lại bằng
   `PIN_CPUS` + governor `performance` và cập nhật bảng, có thể xét 18–19; không
@@ -1223,8 +1228,8 @@ tính. Đây là ước lượng thận trọng. Các điểm trừ chính:
 | Mã nguồn + CMake | Có |
 | README | Có; đã cập nhật |
 | Báo cáo | Có; tệp này |
-| Unit test Catch2 | Có; Windows 1/1 lưu trữ (CLI test mới đã đăng ký), Ubuntu GCC/Clang 2/2 |
-| KAT | Có; 16/16 trên Ubuntu GCC/Clang; 9/9 lưu trữ trên Windows |
+| Unit test Catch2 | Có; Windows MSVC 2/2 và Ubuntu GCC/Clang 2/2 (Catch2 + CLI) |
+| KAT | Có; 16/16 trên Windows MSVC và Ubuntu GCC/Clang |
 | Negative tests | Có; 17 trên Windows, 12 trên Ubuntu |
 | Benchmark CSV | Có; 144 tệp |
 | Đồ thị | Có; Ubuntu, Windows, cross-platform |
@@ -1243,8 +1248,8 @@ tính. Đây là ước lượng thận trọng. Các điểm trừ chính:
 |---|---|
 | CMake, build ngoài source | Đạt |
 | Ubuntu LTS | Đạt; đã build GCC + Clang, KAT 16/16, ctest 2/2, GUI self-test |
-| Windows MSVC | Đạt; đã build/KAT/ctest |
-| Windows MinGW64 | Script có; chưa xác minh |
+| Windows MSVC | Đạt; đã build, KAT 16/16, ctest 2/2, GUI self-test |
+| Windows MinGW64 | Đạt; GCC 16.2.0 + Clang 22.1.8, KAT 16/16, ctest 2/2 |
 | README dependency/version | Đạt; đã cập nhật |
 | README cài đặt Windows/Linux | Đạt |
 | README build commands | Đạt |
@@ -1258,7 +1263,7 @@ tính. Đây là ước lượng thận trọng. Các điểm trừ chính:
 | Khoá AES 128/192/256 | Đạt |
 | KAT JSON + PASS/FAIL | Đạt |
 | Negative tests | Đạt |
-| Catch2/ctest | Đạt; Windows 1/1, Ubuntu 2/2 (Catch2 + CLI) |
+| Catch2/ctest | Đạt; Windows MSVC 2/2, Ubuntu 2/2 (Catch2 + CLI) |
 | Benchmark 6 sizes × metrics | Đạt |
 | Thống kê mean/median/SD/CI95 | Đạt |
 | So sánh Windows/Linux | Đạt; có cảnh báo nhân quả |
@@ -1391,8 +1396,12 @@ bản Crypto++, cùng cờ build, CPU pinning và governor cố định.
 | Đường dẫn | Nội dung |
 |---|---|
 | `kat/vectors.json` | 16 vector KAT |
-| `output/windows/test_results/kat_msvc.txt` | KAT 9/9 lưu trữ trên Windows (cần chạy lại) |
-| `output/windows/test_results/ctest_msvc.txt` | ctest 1/1 trên Windows |
+| `output/windows/test_results/kat_msvc.txt` | KAT 16/16 trên Windows MSVC |
+| `output/windows/test_results/ctest_msvc.txt` | ctest 2/2 trên Windows MSVC |
+| `output/windows/test_results/gui_selftest.txt` | GUI self-test trên Windows |
+| `output/windows/test_results/non_ascii_path.txt` | Round-trip qua thư mục không ASCII |
+| `output/windows/test_results/kat_mingw_gcc.txt`, `kat_mingw_clang.txt` | KAT 16/16 trên MinGW GCC/Clang |
+| `output/windows/test_results/ctest_mingw_gcc.txt`, `ctest_mingw_clang.txt` | ctest 2/2 trên MinGW GCC/Clang |
 | `output/windows/test_results/environment.txt` | Môi trường Windows |
 | `output/ubuntu/test_results/kat_gcc.txt`, `kat_clang.txt` | KAT 16/16 trên Ubuntu |
 | `output/ubuntu/test_results/ctest_gcc.txt`, `ctest_clang.txt` | ctest 2/2 trên Ubuntu |

@@ -14,3 +14,6 @@ Crypto++ path    : D:/cryptolibrary/{include,libs/cryptopp/msvc/cryptlib.lib}
 Runtime          : /MT (CRYPTOPP_STATIC_CRT=ON)
 Build command    : scripts\build_windows.bat msvc
 Benchmark matrix : 8 modes x 6 sizes x 1000 runs = 48 CSV files
+MinGW GCC        : 16.2.0 (MSYS2, Crypto++ built at C:\cryptopp-mingw)
+MinGW Clang      : 22.1.8 (MSYS2)
+MinGW ctest      : 2/2 (aescore + cli), KAT 16/16

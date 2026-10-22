@@ -44,9 +44,8 @@ Notes:
 - AEAD failures leave no plaintext output file: decryption writes the output
   only after the authentication tag has been verified.
 - Unix registers `tests/cli_test.sh`; Windows registers the portable
-  `tests/cli_test.cmake`. The archived MSVC `ctest` log (1/1) predates the
-  Windows CLI test, so the cases above remain the Windows CLI evidence for that
-  build.
+  `tests/cli_test.cmake`. The refreshed MSVC `ctest` log is 2/2 (`aescore` + `cli`),
+  and the cases above remain the manual Windows negative-test evidence.
 - Wrong-key behaviour for non-AEAD modes is covered by the Ubuntu
   `neg_ctr_wrongkey` case (corrupted plaintext). The Windows GCM wrong-key case
   demonstrates the fail-closed AEAD behaviour instead.

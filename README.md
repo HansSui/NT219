@@ -8,7 +8,8 @@ CMake, and uses Crypto++ for the cryptographic primitives.
 ```
 NT219/
   README.md           this file
-  LAB1_WINDOWS_TODO.md Windows-only verification steps still to run
+  LAB1_WINDOWS_TODO.md Windows verification checklist (mostly done; benchmark left)
+  LAB1_LINUX_TODO.md   Linux build/test/benchmark checklist
   docs/               course brief, objectives and execution guides
   lab01/              Lab 1 - symmetric encryption CLI (aestool)
 ```
@@ -78,10 +79,11 @@ Linux: `./gui/build_gui.sh` then `./gui/run_gui.sh` after
 
 The build, KAT, `ctest` and benchmark matrix are verified with MSVC 19.51 x64 on
 Windows (logs in `lab01/output/windows/test_results/` and
-`lab01/output/windows/neg_results/`). The Tkinter GUI bonus is built against the
-shared library and passes its eight-mode self-test on Windows. The Ubuntu data
-comes from earlier GCC 15.2 and Clang 21.1.8 runs; MinGW builds and the Linux GUI
-path are provided by script but were not re-verified in this environment. See
+`lab01/output/windows/neg_results/`). MinGW GCC 16.2.0 and MinGW Clang 22.1.8
+also build and pass KAT 16/16 and `ctest` 2/2. The Tkinter GUI bonus is built
+against the shared library and passes its eight-mode self-test on Windows. The
+Ubuntu data comes from earlier GCC 15.2 and Clang 21.1.8 runs; the Linux GUI path
+is provided by script but was not re-verified in this environment. See
 `lab01/README.md` for the CLI, `lab01/BENCHMARKS.md` for the benchmark method and
 the completed Vietnamese report in `lab01/REPORT.md` for results, statistics and
 analysis.

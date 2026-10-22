@@ -3,7 +3,9 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 rem Run the full benchmark matrix: every mode x every required size.
 rem Usage: run_benchmarks.bat [msvc|gcc|clang]
-rem Optional environment: RUNS WARMUP THREADS SIZES MODES PLATFORM OUT KEY PLOT
+rem Optional environment: RUNS WARMUP THREADS SIZES MODES PLATFORM OUT KEY PLOT KEEP
+rem A rerun replaces this platform/compiler's CSVs and summaries. Set KEEP=1 to
+rem keep older files (for example when running only a subset of modes/sizes).
 
 set "root=%~dp0.."
 set "compiler=%~1"
@@ -44,6 +46,12 @@ if exist "%out%\bench.log" del "%out%\bench.log" >nul 2>nul
 if not exist "%out%" (
     echo cannot create output directory: %out% >&2
     exit /b 1
+)
+if not "%KEEP%"=="1" (
+    rem Remove this platform/compiler's previous results so a rerun cannot mix
+    rem old and new CSVs. Files from other platforms/compilers are left alone.
+    del /q "%out%\bench_%platform%_%compiler%_*.csv" >nul 2>nul
+    del /q "%out%\summary.csv" "%out%\summary_classes.csv" "%out%\summary_tag_overhead.csv" >nul 2>nul
 )
 if not exist "%key%" (
     if not exist "%root%\output\%platform%\key_bin" mkdir "%root%\output\%platform%\key_bin"

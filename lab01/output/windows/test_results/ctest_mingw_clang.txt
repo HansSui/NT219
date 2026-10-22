@@ -1,0 +1,9 @@
+Test project E:/NT219/lab01/build/windows-clang
+    Start 1: aescore
+1/2 Test #1: aescore ..........................   Passed    0.05 sec
+    Start 2: cli
+2/2 Test #2: cli ..............................   Passed    0.50 sec
+
+100% tests passed, 0 tests failed out of 2
+
+Total Test time (real) =   0.57 sec

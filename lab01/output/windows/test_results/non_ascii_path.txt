@@ -1,0 +1,3 @@
+encrypt/decrypt via 'output\windows\manual_checks\thư mục'
+plaintext=path test
+exit=0
