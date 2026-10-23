@@ -229,9 +229,26 @@ std::string loadKeyFile(const std::string& path) {
     std::string raw((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     std::string text = trim(raw);
     if (text.size() >= 4 && (text.compare(0, 4, "hex:") == 0 || text.compare(0, 4, "HEX:") == 0)) {
-        return fromHex(text.substr(4));
+        std::string parsed = fromHex(text.substr(4));
+        secureWipe(raw);
+        secureWipe(text);
+        return parsed;
     }
+    secureWipe(text);
     return raw;
+}
+
+void secureWipe(void* ptr, std::size_t size) {
+    if (ptr && size > 0) {
+        CryptoPP::SecureWipeBuffer(reinterpret_cast<CryptoPP::byte*>(ptr), size);
+    }
+}
+
+void secureWipe(std::string& s) {
+    if (!s.empty()) {
+        CryptoPP::SecureWipeBuffer(reinterpret_cast<CryptoPP::byte*>(&s[0]), s.size());
+        s.clear();
+    }
 }
 
 Encrypted encrypt(Mode mode, const std::string& key, const std::string& iv,

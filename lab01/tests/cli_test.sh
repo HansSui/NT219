@@ -38,6 +38,16 @@ if "$tool" encrypt --mode cbc --key key.bin --iv short.iv --text data --out bad.
     exit 1
 fi
 
+gcm_nonce=00112233445566778899aabb
+"$tool" encrypt --mode gcm --aead --key key.bin --nonce "$gcm_nonce" \
+    --text "sidecar test payload" --out sidecar_ct.bin --sidecar sidecar.json
+"$tool" decrypt --mode gcm --aead --key key.bin --in sidecar_ct.bin \
+    --sidecar sidecar.json --out sidecar_out.txt
+if [[ "$(< sidecar_out.txt)" != "sidecar test payload" ]]; then
+    echo "sidecar round trip plaintext mismatch" >&2
+    exit 1
+fi
+
 "$tool" bench --mode ctr --key key.bin --size 1024 --runs 8 --warmup 0 \
     --threads 2 --out bench.csv >/dev/null
 if [[ "$(wc -l < bench.csv)" -ne 9 ]]; then

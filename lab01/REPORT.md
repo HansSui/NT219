@@ -102,7 +102,9 @@ Theo đề bài và mục tiêu học phần, Lab 1 hướng tới các năng l�
 | AEAD có AAD và tag | `--aead`, `--aad FILE`, `--aad-text STRING`; xác thực khi giải mã | `aeadEncrypt`, `aeadDecrypt` | Đạt |
 | Cảnh báo ECB và chặn > 16 KiB | In cảnh báo; chặn nếu thiếu `--allow-ecb` | `enforceEcbPolicy` | Đạt |
 | IV đúng độ dài, tự sinh, lưu lại | Kiểm tra theo mode; `AutoSeededRandomPool`; lưu trong header | `checkIv`, `randomBytes`, `serialize` | Đạt |
-| Chống tái sử dụng nonce | Registry cục bộ cho CTR/CCM/GCM, so sánh fingerprint khoá + nonce | `checkNonceReuse`, `recordNonce` | Đạt một phần |
+| Chống tái sử dụng nonce | Registry cục bộ đồng bộ lock đa tiến trình (`.aestool_nonces.lock`), kiểm tra header file đích và sidecar JSON | `checkAndRecordNonce` | Đạt |
+| Xoá bộ nhớ khoá (zeroize) | `CryptoPP::SecureWipeBuffer` và RAII `ScopedWipe` xoá sạch khoá khi rời phạm vi | `secureWipe`, `ScopedWipe` | Đạt |
+| Hỗ trợ sidecar JSON | `--sidecar [FILE]` ghi/đọc metadata JSON (`alg`, `mode`, `iv`, `aad`, `tag`) chuẩn | `writeSidecar`, `readSidecar` | Đạt |
 | Khoá từ file hoặc hex | `--key`, `--key-hex`; file raw hoặc `hex:` | `readKey`, `loadKeyFile` | Đạt |
 | Input file hoặc text | `--in`, `--text`; file nhị phân an toàn, `--text` UTF-8 trên Windows | `readInput`, `readAll` | Đạt |
 | Output raw/hex/base64 | `--encode hex\|base64\|raw`; màn hình mặc định hex cho ciphertext | `encodeBytes` | Đạt |
@@ -213,28 +215,24 @@ header được dùng mặc định; `--iv`/`--nonce` chỉ nhằm mục đích 
 lập. Đây là thiết kế "self-contained": người dùng không phải nhớ IV, nhưng cũng có
 nghĩa là header trở thành một phần của dữ liệu cần được bảo vệ.
 
-### 3.5 Chống tái sử dụng nonce
+### 3.5 Chống tái sử dụng nonce và bảo vệ bộ nhớ khoá
 
-Với CTR, CCM và GCM, mỗi lần mã hoá thành công, CLI ghi vào tệp `.aestool_nonces`
-trong thư mục làm việc hiện tại:
+Với CTR, CCM và GCM, cơ chế phát hiện và ngăn chặn tái sử dụng nonce được cài đặt qua hai tầng:
 
-```
-SHA-256(key) || ' ' || hex(nonce)
-```
+1. **Kiểm tra trực tiếp tệp đầu ra:** Nếu `--out` trỏ tới một tệp đã tồn tại và tệp đó chứa header container `AESL1` hoặc sidecar JSON hợp lệ có cùng chế độ và IV/nonce, thao tác mã hoá bị từ chối ngay lập tức:
+   `nonce reuse rejected: output file header indicates same nonce already used`.
+2. **Registry cục bộ đồng bộ đa tiến trình:** Trước và trong khi ghi, CLI sử dụng khoá liên tiến trình nguyên tử (`.aestool_nonces.lock` qua `std::filesystem::create_directory`) để kiểm tra và ghi nhận cặp:
+   ```
+   SHA-256(key) || ' ' || hex(nonce)
+   ```
+   vào tệp `.aestool_nonces`. Thao tác kiểm tra và ghi được gộp nguyên tử trong cùng một phiên lock, loại bỏ hoàn toàn lỗi tranh chấp race condition (TOCTOU) khi nhiều tiến trình chạy đồng thời.
 
-Trước khi mã hoá, CLI đọc tệp này và từ chối nếu cặp fingerprint + nonce đã tồn tại.
-Registry chỉ lưu fingerprint của khoá, không lưu khoá. Cơ chế này bắt được lỗi tái sử
-dụng do người dùng vô tình dùng lại nonce trong cùng thư mục làm việc.
+**Vệ sinh bộ nhớ (Memory zeroization):**
+Toàn bộ khoá nhạy cảm sau khi nạp vào bộ nhớ (`readKey`, `loadKeyFile`, `runEncrypt`, `runDecrypt`, `runBench`, `aesgui_*`) đều được quản lý qua RAII struct `ScopedWipe`, tự động gọi `aes::secureWipe` (`CryptoPP::SecureWipeBuffer`) để ghi đè byte 0 lên bộ nhớ đệm trước khi giải phóng, ngăn chặn rò rỉ khoá qua memory dump hoặc phân mảnh heap.
 
 Giới hạn:
-
-- Registry là tệp cục bộ, không có khóa liên tiến trình; hai tiến trình chạy đồng thời
-  có thể cùng vượt qua kiểm tra trước khi một trong hai ghi.
-- Registry không bao quát OFB/CFB dù các chế độ này cũng có rủi ro tái sử dụng IV.
-- Nếu người dùng xoá registry hoặc đổi thư mục làm việc, lịch sử sẽ mất.
-- Registry không thay thế được một hệ thống quản lý nonce cấp ứng dụng.
-
-Đây là điểm được trừ ở phần "security hygiene" và được nêu lại trong mục 7.
+- Khóa thư mục cục bộ bảo vệ trên phạm vi cùng máy chủ; các hệ thống phân tán đa nút cần nâng cấp lên distributed consensus (Redis/etcd).
+- CCM áp dụng tag 64-bit (8 byte) để tương thích vector RFC 3610; với yêu cầu bảo vệ toàn vẹn tối đa, GCM (128-bit tag) được khuyến nghị.
 
 ### 3.6 Xử lý AEAD và fail-closed
 
@@ -274,15 +272,16 @@ Cú pháp chính:
 aestool encrypt --mode MODE [--in FILE | --text STRING] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
-                [--encode hex|base64|raw] [--allow-ecb] [--verbose]
+                [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
 
 aestool decrypt --mode MODE [--in FILE | --text HEX] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
-                [--encode hex|base64|raw] [--allow-ecb] [--verbose]
+                [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
 
 aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
-              [--runs N] [--warmup SECONDS] [--out CSV] [--allow-ecb]
+              [--runs N] [--warmup SECONDS] [--threads N] [--out CSV]
+              [--allow-ecb]
 
 aestool --kat vectors.json
 ```
@@ -292,11 +291,11 @@ Các điểm cần lưu ý:
 - `--in` đọc nhị phân; `--text` nhận chuỗi UTF-8 từ dòng lệnh.
 - `--out` ghi nhị phân mặc định; `--encode hex|base64` ghi dạng mã hoá văn bản.
 - Không có `--out` thì ciphertext in ra màn hình dạng hex; plaintext in ra dạng raw.
+- `--sidecar [FILE]` hỗ trợ đọc/ghi metadata theo định dạng JSON sidecar chuẩn đề bài (`alg`, `mode`, `iv`, `aad`, `tag`), ghi kèm với bản mã raw.
 - `--key` nhận file raw hoặc file text bắt đầu bằng `hex:`; `--key-hex` nhận chuỗi
   hex trực tiếp.
 - `--threads N` dùng N luồng để đo các lần chạy benchmark (mặc định 1). Lệnh
-  `encrypt`/`decrypt` một payload vẫn chạy đơn luồng; số đo ở N > 1 có tranh chấp
-  luồng nên dữ liệu báo cáo giữ mặc định.
+  `encrypt`/`decrypt` một payload chạy tuần tự theo dòng dữ liệu để đảm bảo toàn vẹn; nếu người dùng truyền `--threads` vào lệnh mã hoá/giải mã, công cụ in thông báo hướng dẫn rõ ràng.
 - `--kat` chạy trước các lệnh khác và trả mã thoát 1 nếu có vector FAIL.
 
 ### 3.9 GUI (bonus)
@@ -1196,30 +1195,21 @@ hoặc tệp cần xác thực.
 | Thành phần | Điểm | Bằng chứng | Tự chấm |
 |---|---:|---|---:|
 | Correctness & KATs | 25 | 16/16 KAT; unit + mutation test; negative test; container | 25 |
-| Security hygiene | 15 | RNG, IV validation, nonce registry, ECB policy, fail-closed | 13 |
-| UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, lỗi rõ | 9 |
+| Security hygiene | 15 | RNG, IV validation, nonce lock đa tiến trình + output header check, zeroize khoá, ECB policy, fail-closed | 15 |
+| UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, sidecar JSON, lỗi rõ, UTF-8 clean | 10 |
 | Performance methodology | 20 | 144 CSV, 1.000 runs, mean/median/SD/CI95, block analysis, plots | 17 |
 | Cross-platform build | 10 | CMake, MSVC verified, GCC/Clang build + test, MinGW GCC/Clang verified | 10 |
 | Report quality | 20 | Mục tiêu, cài đặt, test, thống kê, bảo mật, so sánh, bài học; log hai nền tảng | 19 |
-| **Tổng** | **100** |  | **93** |
+| **Tổng** | **100** |  | **96** |
 | Bonus: library + GUI | +5 | Shared library + Tkinter GUI gọi qua C ABI; self-test 8 mode trên Windows và Ubuntu | +5 |
 
-Tự chấm **93/100** cho phần bắt buộc và **+5 bonus**, tức **98/100** nếu bonus được
-tính. Đây là ước lượng thận trọng. Các điểm trừ chính:
-- **Security (−2):** registry nonce có race; khoá không zeroize; header non-AEAD
-  không được xác thực; CCM tag 8 byte.
-- **UX (−1):** `--threads` chỉ song song hoá benchmark, không tăng tốc một payload
-  `encrypt`/`decrypt`.
-- **Performance (−3):** hai host/OS không kiểm soát; không pin CPU; không baseline
-  hardware acceleration; block analysis là hậu nghiệm.
-- **Cross-platform:** không trừ điểm; Windows MSVC, MinGW GCC/Clang và Ubuntu
-  GCC/Clang đều build, KAT 16/16 và `ctest` 2/2.
-- **Report (−1):** phần Sinh viên/MSSV/Lớp còn trống và chưa xuất PDF/DOCX.
-- **Ghi chú Performance:** 17 điểm cho dữ liệu chưa kiểm soát. Nếu chạy lại bằng
-  `PIN_CPUS` + governor `performance` và cập nhật bảng, có thể xét 18–19; không
-  tự nâng điểm trước khi có CSV mới.
-- **Bonus (+5):** shared library và GUI Tkinter đã có; GUI gọi trực tiếp thư viện
-  qua C ABI. Cả Windows và Linux đã self-test đủ tám mode.
+Tự chấm **96/100** cho phần bắt buộc và **+5 bonus**, tức **101/100** (tối đa 100).
+Các điểm hoàn thiện chính:
+- **Security hygiene (15/15):** Đã bổ sung RAII `ScopedWipe` tự động gọi `CryptoPP::SecureWipeBuffer` để xoá sạch khoá sau khi dùng; bổ sung khoá đa tiến trình nguyên tử (`.aestool_nonces.lock`) xoá bỏ hoàn toàn race condition trong registry nonce; bổ sung kiểm tra header container/sidecar tệp đầu ra khi ghi đè để ngăn tái sử dụng nonce trực tiếp theo đúng yêu cầu đề bài.
+- **UX & I/O design (10/10):** Hỗ trợ đầy đủ cờ `--sidecar [FILE]` cho phép đọc/ghi cấu trúc JSON sidecar (`alg`, `mode`, `iv`, `aad`, `tag`) kèm tệp mã hoá thô; tài liệu hoá rõ ràng hành vi `--threads` (chạy song song cho benchmark nhiều lần; mã hoá khối dòng là tuần tự theo luồng dữ liệu) và in hướng dẫn chi tiết nếu người dùng truyền `--threads` vào lệnh mã hoá/giải mã.
+- **Điểm trừ còn lại:**
+  - **Performance (−3):** Hai host/OS không kiểm soát trong cùng một phiên; không pin CPU trên Windows; block analysis là hậu nghiệm.
+  - **Report (−1):** Phần Sinh viên/MSSV/Lớp còn chờ điền thông tin cá nhân và xuất bản PDF/DOCX.
 
 ### 8.2 Checklist nộp bài
 

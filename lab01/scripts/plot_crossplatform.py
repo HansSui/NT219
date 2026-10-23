@@ -53,7 +53,7 @@ METRICS = {
 LINUX_COLOR = "#e07b39"
 WINDOWS_COLOR = "#2b6cb0"
 NOTE = (
-    "Ubuntu runs: GCC + Clang pooled. Windows runs: MSVC 2026 (x64). "
+    "Ubuntu runs: GCC. Windows runs: MSVC 2026 (x64). "
     "Hosts and CPUs differ, so ratios are indicative rather than controlled."
 )
 
@@ -64,6 +64,8 @@ def load_dir(directory):
     for path in sorted(directory.glob("bench_*.csv")):
         parts = path.stem.split("_")
         if len(parts) < 5 or parts[3] not in MODES:
+            continue
+        if parts[2].lower() == "clang":
             continue
         with open(path, newline="", encoding="utf-8") as handle:
             rows = list(csv.DictReader(handle))
@@ -414,7 +416,7 @@ def main():
         default=None,
         help="default: output/windows/benchmarks",
     )
-    parser.add_argument("--linux-label", default="Ubuntu (GCC+Clang)")
+    parser.add_argument("--linux-label", default="Ubuntu (GCC)")
     parser.add_argument("--windows-label", default="Windows (MSVC 2026)")
     parser.add_argument("--out-dir", default="output/compare/graph")
     parser.add_argument("--bar-size", type=int, default=1048576)

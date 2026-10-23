@@ -44,6 +44,8 @@ def load(directory):
         parts = path.stem.split("_")
         if len(parts) < 5 or parts[3] not in MODES:
             continue
+        if parts[2].lower() == "clang":
+            continue
         key = (parts[1], parts[2], parts[3], None)
         with open(path, newline="", encoding="utf-8") as handle:
             rows = list(csv.DictReader(handle))
@@ -153,7 +155,8 @@ def plot_vs_size(data, out_dir, metric):
         ax.grid(True, which="both", alpha=0.3)
         ax.legend(ncol=2)
 
-    fig.suptitle(f"{metric.capitalize()} comparison across payload sizes (mean of GCC/Clang)")
+    comp_label = " + ".join(sorted({k[1].upper() for k in data})) or "GCC"
+    fig.suptitle(f"{metric.capitalize()} comparison across payload sizes ({comp_label})")
     fig.tight_layout()
     path = out_dir / f"comparison_{metric}_vs_size.png"
     fig.savefig(path, dpi=150)
@@ -179,10 +182,35 @@ def plot_box(data, size, out_dir):
         ax.grid(axis="y", alpha=0.3)
 
     fig.suptitle(
-        f"Latency distribution at {SIZE_LABELS.get(size, size)} payload (GCC + Clang, outliers hidden)"
+        f"Latency distribution at {SIZE_LABELS.get(size, size)} payload (GCC, outliers hidden)"
     )
     fig.tight_layout()
     path = out_dir / f"comparison_latency_box_{SIZE_LABELS.get(size, size)}.png"
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    print(f"wrote {path}")
+
+
+def plot_hist(data, size, out_dir):
+    """Per-mode histogram of the per-run latency samples at one payload size."""
+    modes = mode_list(data, size)
+    if not modes:
+        return
+    cols = 4
+    rows = (len(modes) + cols - 1) // cols
+    fig, axes = plt.subplots(rows, cols, figsize=(4.2 * cols, 3.2 * rows), squeeze=False)
+    for ax, mode in zip(axes.flat, modes):
+        for kind, (_, latency_col) in METRICS.items():
+            ax.hist(values(data, mode, size, latency_col), bins=40, alpha=0.55, label=kind)
+        ax.set_title(mode.upper())
+        ax.set_xlabel("microseconds")
+        ax.grid(alpha=0.3)
+    for ax in list(axes.flat)[len(modes):]:
+        ax.set_visible(False)
+    axes.flat[0].legend()
+    fig.suptitle(f"Latency distribution at {SIZE_LABELS.get(size, size)} payload (GCC, 1000 runs)")
+    fig.tight_layout()
+    path = out_dir / f"comparison_latency_hist_{SIZE_LABELS.get(size, size)}.png"
     fig.savefig(path, dpi=150)
     plt.close(fig)
     print(f"wrote {path}")
@@ -346,6 +374,7 @@ def main():
     plot_vs_size(data, out_dir, "throughput")
     plot_vs_size(data, out_dir, "latency")
     plot_box(data, args.box_size, out_dir)
+    plot_hist(data, args.box_size, out_dir)
     plot_stream_block(data, out_dir)
     plot_aead(data, out_dir)
     plot_tag_overhead(data, out_dir)

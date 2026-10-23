@@ -183,12 +183,12 @@ library discovery, the C ABI and the `--self-test` command.
 aestool encrypt --mode MODE [--in FILE | --text STRING] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
-                [--encode hex|base64|raw] [--allow-ecb] [--verbose]
+                [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
 
 aestool decrypt --mode MODE [--in FILE | --text HEX] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
-                [--encode hex|base64|raw] [--allow-ecb] [--verbose]
+                [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
 
 aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
               [--runs N] [--warmup SECONDS] [--threads N] [--out CSV]
@@ -318,9 +318,11 @@ plaintext defaults to raw bytes.
   `--allow-ecb` is supplied.
 - CTR, CCM and GCM reject a key+nonce pair that this tool has already used.
   The registry is `.aestool_nonces` in the current working directory and stores
-  only a SHA-256 key fingerprint and the nonce, never the key. It is a local,
-  unlocked file: it catches accidental CLI reuse, not coordinated multi-process
-  misuse.
+  only a SHA-256 key fingerprint and the nonce, never the key. Access is protected
+  by a cross-process atomic lock (`.aestool_nonces.lock`), and existing output file
+  headers/sidecars are also inspected directly before overwriting.
+- Key material loaded into memory is securely zeroized via `CryptoPP::SecureWipeBuffer`
+  upon scope exit.
 - GCM and CCM are authenticated. The tag is verified during decryption and the
   plaintext is released only after verification succeeds. A bad tag, wrong key,
   wrong IV or wrong AAD throws and writes no output.
@@ -338,7 +340,7 @@ plaintext defaults to raw bytes.
 - The default CCM nonce is 12 bytes, i.e. L=3, which limits one message to 16 MiB.
   The core accepts 7..13-byte CCM nonces, so the KAT vectors with 13-byte nonces
   work, but the CLI auto-generates 12-byte nonces.
-- The nonce reuse registry is per working directory and has no file locking.
+- The nonce reuse registry is per working directory and synchronized via an atomic cross-process filesystem lock (`.aestool_nonces.lock`). Upgrade to a centralized store for distributed multi-host deployments.
 - `--threads N` parallelises benchmark runs only; `encrypt`/`decrypt` remain
   single-threaded, and threaded benchmark timings include contention.
 - There is no password-based key derivation or key storage/rotation. Keys are

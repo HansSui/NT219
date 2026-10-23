@@ -35,6 +35,7 @@ struct Options {
     std::string aadText;
     std::string encode;
     std::string katPath;
+    std::string sidecarPath;
 
     bool hasIn = false;
     bool hasText = false;
@@ -48,6 +49,7 @@ struct Options {
     bool hasEncode = false;
     bool hasMode = false;
     bool hasKat = false;
+    bool hasSidecar = false;
 
     bool aead = false;
     bool allowEcb = false;
@@ -65,20 +67,22 @@ Usage:
   aestool encrypt --mode MODE [--in FILE | --text STRING] [--out FILE]
                   (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                   [--aead] [--aad FILE | --aad-text STRING]
-                  [--encode hex|base64|raw] [--allow-ecb] [--verbose]
+                  [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
   aestool decrypt --mode MODE [--in FILE | --text HEX] [--out FILE]
                   (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                   [--aead] [--aad FILE | --aad-text STRING]
-                  [--encode hex|base64|raw] [--allow-ecb] [--verbose]
+                  [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
   aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
                 [--runs N] [--warmup SECONDS] [--threads N] [--out CSV]
                 [--allow-ecb]
   aestool --kat vectors.json
   aestool help
 
-Modes: ecb cbc ofb cfb ctr xts ccm gcm
-AEAD:  gcm and ccm require --aead. GCM nonce is 12 bytes; CCM accepts 7..13.
-Keys:  16/24/32 bytes (AES-128/192/256); XTS uses 32 or 64 bytes.
+Modes:   ecb cbc ofb cfb ctr xts ccm gcm
+AEAD:    gcm and ccm require --aead. GCM nonce is 12 bytes; CCM accepts 7..13.
+Keys:    16/24/32 bytes (AES-128/192/256); XTS uses 32 or 64 bytes.
+Sidecar: --sidecar [FILE] writes/reads JSON metadata (alg, mode, iv, aad, tag) alongside raw ciphertext.
+Threads: --threads applies to bench. Symmetric cipher stream encryption is serial per stream.
 )";
 
 [[noreturn]] void fail(const std::string& message) { throw std::runtime_error(message); }
@@ -123,9 +127,13 @@ std::string readValueOrFile(const std::string& value) {
     return aes::fromHex(value);
 }
 
-std::string readKey(const Options& options) {
+std::string readKey(Options& options) {
     if (options.hasKey && options.hasKeyHex) fail("use either --key or --key-hex, not both");
-    if (options.hasKeyHex) return aes::fromHex(options.keyHex);
+    if (options.hasKeyHex) {
+        std::string key = aes::fromHex(options.keyHex);
+        aes::secureWipe(options.keyHex);
+        return key;
+    }
     if (options.hasKey) return aes::loadKeyFile(options.keyPath);
     fail("a key is required: pass --key FILE or --key-hex HEX");
 }
@@ -180,28 +188,106 @@ void enforceEcbPolicy(aes::Mode mode, std::size_t payloadSize, bool allowed) {
 
 std::string keyFingerprint(const std::string& key) { return aes::sha256Hex(key); }
 
-// shortcut: reuse registry is a per-working-directory file, not a locked database;
-// it catches accidental reuse in normal CLI use, upgrade to a per-key store for multi-process use.
-const char* kNonceRegistry = ".aestool_nonces";
-
-void checkNonceReuse(aes::Mode mode, const std::string& key, const std::string& iv) {
-    if (mode != aes::Mode::CTR && mode != aes::Mode::CCM && mode != aes::Mode::GCM) return;
-    const std::string expected = keyFingerprint(key) + " " + aes::toHex(iv);
-    std::ifstream registry(kNonceRegistry);
-    std::string line;
-    while (std::getline(registry, line)) {
-        if (line == expected) {
-            fail("nonce reuse rejected: this key and nonce were already used");
+// Atomic cross-process lock using directory creation (portable C++17, zero external dependencies).
+// shortcut: local directory-based lock suffices for single-host processes; upgrade to distributed consensus (e.g. Redis/etcd) for multi-host deployments.
+struct NonceLock {
+    std::filesystem::path lockDir = ".aestool_nonces.lock";
+    bool locked = false;
+    NonceLock() {
+        for (int i = 0; i < 50; ++i) {
+            std::error_code ec;
+            if (std::filesystem::create_directory(lockDir, ec)) {
+                locked = true;
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
     }
-}
+    ~NonceLock() {
+        if (locked) {
+            std::error_code ec;
+            std::filesystem::remove(lockDir, ec);
+        }
+    }
+    NonceLock(const NonceLock&) = delete;
+    NonceLock& operator=(const NonceLock&) = delete;
+};
 
-void recordNonce(aes::Mode mode, const std::string& key, const std::string& iv) {
+const char* kNonceRegistry = ".aestool_nonces";
+
+void checkAndRecordNonce(aes::Mode mode, const std::string& key, const std::string& iv,
+                         const std::string& outPath = "") {
     if (mode != aes::Mode::CTR && mode != aes::Mode::CCM && mode != aes::Mode::GCM) return;
+
+    // 1. Inspect existing output file header (reject if same nonce is indicated)
+    if (!outPath.empty()) {
+        std::error_code ec;
+        if (std::filesystem::exists(std::filesystem::u8path(outPath), ec)) {
+            bool matches = false;
+            try {
+                const std::string existingData = readAll(outPath);
+                if (existingData.size() >= 13 && existingData.compare(0, 5, "AESL1") == 0) {
+                    const aes::Record existingRecord = aes::parseRecord(existingData);
+                    matches = (existingRecord.mode == mode && existingRecord.iv == iv);
+                }
+            } catch (const std::exception&) {
+                // Ignore parse errors from non-container files
+            }
+            if (matches) {
+                fail("nonce reuse rejected: output file header indicates same nonce already used");
+            }
+        }
+    }
+
+    // 2. Atomic check and record under cross-process lock
+    NonceLock lock;
+    const std::string expected = keyFingerprint(key) + " " + aes::toHex(iv);
+    {
+        std::ifstream registry(kNonceRegistry);
+        std::string line;
+        while (std::getline(registry, line)) {
+            if (line == expected) {
+                fail("nonce reuse rejected: this key and nonce were already used");
+            }
+        }
+    }
+
     std::ofstream registry(kNonceRegistry, std::ios::app);
     if (!registry.good()) fail("cannot write nonce reuse registry: " + std::string(kNonceRegistry));
-    registry << keyFingerprint(key) << ' ' << aes::toHex(iv) << '\n';
+    registry << expected << '\n';
+    registry.flush();
     if (!registry.good()) fail("failed while writing nonce reuse registry");
+}
+
+void writeSidecar(const std::string& path, aes::Mode mode, std::size_t keyBits,
+                  const std::string& iv, const std::string& aad, const std::string& tag) {
+    const std::string alg = "AES-" + std::to_string(keyBits) + "-" + aes::modeName(mode);
+    std::ostringstream json;
+    json << "{\n"
+         << "  \"alg\": \"" << alg << "\",\n"
+         << "  \"mode\": \"" << aes::modeName(mode) << "\",\n"
+         << "  \"iv\": \"" << aes::toHex(iv) << "\",\n"
+         << "  \"aad\": \"" << aes::toHex(aad) << "\",\n"
+         << "  \"tag\": \"" << aes::toHex(tag) << "\"\n"
+         << "}\n";
+    writeAll(path, json.str());
+}
+
+struct SidecarInfo {
+    aes::Mode mode = aes::Mode::CBC;
+    std::string iv;
+    std::string aad;
+    std::string tag;
+};
+
+SidecarInfo readSidecar(const std::string& path) {
+    const minijson::Value root = minijson::parse(readAll(path));
+    SidecarInfo info;
+    info.mode = aes::parseMode(root.getString("mode"));
+    info.iv = aes::fromHex(root.getString("iv"));
+    info.aad = root.has("aad") ? aes::fromHex(root.getString("aad")) : "";
+    info.tag = root.has("tag") ? aes::fromHex(root.getString("tag")) : "";
+    return info;
 }
 
 void printVerbose(const std::string& text, bool verbose) {
@@ -251,7 +337,8 @@ void printStats(const std::string& label, const Stats& stats, const std::string&
 int runBench(const Options& options) {
     if (!options.hasMode) fail("bench requires --mode");
     const aes::Mode mode = aes::parseMode(options.mode);
-    const std::string key = readKey(options);
+    std::string key = readKey(const_cast<Options&>(options));
+    aes::ScopedWipe wipeKey(key);
     const std::size_t size = options.size == 0 ? 1024 : options.size;
     const std::size_t runs = options.runs == 0 ? 30 : options.runs;
     const double warmup = options.warmup < 0 ? 1.0 : options.warmup;
@@ -426,9 +513,13 @@ int runKat(const std::string& path) {
 }
 
 int runEncrypt(const Options& options) {
+    if (options.threads > 1) {
+        std::cerr << "note: AES stream encryption is serial per payload; --threads applies to bench\n";
+    }
     if (!options.hasMode) fail("encrypt requires --mode");
     const aes::Mode mode = aes::parseMode(options.mode);
-    const std::string key = readKey(options);
+    std::string key = readKey(const_cast<Options&>(options));
+    aes::ScopedWipe wipeKey(key);
     const std::string plaintext = readInput(options, false);
     const std::string aad = readAad(options);
 
@@ -450,24 +541,65 @@ int runEncrypt(const Options& options) {
         iv = aes::randomBytes(aes::ivSize(mode));
     }
 
-    checkNonceReuse(mode, key, iv);
+    checkAndRecordNonce(mode, key, iv, options.outPath);
     const aes::Encrypted encrypted = aes::encrypt(mode, key, iv, plaintext, aad);
-    const aes::Record record{mode, iv, aad, encrypted.tag, encrypted.ciphertext};
-    const std::string container = aes::serialize(record);
-    recordNonce(mode, key, iv);
 
     printVerbose("mode=" + aes::modeName(mode) + " key=" + std::to_string(key.size() * 8) +
                      " bits iv=" + aes::toHex(iv) + " payload=" +
                      std::to_string(plaintext.size()) + " bytes",
                  options.verbose);
-    writeResult(container, options, true);
+
+    if (options.hasSidecar) {
+        std::string sidecarFile = options.sidecarPath;
+        if (sidecarFile.empty()) {
+            sidecarFile = options.hasOut ? (options.outPath + ".json") : "sidecar.json";
+        }
+        writeSidecar(sidecarFile, mode, key.size() * 8, iv, aad, encrypted.tag);
+        writeResult(encrypted.ciphertext, options, true);
+    } else {
+        const aes::Record record{mode, iv, aad, encrypted.tag, encrypted.ciphertext};
+        const std::string container = aes::serialize(record);
+        writeResult(container, options, true);
+    }
     return 0;
 }
 
 int runDecrypt(const Options& options) {
-    if (!options.hasMode) fail("decrypt requires --mode (it must match the ciphertext header)");
-    const std::string key = readKey(options);
+    if (options.threads > 1) {
+        std::cerr << "note: AES stream decryption is serial per payload; --threads applies to bench\n";
+    }
+    std::string key = readKey(const_cast<Options&>(options));
+    aes::ScopedWipe wipeKey(key);
     const std::string input = readInput(options, true);
+
+    if (options.hasSidecar) {
+        const SidecarInfo sidecar = readSidecar(options.sidecarPath);
+        const aes::Mode mode = options.hasMode ? aes::parseMode(options.mode) : sidecar.mode;
+        if (options.hasMode && mode != sidecar.mode) {
+            fail("--mode does not match the sidecar header");
+        }
+        if (aes::isAead(mode) && !options.aead)
+            fail("mode " + aes::modeName(mode) + " is AEAD; pass --aead");
+        if (!aes::isAead(mode) && options.aead) fail("--aead is only valid with ccm or gcm");
+
+        const std::string aad = (options.hasAad || options.hasAadText) ? readAad(options) : sidecar.aad;
+        if (options.hasIv && options.hasNonce) fail("use either --iv or --nonce, not both");
+        std::string iv = sidecar.iv;
+        if (options.hasIv) iv = readValueOrFile(options.iv);
+        else if (options.hasNonce) iv = readValueOrFile(options.nonce);
+
+        enforceEcbPolicy(mode, input.size(), options.allowEcb);
+        const std::string plaintext =
+            aes::decrypt(mode, key, iv, input, aad, sidecar.tag);
+
+        printVerbose("mode=" + aes::modeName(mode) + " key=" + std::to_string(key.size() * 8) +
+                         " bits payload=" + std::to_string(plaintext.size()) + " bytes",
+                     options.verbose);
+        writeResult(plaintext, options, false);
+        return 0;
+    }
+
+    if (!options.hasMode) fail("decrypt requires --mode (it must match the ciphertext header)");
     const aes::Record record = aes::parseRecord(input);
 
     const aes::Mode mode = aes::parseMode(options.mode);
@@ -555,6 +687,13 @@ Options parseOptions(int argc, char** argv) {
         } else if (argument == "--encode") {
             options.encode = takeValue();
             options.hasEncode = true;
+        } else if (argument == "--sidecar") {
+            if (inlineValue) {
+                options.sidecarPath = value;
+            } else if (i + 1 < argc && argv[i + 1][0] != '-') {
+                options.sidecarPath = argv[++i];
+            }
+            options.hasSidecar = true;
         } else if (argument == "--kat") {
             options.katPath = takeValue();
             options.hasKat = true;

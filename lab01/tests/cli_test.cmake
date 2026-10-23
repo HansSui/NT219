@@ -70,6 +70,19 @@ run_expect_failure(short-iv encrypt --mode cbc --key-hex "${key}"
 # Odd hex is malformed input.
 run_expect_failure(odd-hex encrypt --mode ecb --key-hex abc --text data --out odd.bin)
 
+# Sidecar JSON header export and round-trip.
+set(gcm_nonce "00112233445566778899aabb")
+run_expect_success(sidecar-encrypt encrypt --mode gcm --aead --key-hex "${key}"
+                   --nonce "${gcm_nonce}" --text "sidecar test" --out "${WORK_DIR}/sidecar_ct.bin"
+                   --sidecar "${WORK_DIR}/sidecar.json")
+run_expect_success(sidecar-decrypt decrypt --mode gcm --aead --key-hex "${key}"
+                   --in "${WORK_DIR}/sidecar_ct.bin" --sidecar "${WORK_DIR}/sidecar.json"
+                   --out "${WORK_DIR}/sidecar_out.txt")
+file(READ "${WORK_DIR}/sidecar_out.txt" recovered_sidecar)
+if(NOT recovered_sidecar STREQUAL "sidecar test")
+    message(FATAL_ERROR "sidecar plaintext mismatch: got '${recovered_sidecar}'")
+endif()
+
 # Threaded benchmark writes one header plus one row per run.
 run_expect_success(threaded-bench bench --mode ctr --key-hex "${key}" --size 1024
                    --runs 8 --warmup 0 --threads 2 --out bench.csv)

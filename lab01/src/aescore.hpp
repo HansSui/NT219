@@ -30,6 +30,16 @@ AESCORE_API std::string toBase64(const std::string& bytes);
 AESCORE_API std::string sha256Hex(const std::string& bytes);
 AESCORE_API std::string randomBytes(std::size_t count);
 AESCORE_API std::string loadKeyFile(const std::string& path);
+AESCORE_API void secureWipe(void* ptr, std::size_t size);
+AESCORE_API void secureWipe(std::string& s);
+
+struct ScopedWipe {
+    std::string& ref;
+    explicit ScopedWipe(std::string& s) : ref(s) {}
+    ~ScopedWipe() { secureWipe(ref); }
+    ScopedWipe(const ScopedWipe&) = delete;
+    ScopedWipe& operator=(const ScopedWipe&) = delete;
+};
 
 struct Encrypted {
     std::string ciphertext;

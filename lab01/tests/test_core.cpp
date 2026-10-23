@@ -200,3 +200,16 @@ TEST_CASE("key file supports raw bytes and hex-prefixed text") {
     std::filesystem::remove(rawPath);
     std::filesystem::remove(hexPath);
 }
+
+TEST_CASE("secureWipe zeroes memory buffer and clears string") {
+    std::string secret = "supersecretkeymaterial1234567890";
+    aes::secureWipe(secret);
+    REQUIRE(secret.empty());
+
+    char buffer[16];
+    std::fill_n(buffer, 16, 'Z');
+    aes::secureWipe(buffer, sizeof(buffer));
+    for (char c : buffer) {
+        REQUIRE(c == 0);
+    }
+}

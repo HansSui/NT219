@@ -76,7 +76,8 @@ int aesgui_encrypt(const char* mode, const char* key_hex, const char* iv_hex,
         *record_len = 0;
 
         const aes::Mode selected = aes::parseMode(mode);
-        const std::string key = aes::fromHex(key_hex);
+        std::string key = aes::fromHex(key_hex);
+        aes::ScopedWipe wipeKey(key);
         std::string iv = optionalHex(iv_hex);
         if (iv.empty() && aes::ivSize(selected) != 0) iv = aes::randomBytes(aes::ivSize(selected));
         const std::string aad = optionalHex(aad_hex);
@@ -109,7 +110,8 @@ int aesgui_decrypt(const char* mode, const char* key_hex, const char* iv_hex,
         *plaintext_len = 0;
 
         const aes::Mode selected = aes::parseMode(mode);
-        const std::string key = aes::fromHex(key_hex);
+        std::string key = aes::fromHex(key_hex);
+        aes::ScopedWipe wipeKey(key);
         const aes::Record container = aes::parseRecord(inputBytes(record, record_len));
         if (container.mode != selected) {
             throw std::runtime_error("--mode does not match the ciphertext header");
