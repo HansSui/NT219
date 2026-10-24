@@ -14,15 +14,30 @@ default:
 | Platform | Compiler | CSVs | Status |
 |---|---|---:|---|
 | Ubuntu | GCC 15.2 | 48 | measured |
-| Ubuntu | Clang 21.1.8 | 48 | measured |
 | Windows | MSVC 19.51 x64 | 48 | measured |
+| Ubuntu | Clang 21.1.8 | 0 | build + KAT + ctest verified, benchmark not run |
 | Windows | MinGW GCC/Clang | 0 | build + KAT + ctest verified, benchmark not run |
 
-The measured 144 CSVs and their summaries are committed under `output/`. The
-report (`REPORT.md`) adds a post-hoc 30-block confidence-interval analysis on the
-Windows rows: with 1,000 single-run samples the per-run CI95 reflects only
-within-run timer noise, not the run-to-run drift visible at block level. Keep
-that distinction when quoting CI95 from `summary.csv`.
+The measured **96 CSVs** (48 Ubuntu GCC + 48 Windows MSVC) and their summaries
+are committed under `output/`. Older text and report tables that mention 144
+CSVs or Ubuntu Clang benchmark columns are stale: those Clang CSVs do not exist
+in the current `output/` tree. The report (`REPORT.md`) adds a post-hoc 30-block
+confidence-interval analysis on the Windows rows: with 1,000 single-run samples
+the per-run CI95 reflects only within-run timer noise, not the run-to-run drift
+visible at block level. Keep that distinction when quoting CI95 from
+`summary.csv`.
+
+The Windows MSVC set was regenerated in the controlled run on 25/10/2026
+00:45–00:59 (AC power, High performance, logical CPU 2, high priority, 1000
+runs, 5 s warm-up, 5 s cooldown, 10 s settle, 30 s pilot warm-up). The
+environment snapshot recorded 13% CPU load; the 300-run CTR 1 MB pilot passed
+(median 694.4 µs, CV 0.111, 0% outliers). 43/48 configurations are stable in
+both directions; 4 encrypt and 3 decrypt configurations are flagged noisy, with
+2 of those noisy in both directions (CCM 8 MB, GCM 256 KB). Median CV is 0.071
+encrypt / 0.068 decrypt; the largest are 0.68 / 0.61. The remaining flags are
+short-payload scheduler tails plus CCM/GCM; quote medians/trimmed means from
+`summary_robust.csv` and disclose the flags instead of calling the matrix
+noise-free.
 
 The 8 MB case processes about 8 GB for encryption and 8 GB for decryption per
 mode, so a full run takes minutes. Start with a smaller smoke run if needed.
@@ -92,13 +107,39 @@ instead of the comparison charts.
 
 ## Windows
 
+For report data, use the controlled runner:
+
 ```bat
 scripts\build_windows.bat msvc
-scripts\run_benchmarks.bat msvc
+scripts\bench_windows_controlled.bat
+```
+
+It selects the High performance plan, records the real OS/CPU/power/affinity
+metadata, checks AC power and CPU load, runs a short CTR 1 MB pilot, then runs
+the full matrix at high priority on logical CPU 2 with a cooldown (default 2 s;
+the final reported run used 5 s) between configurations. It aborts if the host is
+on battery, above the configured CPU-load limit (default 15%), or still noisy
+during the pilot. Set `FORCE=1` only when you deliberately want to override that
+guard.
+
+For a quick check without touching the committed CSVs:
+
+```bat
+set OUT=%TEMP%\benchtest
+set MODES=ctr gcm ccm cbc
+set SIZES=1024
+set RUNS=5
+set WARMUP=0
+set SKIP_PILOT=1
+set SKIP_CROSS=1
+set FORCE=1
+scripts\bench_windows_controlled.bat
 ```
 
 Output goes to `output\windows\benchmarks\`. Use `gcc` or `clang` instead of
-`msvc` for the MinGW builds.
+`msvc` for the MinGW builds with the lower-level runner
+(`scripts\run_benchmarks.bat gcc`); the controlled runner currently wraps the
+MSVC build.
 
 Both runner scripts replace the previous CSVs and summaries for the selected
 platform/compiler before starting, so a rerun never mixes old and new data. Set
@@ -145,7 +186,7 @@ chart uses 16 KB (`--latency-size`); both sizes are adjustable.
 
 ## Overrides
 
-Both scripts accept environment variables:
+The runners accept environment variables:
 
 | Variable | Default | Purpose |
 |---|---|---|
@@ -158,6 +199,18 @@ Both scripts accept environment variables:
 | `OUT` | `output/<platform>/benchmarks` | output directory |
 | `KEY` | `output/<platform>/key_bin/key.bin` | 32-byte key file |
 | `PLOT` | `0` | set to `1` to generate plots |
+| `COOLDOWN` | `2` (Windows controlled) | seconds to pause between configurations |
+| `PILOT_WARMUP` | `15` (Windows controlled) | warm-up seconds before the pilot measurement |
+| `SETTLE` | `5` (Windows controlled) | idle seconds after selecting the power plan |
+| `MAX_CPU_LOAD` | `15` (Windows controlled) | preflight CPU-load limit in percent |
+| `AFFINITY` | `4` (Windows controlled) | hex affinity mask; `4` = logical CPU 2 |
+| `FORCE` | unset | set to `1` to continue despite a failed preflight/pilot |
+| `SKIP_PILOT` | unset | set to `1` to skip the CTR 1 MB pilot |
+| `PILOT_ONLY` | unset | set to `1` to run only the pilot and stop |
+| `SKIP_CROSS` | unset | set to `1` to skip cross-platform plots |
+
+The final reported Windows run used `RUNS=1000 WARMUP=5 COOLDOWN=5 SETTLE=10
+PILOT_WARMUP=30 AFFINITY=4`; its environment snapshot recorded 13% CPU load.
 
 Examples:
 
@@ -192,19 +245,35 @@ writes `bench_environment.txt` next to the CSVs with timestamp, CPU, governor an
 pinning. It warns if the governor is not `performance`; it does not change system
 settings itself.
 
-On Windows, run the batch inside an affinity mask and record the power plan
-before starting:
+On Windows, use the controlled runner. It selects the High performance plan,
+records the actual environment, and pins the process tree to logical CPU 2:
 
 ```bat
-powercfg /setactive SCHEME_MIN
-powercfg /getactivescheme > output\windows\benchmarks\bench_environment.txt
-start /affinity FF /wait cmd /c scripts\run_benchmarks.bat msvc
+scripts\bench_windows_controlled.bat
 ```
 
-`FF` pins the process tree to eight logical CPUs; adjust for the host. The batch
-itself still defaults to `THREADS=1`.
+Before running it:
+
+1. Plug in the charger. The preflight rejects a discharging laptop.
+2. Close Chrome, VPN clients (for example Cloudflare WARP), games, and other
+   CPU-heavy applications.
+3. Wait for Windows Update, indexing, and antivirus scans to finish.
+4. Leave the machine idle for the duration of the run (about 8–12 minutes).
+
+The runner first executes a 300-run CTR 1 MB pilot and aborts if the pilot is
+noisy. It then runs the full matrix at high priority with a cooldown between
+configurations (default 2 s; the final reported run used 5 s warm-up and 5 s
+cooldown). `FORCE=1` overrides the guard, but a forced run is not suitable for
+report data.
+
+Do **not** use `powercfg /setactive SCHEME_MIN`: on Windows that alias selects
+Power saver, not High performance. The correct High performance GUID is
+`8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c`. Likewise, `start /affinity FF` pins all
+eight logical CPUs; `start /affinity 4` pins logical CPU 2.
 
 After the CSVs exist, run `scripts/summarize_bench.py` for the statistics tables
 and `scripts/plot_compare.py` (or `PLOT=1`) for the seven combined comparison
-graphs in `benchmarks/graph/`. `scripts/plot_bench.py` still produces one
-throughput and one latency plot per CSV if needed.
+graphs in `benchmarks/graph/`. `summary_robust.csv` adds median, 5%-trimmed
+mean, >2× median outlier percentage, and an `ok`/`noisy` flag per configuration;
+use it when the mean is distorted by scheduling outliers. `scripts/plot_bench.py`
+still produces one throughput and one latency plot per CSV if needed.

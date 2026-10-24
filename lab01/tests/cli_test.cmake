@@ -59,6 +59,13 @@ run_expect_success(nonce-first encrypt --mode ctr --key-hex "${key}" --iv "${non
 run_expect_failure(nonce-reuse encrypt --mode ctr --key-hex "${key}" --iv "${nonce}"
                    --text second --out second.bin)
 
+# A held lock must make the command fail closed, not continue unlocked.
+file(MAKE_DIRECTORY "${WORK_DIR}/.aestool_nonces.lock")
+run_expect_failure(lock-contention encrypt --mode ctr --key-hex "${key}"
+                   --iv "ffeeddccbbaa99887766554433221100"
+                   --text locked --out locked.bin)
+file(REMOVE_RECURSE "${WORK_DIR}/.aestool_nonces.lock")
+
 # ECB policy and IV length validation.
 string(REPEAT "A" 16385 large)
 file(WRITE "${WORK_DIR}/large.bin" "${large}")

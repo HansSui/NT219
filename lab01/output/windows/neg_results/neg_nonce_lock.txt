@@ -1,0 +1,5 @@
+command: aestool encrypt --mode ctr with .aestool_nonces.lock held
+exit: 1
+output_created: False
+output:
+error: cannot acquire nonce lock '.aestool_nonces.lock' within 500 ms; another aestool process may be using it. If it crashed, remove the stale lock directory only after verifying that no aestool process is running.

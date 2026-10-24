@@ -26,6 +26,18 @@ if "$tool" encrypt --mode ctr --key key.bin --iv "$nonce" --text second \
     exit 1
 fi
 
+mkdir .aestool_nonces.lock
+if "$tool" encrypt --mode ctr --key key.bin --iv ffeeddccbbaa99887766554433221100 \
+        --text locked --out locked.bin 2>/dev/null; then
+    echo "nonce lock was fail-open" >&2
+    exit 1
+fi
+rmdir .aestool_nonces.lock
+if [[ -e locked.bin ]]; then
+    echo "lock contention wrote an output file" >&2
+    exit 1
+fi
+
 head -c 16385 /dev/zero > large.bin
 if "$tool" encrypt --mode ecb --key key.bin --in large.bin --out ecb.bin 2>/dev/null; then
     echo "large ECB payload was not blocked" >&2

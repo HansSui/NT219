@@ -3,7 +3,7 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 rem Run the full benchmark matrix: every mode x every required size.
 rem Usage: run_benchmarks.bat [msvc|gcc|clang]
-rem Optional environment: RUNS WARMUP THREADS SIZES MODES PLATFORM OUT KEY PLOT KEEP
+rem Optional environment: RUNS WARMUP THREADS SIZES MODES PLATFORM OUT KEY PLOT KEEP COOLDOWN
 rem A rerun replaces this platform/compiler's CSVs and summaries. Set KEEP=1 to
 rem keep older files (for example when running only a subset of modes/sizes).
 
@@ -51,7 +51,7 @@ if not "%KEEP%"=="1" (
     rem Remove this platform/compiler's previous results so a rerun cannot mix
     rem old and new CSVs. Files from other platforms/compilers are left alone.
     del /q "%out%\bench_%platform%_%compiler%_*.csv" >nul 2>nul
-    del /q "%out%\summary.csv" "%out%\summary_classes.csv" "%out%\summary_tag_overhead.csv" >nul 2>nul
+    del /q "%out%\summary.csv" "%out%\summary_classes.csv" "%out%\summary_tag_overhead.csv" "%out%\summary_robust.csv" >nul 2>nul
 )
 if not exist "%key%" (
     if not exist "%root%\output\%platform%\key_bin" mkdir "%root%\output\%platform%\key_bin"
@@ -93,6 +93,11 @@ for %%M in (%modes%) do (
             exit /b 1
         )
         echo   wrote bench_%platform%_%compiler%_%%M_!label!.csv
+        rem Optional pause between configurations to reduce sustained thermal
+        rem throttling. A value of 0 disables the pause.
+        if defined COOLDOWN if not "%COOLDOWN%"=="0" (
+            powershell -NoProfile -Command "Start-Sleep -Seconds %COOLDOWN%"
+        )
     )
 )
 

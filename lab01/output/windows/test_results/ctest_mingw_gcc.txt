@@ -1,9 +1,9 @@
 Test project E:/NT219/lab01/build/windows-gcc
     Start 1: aescore
-1/2 Test #1: aescore ..........................   Passed    0.05 sec
+1/2 Test #1: aescore ..........................   Passed    0.02 sec
     Start 2: cli
-2/2 Test #2: cli ..............................   Passed    0.47 sec
+2/2 Test #2: cli ..............................   Passed    0.30 sec
 
-100% tests passed, 0 tests failed out of 2
+100% tests passed out of 2
 
-Total Test time (real) =   0.53 sec
+Total Test time (real) =   0.33 sec

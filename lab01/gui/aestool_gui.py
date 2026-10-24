@@ -58,6 +58,7 @@ def _library_candidates(explicit: str | None):
     if sys.platform == "win32":
         names = ("aescore.dll",)
         directories = (
+            ROOT / "bin",
             ROOT / "build" / "windows-msvc-shared" / "Release",
             ROOT / "build" / "windows-msvc-shared",
             ROOT / "build" / "windows-msvc" / "Release",
@@ -67,6 +68,8 @@ def _library_candidates(explicit: str | None):
     else:
         names = ("libaescore.so", "aescore.so")
         directories = (
+            ROOT / "bin",
+            ROOT / "lib",
             ROOT / "build" / "ubuntu-gcc-shared",
             ROOT / "build" / "ubuntu-gcc-shared" / "Release",
             ROOT / "build" / "ubuntu-clang-shared",

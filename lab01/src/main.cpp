@@ -202,6 +202,12 @@ struct NonceLock {
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
+        if (!locked) {
+            fail("cannot acquire nonce lock '" + lockDir.string() +
+                 "' within 500 ms; another aestool process may be using it. "
+                 "If it crashed, remove the stale lock directory only after "
+                 "verifying that no aestool process is running.");
+        }
     }
     ~NonceLock() {
         if (locked) {

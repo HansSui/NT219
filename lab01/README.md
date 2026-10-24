@@ -44,7 +44,7 @@ build/                  CMake build trees (gitignored):
   windows-gcc/          MinGW GCC CLI
   windows-clang/        MinGW Clang CLI
 output/
-  ubuntu/benchmarks/    GCC + Clang benchmark CSVs, summaries and graph/
+  ubuntu/benchmarks/    GCC benchmark CSVs, summaries and graph/
   windows/benchmarks/   MSVC benchmark CSVs, summaries and graph/
   windows/test_results/ KAT, ctest and environment logs from the MSVC run
   windows/neg_results/  captured output of the negative/edge-case runs
@@ -174,8 +174,11 @@ sudo apt install -y python3-tk libcryptopp-dev
 
 The GUI supports all eight modes, hex key/IV/AAD input or file loading, random
 key/IV generation from Crypto++, UTF-8 text or binary input, hex/base64 output,
-and saving the raw AESL1 container. See `gui/README.md` for build details,
-library discovery, the C ABI and the `--self-test` command.
+and saving the raw AESL1 container. The launcher and the Python discovery code
+also find `bin/aescore.dll`, so the packaged Windows tree works with either
+`gui\run_gui.bat` or a direct `python gui\aestool_gui.py` invocation. See
+`gui/README.md` for build details, library discovery, the C ABI and the
+`--self-test` command.
 
 ## CLI
 
@@ -340,7 +343,7 @@ plaintext defaults to raw bytes.
 - The default CCM nonce is 12 bytes, i.e. L=3, which limits one message to 16 MiB.
   The core accepts 7..13-byte CCM nonces, so the KAT vectors with 13-byte nonces
   work, but the CLI auto-generates 12-byte nonces.
-- The nonce reuse registry is per working directory and synchronized via an atomic cross-process filesystem lock (`.aestool_nonces.lock`). Upgrade to a centralized store for distributed multi-host deployments.
+- The nonce reuse registry is per working directory and synchronized via an atomic cross-process filesystem lock (`.aestool_nonces.lock`). If the lock cannot be acquired within 500 ms, the CLI fails closed instead of continuing unlocked; remove a stale lock only after verifying that no `aestool` process is still running. Upgrade to a centralized store for distributed multi-host deployments.
 - `--threads N` parallelises benchmark runs only; `encrypt`/`decrypt` remain
   single-threaded, and threaded benchmark timings include contention.
 - There is no password-based key derivation or key storage/rotation. Keys are
@@ -397,8 +400,15 @@ KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 | KAT, 16 vectors | 16/16 passed | 16/16 passed | `output/*/test_results/kat_*` |
 | `ctest` | 2/2 passed (Catch2 + CLI) | 2/2 passed (Catch2 + CLI) | `output/*/test_results/ctest_*` |
 | CLI negative/edge cases | 12 logged cases | 17 cases + positive round-trips | `output/ubuntu/neg_results/`, `output/windows/neg_results/` |
-| Benchmark | 96 CSVs (GCC + Clang) | 48 CSVs | `output/ubuntu/benchmarks/`, `output/windows/benchmarks/` |
+| Benchmark | 48 CSVs (GCC 15.2) | 48 CSVs (MSVC 19.51) | `output/ubuntu/benchmarks/`, `output/windows/benchmarks/` |
 | GUI `--self-test` | 8/8 modes, negative cases | 8/8 modes, negative cases | `output/*/test_results/gui_selftest.txt` |
+
+Only the Ubuntu GCC benchmark matrix is present; Clang was built and tested but
+not benchmarked. The Windows matrix comes from the controlled 25/10 run
+(AC power, High performance, logical CPU 2, high priority, 1000 runs, 5 s
+warm-up/cooldown, 30 s pilot warm-up). `summary_robust.csv` flags 5 of the 48
+Windows configurations as noisy in at least one direction, so use its medians
+and trimmed means rather than presenting the matrix as perfectly noise-free.
 
 The Windows KAT, `ctest`, GUI and negative-test logs are committed. The Ubuntu
 logs were regenerated with GCC 15.2 and Clang 21.1.8 and are in
@@ -409,11 +419,12 @@ build the project and pass KAT 16/16 and `ctest` 2/2 on Windows; their logs are
 
 ## Report and deliverables
 
-`REPORT.md` is the completed Vietnamese lab report. It covers objectives,
-implementation, the 16 KAT vectors, unit and negative tests, the Windows-vs-Ubuntu
-and compiler comparisons, statistical tables (mean, median, SD, CI95, CV),
-security engineering, the Tkinter GUI bonus, limitations and a self-grade table.
-The measured numbers come from the 144 CSVs under `output/`.
+`REPORT.md` is the Vietnamese lab report. It covers objectives, implementation,
+the 16 KAT vectors, unit and negative tests, the Windows-vs-Ubuntu comparison,
+statistical tables (mean, median, SD, CI95, CV), security engineering, the
+Tkinter GUI bonus, limitations and a self-grade table. The current benchmark
+evidence is the 96 CSVs under `output/` (48 Ubuntu GCC + 48 Windows MSVC); the
+report copy is being refreshed separately.
 
 Export `REPORT.md` to PDF/DOCX for submission, and fill in the student name /
 student ID / class placeholders at the top of the report.

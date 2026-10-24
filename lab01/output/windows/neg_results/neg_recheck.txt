@@ -1,0 +1,17 @@
+$ aestool encrypt --mode gcm --aead ... --out gcm.bin
+encrypt_exit=0
+$ aestool decrypt --mode gcm --aead --key-hex <wrong key> --in gcm.bin --out bad.out
+error: authentication failed: HashVerificationFilter: message hash or MAC not valid
+decrypt_exit=1
+bad.out=absent
+$ aestool encrypt --mode ecb --in large.bin (16385 bytes)
+WARNING: ECB mode has no semantic security and leaks plaintext structure.
+error: ECB is blocked for payloads larger than 16 KiB; pass --allow-ecb to override
+ecb_exit=1
+ecb.bin=absent
+$ aestool encrypt --mode ctr --iv ... --text first
+ctr_first_exit=0
+$ aestool encrypt --mode ctr --iv ... --text second
+error: nonce reuse rejected: this key and nonce were already used
+ctr_second_exit=1
+second.bin=absent

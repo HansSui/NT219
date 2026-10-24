@@ -1,1 +1,17 @@
-Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)
+﻿timestamp: 2026-10-25 00:45:22
+os: Microsoft Windows 11 Home 10.0.26300
+cpu: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+logical_cpus: 8
+power_scheme: Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)
+battery_status: 2
+ac_power: true
+cpu_load_pct: 13
+affinity_mask: 0x4 (CPU 2)
+priority: high
+threads: 1
+runs: 1000
+warmup_s: 5
+pilot_warmup_s: 30
+settle_s: 10
+cooldown_s: 5
+tool: build\windows-msvc\Release\aestool.exe

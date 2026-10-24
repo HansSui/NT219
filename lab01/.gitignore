@@ -3,4 +3,5 @@ build_*/
 .aestool_nonces
 output/*/benchmarks/graph/
 output/*/benchmarks/bench.log
+output/package/
 __pycache__/

@@ -79,9 +79,11 @@ python gui/aestool_gui.py
 python3 gui/aestool_gui.py
 ```
 
-Library discovery order: `--library PATH`, `AESGUI_LIBRARY`, then
-`build/ubuntu-gcc-shared` on Linux or `build/windows-msvc-shared` on Windows,
-followed by the `build` directory.
+Library discovery order: `--library PATH`, `AESGUI_LIBRARY`, then the packaged
+`bin/` (and `lib/` on Linux), followed by `build/ubuntu-gcc-shared` or
+`build/windows-msvc-shared` and the `build` directory. The Windows package keeps
+`aescore.dll` in `bin/`, so both `gui\run_gui.bat` and a direct
+`python gui\aestool_gui.py --self-test` work there.
 
 ### Headless self-test
 
