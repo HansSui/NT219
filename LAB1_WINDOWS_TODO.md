@@ -1,10 +1,17 @@
 # Lab 1 — Windows verification TODO
 
-> **Status (21/10/2026):** steps 1–5 done on this host. KAT is 16/16, `ctest`
+> **Status (24/10/2026):** steps 1–5 done on this host. KAT is 16/16, `ctest`
 > is 2/2 (`aescore` + `cli`), the GUI self-test passes, and the non-ASCII path
 > round-trip works. Step 6 (negative re-check) was not rerun; the existing 17
-> logs remain the evidence. Step 7 (benchmark) is left for the author. Step 8
-> (MinGW) is verified with GCC 16.2.0 and Clang 22.1.8.
+> logs remain the evidence. Step 7 (benchmark) is **still open**: the 48 CSVs in
+> `output/windows/benchmarks/` are from the earlier run, the High performance
+> scheme was applied to the host, but `bench_environment.txt` was overwritten by
+> the `powercfg /getactivescheme` redirect so CPU affinity is not recorded.
+> Step 8 (MinGW) is verified with GCC 16.2.0 and Clang 22.1.8.
+>
+> The logs in `output/windows/test_results/` are from 23/10 10:57, before the
+> sidecar/zeroize changes (23/10 11:31). Rebuild and rerun KAT/ctest before the
+> final report so the evidence matches the current commit.
 
 Run these steps on Windows; the Linux host cannot verify MSVC. Start from the
 lab directory:
@@ -126,6 +133,12 @@ first command is already rejected as reuse.
 
 - [ ] Windows CSVs regenerated on a controlled host.
 
+- [ ] `bench_environment.txt` kept: write the power scheme to a separate file
+  (`powercfg /getactivescheme > output\windows\benchmarks\power_scheme.txt`)
+  before running the script, because the script rewrites
+  `bench_environment.txt` with CPU/pin/threads metadata.
+- [ ] Pin recorded (`start /affinity 4` = CPU 2) in `bench_environment.txt`.
+
 Default `--threads` is 1, so the methodology is unchanged. Use a fixed power
 plan and CPU affinity:
 
@@ -184,6 +197,9 @@ and KAT 16/16. Logs: `output\windows\test_results\kat_mingw_gcc.txt`,
 
 - [x] Windows logs replaced (KAT 16/16, ctest 2/2, GUI, non-ASCII path).
 - [ ] Report numbers refreshed after the benchmark rerun.
+- [ ] Ubuntu GCC-only benchmark numbers replace the old GCC+Clang tables.
+- [ ] `REPORT.md` self-grade updated from the 24/10 re-grade (97 + 5).
+- [ ] `plot_crossplatform.py` rerun after the Windows rerun.
 
 1. Replaced `output\windows\test_results\kat_msvc.txt` (16/16).
 2. Replaced `output\windows\test_results\ctest_msvc.txt` (2/2).

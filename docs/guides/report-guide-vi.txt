@@ -287,14 +287,17 @@ cmake --build build_ubuntu_gcc_shared
 - [ ] `lab1/scripts/build_windows.bat` và `build_linux.sh` chạy được
 
 ### Test & KAT
-- [ ] `kat_msvc.txt`, `kat_gcc.txt`, `kat_clang.txt`, `kat_ubuntu_gcc.txt`, `kat_ubuntu_clang.txt` — tất cả 9/9 PASS
-- [ ] `test_*.txt` — ctest PASS
-- [ ] `neg_*.txt` — negative tests có output chứng minh fail-closed
+- [x] `kat_msvc.txt`, `kat_gcc.txt`, `kat_mingw_gcc.txt`, `kat_mingw_clang.txt` — tất cả 16/16 PASS (Clang Ubuntu vẫn giữ log cũ; báo cáo chỉ dùng GCC)
+- [x] `ctest_*.txt` — ctest 2/2 PASS
+- [x] `neg_*.txt` — negative tests có output chứng minh fail-closed
+- [ ] Làm mới log Ubuntu sau commit hiện tại (log hiện tại từ 21/10)
 
 ### Benchmark
-- [ ] CSV benchmark cho 6 payload sizes × 8 modes × 5 compiler/platform = ~240 file CSV
-- [ ] Bảng tổng hợp (Excel/CSV) trong báo cáo
-- [ ] Đồ thị: throughput bar, latency line, box plot
+- [x] CSV benchmark: 48 file Ubuntu GCC + 48 file Windows MSVC = 96 file, 6 payload sizes × 8 modes, 1.000 lần/cấu hình
+- [x] Ubuntu có kiểm soát: governor `performance`, `PIN_CPUS=2`, `THREADS=1`
+- [ ] Windows chạy lại có pin CPU (CSV hiện tại là bản cũ, chưa ghi affinity)
+- [x] Bảng tổng hợp (Excel/CSV) trong báo cáo
+- [x] Đồ thị: throughput bar, latency line, box plot, histogram phân bố latency (8 PNG)
 
 ### Báo cáo (PDF/DOCX)
 - [ ] Mục tiêu, phạm vi thuật toán

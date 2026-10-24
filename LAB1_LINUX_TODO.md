@@ -1,5 +1,13 @@
 # Lab 1 — Checklist cho Linux (chưa làm)
 
+> **Cập nhật 24/10/2026:** benchmark GCC đã chạy lại có kiểm soát — governor
+> `performance`, `PIN_CPUS=2`, `THREADS=1`, 1.000 lần/cấu hình. Có 48 CSV GCC,
+> `summary.csv` / `summary_classes.csv` / `summary_tag_overhead.csv` và 8 PNG
+> (thêm `comparison_latency_hist_16KB.png`). Clang đã bỏ khỏi CSV và plot.
+> Việc còn lại: build lại `build/ubuntu-gcc` từ commit hiện tại rồi làm mới log
+> KAT/ctest (log hiện tại từ 21/10, trước khi thêm sidecar/zeroize), cập nhật số
+> liệu trong `REPORT.md`, điền thông tin sinh viên, xuất PDF/DOCX, đóng gói.
+
 > Hoàn thành toàn bộ Lab 1 trên Ubuntu. Tất cả lệnh chạy từ thư mục `lab01/`.
 
 ---
@@ -185,11 +193,12 @@ python scripts/plot_compare.py --dir output/ubuntu/benchmarks \
     --out-dir output/ubuntu/benchmarks/graph
 ```
 
-Sinh 7 PNG:
+Sinh 8 PNG:
 - `comparison_throughput_by_mode_1MB.png`
 - `comparison_throughput_vs_size.png`
 - `comparison_latency_vs_size.png`
 - `comparison_latency_box_16KB.png`
+- `comparison_latency_hist_16KB.png`
 - `comparison_stream_vs_block.png`
 - `comparison_aead_vs_nonaead.png`
 - `comparison_tag_overhead.png`
@@ -285,16 +294,20 @@ pandoc lab01/REPORT.md -o lab01/REPORT.docx
 | Mục | Trạng thái |
 |---|---|
 | Build GCC (static) | ☑ |
-| Build Clang (static) | ☑ |
+| Build Clang (static) | ☑ (giữ để kiểm chứng build; không dùng cho benchmark) |
 | Build shared library | ☑ |
 | KAT 16/16 | ☑ |
 | ctest 2/2 | ☑ |
-| Negative tests (Ubuntu) | ☑ |
-| Benchmark 48 CSV (GCC) | ☑ |
-| Benchmark 48 CSV (Clang) | ☑ |
+| Negative tests (Ubuntu) | ☑ (12 case) |
+| Benchmark 48 CSV (GCC) | ☑ có kiểm soát: governor `performance`, `PIN_CPUS=2`, `THREADS=1` |
+| Benchmark 48 CSV (Clang) | ☑ bỏ theo quyết định — chỉ dùng GCC cho báo cáo |
 | summary.csv / tag overhead / classes | ☑ |
-| Đồ thị Ubuntu (7 PNG) | ☑ |
+| Đồ thị Ubuntu (8 PNG) | ☑ gồm box plot và histogram latency |
 | GUI self-test | ☑ |
+| Build lại `build/ubuntu-gcc` từ commit hiện tại | ☑ binary rebuild 24/10 |
+| Làm mới log KAT/ctest Ubuntu | ☑ `output/ubuntu/test_results/kat_gcc.txt` và `ctest_gcc.txt` từ 24/10 |
+| Cập nhật số liệu benchmark mới vào REPORT.md | ☐ số liệu cũ vẫn còn trong báo cáo |
+| Chạy `plot_crossplatform.py` sau khi Windows ổn định | ☐ |
 | Điền Sinh viên / MSSV / Lớp | ☐ |
 | Xuất PDF/DOCX | ☐ |
 | Đóng gói `MSV.All6labs.rar` | ☐ |
