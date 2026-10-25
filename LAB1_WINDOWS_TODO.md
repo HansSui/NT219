@@ -1,17 +1,17 @@
 # Lab 1 — Windows verification TODO
 
-> **Status (24/10/2026):** steps 1–5 done on this host. KAT is 16/16, `ctest`
-> is 2/2 (`aescore` + `cli`), the GUI self-test passes, and the non-ASCII path
-> round-trip works. Step 6 (negative re-check) was not rerun; the existing 17
-> logs remain the evidence. Step 7 (benchmark) is **still open**: the 48 CSVs in
-> `output/windows/benchmarks/` are from the earlier run, the High performance
-> scheme was applied to the host, but `bench_environment.txt` was overwritten by
-> the `powercfg /getactivescheme` redirect so CPU affinity is not recorded.
-> Step 8 (MinGW) is verified with GCC 16.2.0 and Clang 22.1.8.
+> **Status (25/10/2026):** steps 1–8 and step 10 are done on this host. KAT is
+> 16/16, `ctest` is 2/2 (`aescore` + `cli`), the GUI self-test passes, the
+> non-ASCII path round-trip works, and the controlled Windows benchmark rerun
+> produced 48 fresh CSVs with recorded AC/load/power/affinity/priority metadata.
+> The run had 43/48 configurations stable in both directions; 4 encrypt and 3
+> decrypt configurations remain flagged noisy in `summary_robust.csv`.
 >
-> The logs in `output/windows/test_results/` are from 23/10 10:57, before the
-> sidecar/zeroize changes (23/10 11:31). Rebuild and rerun KAT/ctest before the
-> final report so the evidence matches the current commit.
+> Step 9 is the only unfinished section, and all three remaining boxes are
+> report-only. `REPORT.md` is still the 24/10 144-CSV / Clang version with the
+> old 96/100 self-grade, so those boxes cannot honestly be ticked yet. Refresh
+> the report and repackage after updating it; the current Windows KAT, `ctest`,
+> GUI and negative-test logs already match the current tree.
 
 Run these steps on Windows; the Linux host cannot verify MSVC. Start from the
 lab directory:
@@ -129,39 +129,37 @@ build\windows-msvc\Release\aestool.exe encrypt --mode ctr --key-hex %KEY% --iv 0
 Delete `.aestool_nonces` before repeating the nonce-reuse pair, otherwise the
 first command is already rejected as reuse.
 
-## 7. Optional controlled benchmark rerun
+## 7. Controlled benchmark rerun
 
-- [ ] Windows CSVs regenerated on a controlled host.
+- [x] Windows CSVs regenerated on a controlled host.
+- [x] `bench_environment.txt` kept with AC, load, power, affinity and priority.
+- [x] Pin recorded (`start /affinity 4` = CPU 2) in `bench_environment.txt`.
 
-- [ ] `bench_environment.txt` kept: write the power scheme to a separate file
-  (`powercfg /getactivescheme > output\windows\benchmarks\power_scheme.txt`)
-  before running the script, because the script rewrites
-  `bench_environment.txt` with CPU/pin/threads metadata.
-- [ ] Pin recorded (`start /affinity 4` = CPU 2) in `bench_environment.txt`.
-
-Default `--threads` is 1, so the methodology is unchanged. Use a fixed power
-plan and CPU affinity:
+Use the controlled runner from `lab01`. It selects the correct High performance
+GUID, records the environment, runs a pilot, pins the process to logical CPU 2,
+and writes the summaries:
 
 ```bat
-powercfg /setactive SCHEME_MIN
-powercfg /getactivescheme > output\windows\benchmarks\bench_environment.txt
-start /affinity FF /wait cmd /c scripts\run_benchmarks.bat msvc
-python scripts\summarize_bench.py --dir output\windows\benchmarks
-python scripts\plot_compare.py --dir output\windows\benchmarks --out-dir output\windows\benchmarks\graph
+cd /d E:\NT219\lab01
+scripts\bench_windows_controlled.bat
+python scripts\plot_crossplatform.py
 ```
 
-`SCHEME_MIN` is the High performance alias; use the GUID from `powercfg /list`
-if needed. `FF` pins eight logical CPUs; adjust the mask for the host.
+For the final reported run, the environment was AC, High performance, CPU 2,
+high priority, 1000 runs, 5 s per-configuration warm-up, 5 s cooldown, 10 s
+settle and 30 s pilot warm-up. The pilot passed and 43/48 configurations were
+stable in both directions.
+
+Do **not** use `powercfg /setactive SCHEME_MIN`: on Windows that alias selects
+Power saver. The correct High performance GUID is
+`8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c`. Do not use `start /affinity FF` for the
+reported run: it pins all eight logical CPUs; the report uses `AFFINITY=4`
+(logical CPU 2).
 
 This overwrites the 48 Windows CSVs and summaries. The runner deletes the old
 `bench_windows_<compiler>_*.csv` and summary files before starting, so a rerun
 cannot mix old and new rows; set `KEEP=1` only for deliberate subset runs. Do
-not mix old and new CSVs in one summary. Regenerate the cross-platform figures
-only after the Windows rerun, from `lab01`:
-
-```bat
-python scripts\plot_crossplatform.py
-```
+not mix old and new CSVs in one summary.
 
 ## 8. MinGW GCC/Clang
 
@@ -198,8 +196,9 @@ and KAT 16/16. Logs: `output\windows\test_results\kat_mingw_gcc.txt`,
 - [x] Windows logs replaced (KAT 16/16, ctest 2/2, GUI, non-ASCII path).
 - [ ] Report numbers refreshed after the benchmark rerun.
 - [ ] Ubuntu GCC-only benchmark numbers replace the old GCC+Clang tables.
-- [ ] `REPORT.md` self-grade updated from the 24/10 re-grade (97 + 5).
-- [ ] `plot_crossplatform.py` rerun after the Windows rerun.
+- [ ] `REPORT.md` self-grade updated after the report refresh (include the
+  controlled run and the 5 remaining noisy configurations).
+- [x] `plot_crossplatform.py` rerun after the Windows rerun.
 
 1. Replaced `output\windows\test_results\kat_msvc.txt` (16/16).
 2. Replaced `output\windows\test_results\ctest_msvc.txt` (2/2).
@@ -213,11 +212,14 @@ and KAT 16/16. Logs: `output\windows\test_results\kat_mingw_gcc.txt`,
 
 ## 10. Package
 
-- [ ] Final archive contains the current binaries and evidence.
+- [x] Final archive contains the current binaries and evidence.
+  `output\package\lab01-windows.zip` has 136 entries and is generated/git-ignored.
 
 - CLI: `build\windows-msvc\Release\aestool.exe` (Crypto++ is static; no extra
   DLL needed).
 - GUI bonus: `build\windows-msvc-shared\Release\aescore.dll` plus the `gui\`
-  scripts.
-- Evidence: the refreshed files under `output\windows\`.
+  scripts. The package keeps the DLL in `bin\` and the GUI discovers it there.
+- Evidence: the refreshed files under `output\windows\` and `output\compare\`.
+- The package `REPORT.md` is still the old copy until the report is refreshed;
+  replacing it requires one final re-zip.
 - Do not commit the `build\windows-msvc` or `build\windows-msvc-shared` trees.

@@ -8,7 +8,7 @@ CMake, and uses Crypto++ for the cryptographic primitives.
 ```
 NT219/
   README.md           this file
-  LAB1_WINDOWS_TODO.md Windows verification checklist (mostly done; benchmark left)
+  LAB1_WINDOWS_TODO.md Windows verification checklist
   LAB1_LINUX_TODO.md   Linux build/test/benchmark checklist
   docs/               course brief, objectives and execution guides
   lab01/              Lab 1 - symmetric encryption CLI (aestool)
@@ -26,7 +26,7 @@ scripts/              build, benchmark, summarise and plot scripts
 output/               benchmark evidence and generated charts
 README.md             CLI, container format and security design
 BENCHMARKS.md         full benchmark matrix and cross-platform charts
-REPORT.md             completed Vietnamese lab report (measured results)
+REPORT.md             Vietnamese lab report (refresh pending)
 ```
 
 ### docs
@@ -48,8 +48,10 @@ Windows, from a "x64 Native Tools Command Prompt for VS 2026":
 ```bat
 cd /d E:\NT219\lab01
 scripts\build_windows.bat msvc
-scripts\run_benchmarks.bat msvc
+scripts\bench_windows_controlled.bat
 ```
+
+Use `scripts\run_benchmarks.bat msvc` only for a quick, less-controlled run.
 
 Linux:
 
@@ -81,9 +83,11 @@ The build, KAT, `ctest` and benchmark matrix are verified with MSVC 19.51 x64 on
 Windows (logs in `lab01/output/windows/test_results/` and
 `lab01/output/windows/neg_results/`). MinGW GCC 16.2.0 and MinGW Clang 22.1.8
 also build and pass KAT 16/16 and `ctest` 2/2. The Tkinter GUI bonus is built
-against the shared library and passes its eight-mode self-test on Windows. The
-Ubuntu data comes from earlier GCC 15.2 and Clang 21.1.8 runs; the Linux GUI path
-is provided by script but was not re-verified in this environment. See
+against the shared library and passes its eight-mode self-test on Windows and
+Linux. The Ubuntu benchmark data is the 48-row GCC 15.2 matrix from
+`lab01/output/ubuntu/benchmarks/`; Ubuntu Clang was built and tested but not
+benchmarked. The Windows benchmark matrix is the controlled 25/10 run, and
+`summary_robust.csv` records its remaining noisy configurations. See
 `lab01/README.md` for the CLI, `lab01/BENCHMARKS.md` for the benchmark method and
 the completed Vietnamese report in `lab01/REPORT.md` for results, statistics and
-analysis.
+analysis. The report is being refreshed separately for the new Windows run.
