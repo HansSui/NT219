@@ -1,0 +1,1817 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineSystem.cmake:12 (find_program)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_UNAME"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "uname"
+    candidate_directories:
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/home/han-sui/.gemini/antigravity-cli/bin/uname"
+      - "/home/han-sui/.opencode/bin/uname"
+      - "/home/han-sui/.bun/bin/uname"
+      - "/home/han-sui/.local/bin/uname"
+      - "/home/han-sui/.npm-global/bin/uname"
+      - "/home/han-sui/ENTER/bin/uname"
+      - "/home/han-sui/ENTER/condabin/uname"
+      - "/usr/local/sbin/uname"
+      - "/usr/local/bin/uname"
+      - "/usr/sbin/uname"
+    found: "/usr/bin/uname"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineSystem.cmake:212 (message)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      The system is: Linux - 7.0.0-38-generic - x86_64
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeUnixFindMake.cmake:5 (find_program)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_MAKE_PROGRAM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gmake"
+      - "make"
+      - "smake"
+    candidate_directories:
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/home/han-sui/.gemini/antigravity-cli/bin/gmake"
+      - "/home/han-sui/.opencode/bin/gmake"
+      - "/home/han-sui/.bun/bin/gmake"
+      - "/home/han-sui/.local/bin/gmake"
+      - "/home/han-sui/.npm-global/bin/gmake"
+      - "/home/han-sui/ENTER/bin/gmake"
+      - "/home/han-sui/ENTER/condabin/gmake"
+      - "/usr/local/sbin/gmake"
+      - "/usr/local/bin/gmake"
+      - "/usr/sbin/gmake"
+    found: "/usr/bin/gmake"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompiler.cmake:115 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:71 (_cmake_find_compiler_path)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_WITH_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang++"
+    candidate_directories:
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/home/han-sui/.gemini/antigravity-cli/bin/clang++"
+      - "/home/han-sui/.opencode/bin/clang++"
+      - "/home/han-sui/.bun/bin/clang++"
+      - "/home/han-sui/.local/bin/clang++"
+      - "/home/han-sui/.npm-global/bin/clang++"
+      - "/home/han-sui/ENTER/bin/clang++"
+      - "/home/han-sui/ENTER/condabin/clang++"
+      - "/usr/local/sbin/clang++"
+      - "/usr/local/bin/clang++"
+      - "/usr/sbin/clang++"
+    found: "/usr/bin/clang++"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "/usr/share/cmake-4.2/Modules/"
+    found: "/usr/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /usr/bin/clang++ 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+      
+      The CXX compiler identification is Clang, found in:
+        /home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/4.2.3/CompilerIdCXX/a.out
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_AR"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ar"
+      - "ar"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-ar"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-ar"
+      - "/home/han-sui/.opencode/bin/llvm-ar"
+      - "/home/han-sui/.bun/bin/llvm-ar"
+      - "/home/han-sui/.local/bin/llvm-ar"
+      - "/home/han-sui/.npm-global/bin/llvm-ar"
+      - "/home/han-sui/ENTER/bin/llvm-ar"
+      - "/home/han-sui/ENTER/condabin/llvm-ar"
+      - "/usr/local/sbin/llvm-ar"
+      - "/usr/local/bin/llvm-ar"
+      - "/usr/sbin/llvm-ar"
+      - "/sbin/llvm-ar"
+      - "/bin/llvm-ar"
+      - "/usr/games/llvm-ar"
+      - "/usr/local/games/llvm-ar"
+      - "/snap/bin/llvm-ar"
+    found: "/usr/bin/ar"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_RANLIB"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ranlib"
+      - "ranlib"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-ranlib"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-ranlib"
+      - "/home/han-sui/.opencode/bin/llvm-ranlib"
+      - "/home/han-sui/.bun/bin/llvm-ranlib"
+      - "/home/han-sui/.local/bin/llvm-ranlib"
+      - "/home/han-sui/.npm-global/bin/llvm-ranlib"
+      - "/home/han-sui/ENTER/bin/llvm-ranlib"
+      - "/home/han-sui/ENTER/condabin/llvm-ranlib"
+      - "/usr/local/sbin/llvm-ranlib"
+      - "/usr/local/bin/llvm-ranlib"
+      - "/usr/sbin/llvm-ranlib"
+      - "/sbin/llvm-ranlib"
+      - "/bin/llvm-ranlib"
+      - "/usr/games/llvm-ranlib"
+      - "/usr/local/games/llvm-ranlib"
+      - "/snap/bin/llvm-ranlib"
+    found: "/usr/bin/ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_STRIP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-strip"
+      - "strip"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-strip"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-strip"
+      - "/home/han-sui/.opencode/bin/llvm-strip"
+      - "/home/han-sui/.bun/bin/llvm-strip"
+      - "/home/han-sui/.local/bin/llvm-strip"
+      - "/home/han-sui/.npm-global/bin/llvm-strip"
+      - "/home/han-sui/ENTER/bin/llvm-strip"
+      - "/home/han-sui/ENTER/condabin/llvm-strip"
+      - "/usr/local/sbin/llvm-strip"
+      - "/usr/local/bin/llvm-strip"
+      - "/usr/sbin/llvm-strip"
+      - "/sbin/llvm-strip"
+      - "/bin/llvm-strip"
+      - "/usr/games/llvm-strip"
+      - "/usr/local/games/llvm-strip"
+      - "/snap/bin/llvm-strip"
+    found: "/usr/bin/strip"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_LINKER"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "ld.lld"
+      - "ld"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/ld.lld"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/ld.lld"
+      - "/home/han-sui/.opencode/bin/ld.lld"
+      - "/home/han-sui/.bun/bin/ld.lld"
+      - "/home/han-sui/.local/bin/ld.lld"
+      - "/home/han-sui/.npm-global/bin/ld.lld"
+      - "/home/han-sui/ENTER/bin/ld.lld"
+      - "/home/han-sui/ENTER/condabin/ld.lld"
+      - "/usr/local/sbin/ld.lld"
+      - "/usr/local/bin/ld.lld"
+      - "/usr/sbin/ld.lld"
+      - "/sbin/ld.lld"
+      - "/bin/ld.lld"
+      - "/usr/games/ld.lld"
+      - "/usr/local/games/ld.lld"
+      - "/snap/bin/ld.lld"
+    found: "/usr/bin/ld"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_NM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-nm"
+      - "nm"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-nm"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-nm"
+      - "/home/han-sui/.opencode/bin/llvm-nm"
+      - "/home/han-sui/.bun/bin/llvm-nm"
+      - "/home/han-sui/.local/bin/llvm-nm"
+      - "/home/han-sui/.npm-global/bin/llvm-nm"
+      - "/home/han-sui/ENTER/bin/llvm-nm"
+      - "/home/han-sui/ENTER/condabin/llvm-nm"
+      - "/usr/local/sbin/llvm-nm"
+      - "/usr/local/bin/llvm-nm"
+      - "/usr/sbin/llvm-nm"
+      - "/sbin/llvm-nm"
+      - "/bin/llvm-nm"
+      - "/usr/games/llvm-nm"
+      - "/usr/local/games/llvm-nm"
+      - "/snap/bin/llvm-nm"
+    found: "/usr/bin/nm"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJDUMP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-objdump"
+      - "objdump"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-objdump"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-objdump"
+      - "/home/han-sui/.opencode/bin/llvm-objdump"
+      - "/home/han-sui/.bun/bin/llvm-objdump"
+      - "/home/han-sui/.local/bin/llvm-objdump"
+      - "/home/han-sui/.npm-global/bin/llvm-objdump"
+      - "/home/han-sui/ENTER/bin/llvm-objdump"
+      - "/home/han-sui/ENTER/condabin/llvm-objdump"
+      - "/usr/local/sbin/llvm-objdump"
+      - "/usr/local/bin/llvm-objdump"
+      - "/usr/sbin/llvm-objdump"
+      - "/sbin/llvm-objdump"
+      - "/bin/llvm-objdump"
+      - "/usr/games/llvm-objdump"
+      - "/usr/local/games/llvm-objdump"
+      - "/snap/bin/llvm-objdump"
+    found: "/usr/bin/objdump"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJCOPY"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-objcopy"
+      - "objcopy"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-objcopy"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-objcopy"
+      - "/home/han-sui/.opencode/bin/llvm-objcopy"
+      - "/home/han-sui/.bun/bin/llvm-objcopy"
+      - "/home/han-sui/.local/bin/llvm-objcopy"
+      - "/home/han-sui/.npm-global/bin/llvm-objcopy"
+      - "/home/han-sui/ENTER/bin/llvm-objcopy"
+      - "/home/han-sui/ENTER/condabin/llvm-objcopy"
+      - "/usr/local/sbin/llvm-objcopy"
+      - "/usr/local/bin/llvm-objcopy"
+      - "/usr/sbin/llvm-objcopy"
+      - "/sbin/llvm-objcopy"
+      - "/bin/llvm-objcopy"
+      - "/usr/games/llvm-objcopy"
+      - "/usr/local/games/llvm-objcopy"
+      - "/snap/bin/llvm-objcopy"
+    found: "/usr/bin/objcopy"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_READELF"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-readelf"
+      - "readelf"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-readelf"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-readelf"
+      - "/home/han-sui/.opencode/bin/llvm-readelf"
+      - "/home/han-sui/.bun/bin/llvm-readelf"
+      - "/home/han-sui/.local/bin/llvm-readelf"
+      - "/home/han-sui/.npm-global/bin/llvm-readelf"
+      - "/home/han-sui/ENTER/bin/llvm-readelf"
+      - "/home/han-sui/ENTER/condabin/llvm-readelf"
+      - "/usr/local/sbin/llvm-readelf"
+      - "/usr/local/bin/llvm-readelf"
+      - "/usr/sbin/llvm-readelf"
+      - "/sbin/llvm-readelf"
+      - "/bin/llvm-readelf"
+      - "/usr/games/llvm-readelf"
+      - "/usr/local/games/llvm-readelf"
+      - "/snap/bin/llvm-readelf"
+    found: "/usr/bin/readelf"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_DLLTOOL"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-dlltool"
+      - "dlltool"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-dlltool"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-dlltool"
+      - "/home/han-sui/.opencode/bin/llvm-dlltool"
+      - "/home/han-sui/.bun/bin/llvm-dlltool"
+      - "/home/han-sui/.local/bin/llvm-dlltool"
+      - "/home/han-sui/.npm-global/bin/llvm-dlltool"
+      - "/home/han-sui/ENTER/bin/llvm-dlltool"
+      - "/home/han-sui/ENTER/condabin/llvm-dlltool"
+      - "/usr/local/sbin/llvm-dlltool"
+      - "/usr/local/bin/llvm-dlltool"
+      - "/usr/sbin/llvm-dlltool"
+      - "/sbin/llvm-dlltool"
+      - "/bin/llvm-dlltool"
+      - "/usr/games/llvm-dlltool"
+      - "/usr/local/games/llvm-dlltool"
+      - "/snap/bin/llvm-dlltool"
+      - "/usr/bin/dlltool"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/dlltool"
+      - "/home/han-sui/.opencode/bin/dlltool"
+      - "/home/han-sui/.bun/bin/dlltool"
+      - "/home/han-sui/.local/bin/dlltool"
+      - "/home/han-sui/.npm-global/bin/dlltool"
+      - "/home/han-sui/ENTER/bin/dlltool"
+      - "/home/han-sui/ENTER/condabin/dlltool"
+      - "/usr/local/sbin/dlltool"
+      - "/usr/local/bin/dlltool"
+      - "/usr/sbin/dlltool"
+      - "/sbin/dlltool"
+      - "/bin/dlltool"
+      - "/usr/games/dlltool"
+      - "/usr/local/games/dlltool"
+      - "/snap/bin/dlltool"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_ADDR2LINE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-addr2line"
+      - "addr2line"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/llvm-addr2line"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-addr2line"
+      - "/home/han-sui/.opencode/bin/llvm-addr2line"
+      - "/home/han-sui/.bun/bin/llvm-addr2line"
+      - "/home/han-sui/.local/bin/llvm-addr2line"
+      - "/home/han-sui/.npm-global/bin/llvm-addr2line"
+      - "/home/han-sui/ENTER/bin/llvm-addr2line"
+      - "/home/han-sui/ENTER/condabin/llvm-addr2line"
+      - "/usr/local/sbin/llvm-addr2line"
+      - "/usr/local/bin/llvm-addr2line"
+      - "/usr/sbin/llvm-addr2line"
+      - "/sbin/llvm-addr2line"
+      - "/bin/llvm-addr2line"
+      - "/usr/games/llvm-addr2line"
+      - "/usr/local/games/llvm-addr2line"
+      - "/snap/bin/llvm-addr2line"
+    found: "/usr/bin/addr2line"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:206 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_TAPI"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "tapi"
+    candidate_directories:
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/bin/tapi"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/tapi"
+      - "/home/han-sui/.opencode/bin/tapi"
+      - "/home/han-sui/.bun/bin/tapi"
+      - "/home/han-sui/.local/bin/tapi"
+      - "/home/han-sui/.npm-global/bin/tapi"
+      - "/home/han-sui/ENTER/bin/tapi"
+      - "/home/han-sui/ENTER/condabin/tapi"
+      - "/usr/local/sbin/tapi"
+      - "/usr/local/bin/tapi"
+      - "/usr/sbin/tapi"
+      - "/sbin/tapi"
+      - "/bin/tapi"
+      - "/usr/games/tapi"
+      - "/usr/local/games/tapi"
+      - "/snap/bin/tapi"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/Clang-FindBinUtils.cmake:26 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_AR"
+    description: "LLVM archiver"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ar-21.1"
+      - "llvm-ar-21"
+      - "llvm-ar21"
+      - "llvm-ar"
+    candidate_directories:
+      - "/usr/lib/llvm-21/bin/"
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/lib/llvm-21/bin/llvm-ar-21.1"
+      - "/usr/bin/llvm-ar-21.1"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-ar-21.1"
+      - "/home/han-sui/.opencode/bin/llvm-ar-21.1"
+      - "/home/han-sui/.bun/bin/llvm-ar-21.1"
+      - "/home/han-sui/.local/bin/llvm-ar-21.1"
+      - "/home/han-sui/.npm-global/bin/llvm-ar-21.1"
+      - "/home/han-sui/ENTER/bin/llvm-ar-21.1"
+      - "/home/han-sui/ENTER/condabin/llvm-ar-21.1"
+      - "/usr/local/sbin/llvm-ar-21.1"
+      - "/usr/local/bin/llvm-ar-21.1"
+      - "/usr/sbin/llvm-ar-21.1"
+      - "/sbin/llvm-ar-21.1"
+      - "/bin/llvm-ar-21.1"
+      - "/usr/games/llvm-ar-21.1"
+      - "/usr/local/games/llvm-ar-21.1"
+      - "/snap/bin/llvm-ar-21.1"
+      - "/usr/lib/llvm-21/bin/llvm-ar-21"
+    found: "/usr/bin/llvm-ar-21"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/Clang-FindBinUtils.cmake:38 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_RANLIB"
+    description: "Generate index for LLVM archive"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "llvm-ranlib-21.1"
+      - "llvm-ranlib-21"
+      - "llvm-ranlib21"
+      - "llvm-ranlib"
+    candidate_directories:
+      - "/usr/lib/llvm-21/bin/"
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/lib/llvm-21/bin/llvm-ranlib-21.1"
+      - "/usr/bin/llvm-ranlib-21.1"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/llvm-ranlib-21.1"
+      - "/home/han-sui/.opencode/bin/llvm-ranlib-21.1"
+      - "/home/han-sui/.bun/bin/llvm-ranlib-21.1"
+      - "/home/han-sui/.local/bin/llvm-ranlib-21.1"
+      - "/home/han-sui/.npm-global/bin/llvm-ranlib-21.1"
+      - "/home/han-sui/ENTER/bin/llvm-ranlib-21.1"
+      - "/home/han-sui/ENTER/condabin/llvm-ranlib-21.1"
+      - "/usr/local/sbin/llvm-ranlib-21.1"
+      - "/usr/local/bin/llvm-ranlib-21.1"
+      - "/usr/sbin/llvm-ranlib-21.1"
+      - "/sbin/llvm-ranlib-21.1"
+      - "/bin/llvm-ranlib-21.1"
+      - "/usr/games/llvm-ranlib-21.1"
+      - "/usr/local/games/llvm-ranlib-21.1"
+      - "/snap/bin/llvm-ranlib-21.1"
+      - "/usr/lib/llvm-21/bin/llvm-ranlib-21"
+    found: "/usr/bin/llvm-ranlib-21"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/Clang-FindBinUtils.cmake:50 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:2 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS"
+    description: "`clang-scan-deps` dependency scanner"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang-scan-deps-21.1"
+      - "clang-scan-deps-21"
+      - "clang-scan-deps21"
+      - "clang-scan-deps"
+    candidate_directories:
+      - "/usr/lib/llvm-21/bin/"
+      - "/usr/bin/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+    searched_directories:
+      - "/usr/lib/llvm-21/bin/clang-scan-deps-21.1"
+      - "/usr/bin/clang-scan-deps-21.1"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/clang-scan-deps-21.1"
+      - "/home/han-sui/.opencode/bin/clang-scan-deps-21.1"
+      - "/home/han-sui/.bun/bin/clang-scan-deps-21.1"
+      - "/home/han-sui/.local/bin/clang-scan-deps-21.1"
+      - "/home/han-sui/.npm-global/bin/clang-scan-deps-21.1"
+      - "/home/han-sui/ENTER/bin/clang-scan-deps-21.1"
+      - "/home/han-sui/ENTER/condabin/clang-scan-deps-21.1"
+      - "/usr/local/sbin/clang-scan-deps-21.1"
+      - "/usr/local/bin/clang-scan-deps-21.1"
+      - "/usr/sbin/clang-scan-deps-21.1"
+      - "/sbin/clang-scan-deps-21.1"
+      - "/bin/clang-scan-deps-21.1"
+      - "/usr/games/clang-scan-deps-21.1"
+      - "/usr/local/games/clang-scan-deps-21.1"
+      - "/snap/bin/clang-scan-deps-21.1"
+      - "/usr/lib/llvm-21/bin/clang-scan-deps-21"
+    found: "/usr/bin/clang-scan-deps-21"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU"
+      binary: "/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU"
+    cmakeVariables:
+      CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS: "/usr/bin/clang-scan-deps-21"
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_002ec/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_002ec.dir/build.make CMakeFiles/cmTC_002ec.dir/build
+        gmake[1]: Entering directory '/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU'
+        Building CXX object CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o
+        /usr/bin/clang++   -v -MD -MT CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp
+        Ubuntu clang version 21.1.8 (6ubuntu1)
+        Target: x86_64-pc-linux-gnu
+        Thread model: posix
+        InstalledDir: /usr/lib/llvm-21/bin
+        Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/15
+        Selected GCC installation: /usr/lib/gcc/x86_64-linux-gnu/15
+        Candidate multilib: .;@m64
+        Selected multilib: .;@m64
+         (in-process)
+         "/usr/lib/llvm-21/bin/clang" -cc1 -triple x86_64-pc-linux-gnu -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -pic-is-pie -mframe-pointer=all -fmath-errno -ffp-contract=on -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -target-cpu x86-64 -tune-cpu generic -debugger-tuning=gdb -fdebug-compilation-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU -v -fcoverage-compilation-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU -resource-dir /usr/lib/llvm-21/lib/clang/21 -dependency-file CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o.d -MT CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15 -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15 -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/backward -internal-isystem /usr/lib/llvm-21/lib/clang/21/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/15/../../../../x86_64-linux-gnu/include -internal-externc-isystem /usr/include/x86_64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -fdeprecated-macro -ferror-limit 19 -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -faddrsig -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -x c++ /usr/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp
+        clang -cc1 version 21.1.8 based upon LLVM 21.1.8 default target x86_64-pc-linux-gnu
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/../../../../x86_64-linux-gnu/include"
+        ignoring nonexistent directory "/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15
+         /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15
+         /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/backward
+         /usr/lib/llvm-21/lib/clang/21/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Linking CXX executable cmTC_002ec
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_002ec.dir/link.txt --verbose=1
+        Ubuntu clang version 21.1.8 (6ubuntu1)
+        Target: x86_64-pc-linux-gnu
+        Thread model: posix
+        InstalledDir: /usr/lib/llvm-21/bin
+        Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/15
+        Selected GCC installation: /usr/lib/gcc/x86_64-linux-gnu/15
+        Candidate multilib: .;@m64
+        Selected multilib: .;@m64
+         "/usr/bin/ld" -z relro --hash-style=gnu --build-id --eh-frame-hdr -m elf_x86_64 -pie -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_002ec /lib/x86_64-linux-gnu/Scrt1.o /lib/x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib64 -L/lib/x86_64-linux-gnu -L/lib/../lib64 -L/usr/lib/x86_64-linux-gnu -L/usr/lib64 -L/lib -L/usr/lib -v CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /lib/x86_64-linux-gnu/crtn.o
+        GNU ld (GNU Binutils for Ubuntu) 2.46
+        /usr/bin/clang++  -v -Wl,-v CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_002ec
+        gmake[1]: Leaving directory '/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:217 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15]
+          add: [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15]
+          add: [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/backward]
+          add: [/usr/lib/llvm-21/lib/clang/21/include]
+          add: [/usr/local/include]
+          add: [/usr/include/x86_64-linux-gnu]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15] ==> [/usr/include/c++/15]
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15] ==> [/usr/include/x86_64-linux-gnu/c++/15]
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/backward] ==> [/usr/include/c++/15/backward]
+        collapse include dir [/usr/lib/llvm-21/lib/clang/21/include] ==> [/usr/lib/llvm-21/lib/clang/21/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/include/c++/15;/usr/include/x86_64-linux-gnu/c++/15;/usr/include/c++/15/backward;/usr/lib/llvm-21/lib/clang/21/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
+        ignore line: [Change Dir: '/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_002ec/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_002ec.dir/build.make CMakeFiles/cmTC_002ec.dir/build]
+        ignore line: [gmake[1]: Entering directory '/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU']
+        ignore line: [Building CXX object CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/usr/bin/clang++   -v -MD -MT CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -MF CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o.d -o CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Ubuntu clang version 21.1.8 (6ubuntu1)]
+        ignore line: [Target: x86_64-pc-linux-gnu]
+        ignore line: [Thread model: posix]
+        ignore line: [InstalledDir: /usr/lib/llvm-21/bin]
+        ignore line: [Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/15]
+        ignore line: [Selected GCC installation: /usr/lib/gcc/x86_64-linux-gnu/15]
+        ignore line: [Candidate multilib: .]
+        ignore line: [@m64]
+        ignore line: [Selected multilib: .]
+        ignore line: [@m64]
+        ignore line: [ (in-process)]
+        ignore line: [ "/usr/lib/llvm-21/bin/clang" -cc1 -triple x86_64-pc-linux-gnu -emit-obj -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name CMakeCXXCompilerABI.cpp -mrelocation-model pic -pic-level 2 -pic-is-pie -mframe-pointer=all -fmath-errno -ffp-contract=on -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -target-cpu x86-64 -tune-cpu generic -debugger-tuning=gdb -fdebug-compilation-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU -v -fcoverage-compilation-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-clang/CMakeFiles/CMakeScratch/TryCompile-AqxCmU -resource-dir /usr/lib/llvm-21/lib/clang/21 -dependency-file CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o.d -MT CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -sys-header-deps -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15 -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15 -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/backward -internal-isystem /usr/lib/llvm-21/lib/clang/21/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/x86_64-linux-gnu/15/../../../../x86_64-linux-gnu/include -internal-externc-isystem /usr/include/x86_64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -fdeprecated-macro -ferror-limit 19 -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fcxx-exceptions -fexceptions -faddrsig -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -x c++ /usr/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [clang -cc1 version 21.1.8 based upon LLVM 21.1.8 default target x86_64-pc-linux-gnu]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/../../../../x86_64-linux-gnu/include"]
+        ignore line: [ignoring nonexistent directory "/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/x86_64-linux-gnu/c++/15]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/backward]
+        ignore line: [ /usr/lib/llvm-21/lib/clang/21/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Linking CXX executable cmTC_002ec]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_002ec.dir/link.txt --verbose=1]
+        ignore line: [Ubuntu clang version 21.1.8 (6ubuntu1)]
+        ignore line: [Target: x86_64-pc-linux-gnu]
+        ignore line: [Thread model: posix]
+        ignore line: [InstalledDir: /usr/lib/llvm-21/bin]
+        ignore line: [Found candidate GCC installation: /usr/lib/gcc/x86_64-linux-gnu/15]
+        ignore line: [Selected GCC installation: /usr/lib/gcc/x86_64-linux-gnu/15]
+        ignore line: [Candidate multilib: .]
+        ignore line: [@m64]
+        ignore line: [Selected multilib: .]
+        ignore line: [@m64]
+        link line: [ "/usr/bin/ld" -z relro --hash-style=gnu --build-id --eh-frame-hdr -m elf_x86_64 -pie -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_002ec /lib/x86_64-linux-gnu/Scrt1.o /lib/x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib64 -L/lib/x86_64-linux-gnu -L/lib/../lib64 -L/usr/lib/x86_64-linux-gnu -L/usr/lib64 -L/lib -L/usr/lib -v CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /lib/x86_64-linux-gnu/crtn.o]
+          arg [/usr/bin/ld] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_002ec] ==> ignore
+          arg [/lib/x86_64-linux-gnu/Scrt1.o] ==> obj [/lib/x86_64-linux-gnu/Scrt1.o]
+          arg [/lib/x86_64-linux-gnu/crti.o] ==> obj [/lib/x86_64-linux-gnu/crti.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib64]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib64] ==> dir [/usr/lib64]
+          arg [-L/lib] ==> dir [/lib]
+          arg [-L/usr/lib] ==> dir [/usr/lib]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_002ec.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [-lstdc++] ==> lib [stdc++]
+          arg [-lm] ==> lib [m]
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [-lgcc] ==> lib [gcc]
+          arg [-lc] ==> lib [c]
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [-lgcc] ==> lib [gcc]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o]
+          arg [/lib/x86_64-linux-gnu/crtn.o] ==> obj [/lib/x86_64-linux-gnu/crtn.o]
+        linker tool for 'CXX': /usr/bin/ld
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15] ==> [/usr/lib/gcc/x86_64-linux-gnu/15]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib64] ==> [/usr/lib64]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib64] ==> [/lib64]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib64] ==> [/usr/lib64]
+        collapse library dir [/lib] ==> [/lib]
+        collapse library dir [/usr/lib] ==> [/usr/lib]
+        implicit libs: [stdc++;m;gcc_s;gcc;c;gcc_s;gcc]
+        implicit objs: [/lib/x86_64-linux-gnu/Scrt1.o;/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o;/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o;/lib/x86_64-linux-gnu/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/15;/usr/lib64;/lib/x86_64-linux-gnu;/lib64;/usr/lib/x86_64-linux-gnu;/lib;/usr/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Internal/CMakeDetermineLinkerId.cmake:38 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:299 (cmake_determine_linker_id)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the CXX compiler's linker: "/usr/bin/ld" "-v"
+      GNU ld (GNU Binutils for Ubuntu) 2.46
+  -
+    kind: "find-v1"
+    backtrace:
+      - "CMakeLists.txt:67 (find_path)"
+    mode: "path"
+    variable: "CRYPTOPP_INCLUDE_DIR"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "cryptopp/aes.h"
+    candidate_directories:
+      - "/include/"
+      - "/home/han-sui/Downloads/NT219/lab02/"
+      - "/usr/include/"
+      - "D:/cryptolibrary/include/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+      - "/usr/local/include/x86_64-linux-gnu/"
+      - "/usr/local/include/"
+      - "/usr/local/"
+      - "/usr/include/x86_64-linux-gnu/"
+      - "/usr/include/"
+      - "/usr/"
+      - "/include/x86_64-linux-gnu/"
+      - "/include/"
+      - "/usr/X11R6/include/x86_64-linux-gnu/"
+      - "/usr/X11R6/include/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/include/x86_64-linux-gnu/"
+      - "/usr/pkg/include/"
+      - "/usr/pkg/"
+      - "/opt/include/x86_64-linux-gnu/"
+      - "/opt/include/"
+      - "/opt/"
+      - "/usr/include/X11/"
+    searched_directories:
+      - "/include/cryptopp/aes.h"
+      - "/home/han-sui/Downloads/NT219/lab02/cryptopp/aes.h"
+    found: "/usr/include/"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_INCLUDE_PATH:
+        - "/usr/include/X11"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "CMakeLists.txt:69 (find_library)"
+    mode: "library"
+    variable: "CRYPTOPP_LIBRARY"
+    description: "Path to a library."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "cryptopp"
+      - "cryptopp-static"
+    candidate_directories:
+      - "/lib/"
+      - "/lib64/"
+      - "/usr/lib/x86_64-linux-gnu/"
+      - "/usr/local/lib/"
+      - "D:/cryptolibrary/libs/cryptopp/msvc/"
+      - "/home/han-sui/.gemini/antigravity-cli/bin/"
+      - "/home/han-sui/.opencode/bin/"
+      - "/home/han-sui/.bun/bin/"
+      - "/home/han-sui/.local/bin/"
+      - "/home/han-sui/.npm-global/bin/"
+      - "/home/han-sui/ENTER/bin/"
+      - "/home/han-sui/ENTER/condabin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/usr/games/"
+      - "/usr/local/games/"
+      - "/snap/bin/"
+      - "/usr/local/lib/x86_64-linux-gnu/"
+      - "/usr/local/lib/"
+      - "/usr/local/"
+      - "/usr/lib/x86_64-linux-gnu/"
+      - "/usr/lib/"
+      - "/usr/"
+      - "/lib/x86_64-linux-gnu/"
+      - "/lib/"
+      - "/usr/X11R6/lib/x86_64-linux-gnu/"
+      - "/usr/X11R6/lib/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/lib/x86_64-linux-gnu/"
+      - "/usr/pkg/lib/"
+      - "/usr/pkg/"
+      - "/opt/lib/x86_64-linux-gnu/"
+      - "/opt/lib/"
+      - "/opt/"
+      - "/usr/lib/X11/"
+    searched_directories:
+      - "/lib/"
+      - "/lib64/"
+    found: "/usr/lib/x86_64-linux-gnu/libcryptopp.so"
+    search_context:
+      ENV{PATH}:
+        - "/home/han-sui/.gemini/antigravity-cli/bin"
+        - "/home/han-sui/.opencode/bin"
+        - "/home/han-sui/.bun/bin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/.npm-global/bin"
+        - "/home/han-sui/ENTER/bin"
+        - "/home/han-sui/ENTER/condabin"
+        - "/home/han-sui/.local/bin"
+        - "/home/han-sui/.local/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/usr/games"
+        - "/usr/local/games"
+        - "/snap/bin"
+        - "/snap/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_LIBRARY_PATH:
+        - "/usr/lib/X11"
+...

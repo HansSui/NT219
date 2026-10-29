@@ -1,0 +1,2 @@
+/usr/bin/ar qc libaes_core.a CMakeFiles/aes_core.dir/src/AES.cpp.o CMakeFiles/aes_core.dir/src/modesA.cpp.o CMakeFiles/aes_core.dir/src/modesC.cpp.o CMakeFiles/aes_core.dir/src/modesD.cpp.o
+/usr/bin/ranlib libaes_core.a

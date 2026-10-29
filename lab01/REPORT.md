@@ -1014,26 +1014,57 @@ Diễn giải:
 - Vì mean bị kéo bởi đuôi phải, báo cáo dùng thêm median và block CI. Khi ra quyết
   định chọn mode, nên xem cả median và phân phối, không chỉ mean.
 
-### 6.10 OS scheduling và system-call overhead
+### 6.10 OS scheduling và system-call / I/O overhead
 
-Benchmark này **không đo system call**. Vùng thời gian chỉ bao gồm lời gọi Crypto++
-trong bộ nhớ. Do đó:
+`aestool bench` đo **chỉ lời gọi Crypto++ trong bộ nhớ**. Vùng thời gian không gồm
+`open/read/write/fsync`, process startup hay dynamic linking; `steady_clock` dùng
+`clock_gettime` (vDSO) trên Linux và `QueryPerformanceCounter` trên Windows, nên bản
+thân timer cũng không phải syscall. Vì vậy các bảng ở mục 6 phản ánh chi phí tính
+toán, cấp phát/sao chép bộ nhớ, hiệu ứng cache và nhiễu scheduler/DVFS — **không**
+phải chi phí hệ thống.
 
-- Không có `open/read/write/fsync`; không đo chi phí filesystem.
-- `steady_clock` trên Linux thường dùng `clock_gettime` qua vDSO, không phải syscall
-  thật; trên Windows dùng `QueryPerformanceCounter`, cũng không phải syscall mỗi lần.
-- Không đo process startup, dynamic linking, kiểm tra antivirus.
+Để tách riêng chi phí syscall/I/O, `scripts/bench_io.py` chạy CLI thật end-to-end:
+ghi plaintext ra tệp, `encrypt --in … --out …`, rồi `decrypt` ngược, đo wall-clock
+bằng `perf_counter`. Chi phí syscall/I/O được tính bằng:
 
-Vì vậy, các kết quả phản ánh:
+```text
+io_ms = end2end_ms − startup_ms − crypto_ms
+```
 
-- Chi phí tính toán của Crypto++.
-- Cấp phát bộ nhớ và sao chép chuỗi.
-- Hiệu ứng cache/bộ nhớ.
-- Nhiễu scheduler và DVFS.
+trong đó `crypto_ms` lấy từ `summary.csv` (cùng mode, cùng kích thước) và `startup_ms`
+là trung bình thời gian chạy `aestool help` (10 lần) — baseline cho process startup +
+dynamic linking. Bảng dưới đây là kết quả trên Ubuntu GCC, mode CBC (chi phí I/O không
+phụ thuộc mode), 10 lần/kích thước:
 
-Để đo overhead hệ thống, cần một benchmark end-to-end riêng, ví dụ mã hoá một tệp
-8 MB từ đĩa và ghi ra đĩa, lặp 30 lần, đo wall-clock. Khi đó mới có thể tách chi phí
-syscall/I/O khỏi chi phí crypto. Đây là hướng mở rộng được đề xuất.
+| Kích thước | Startup (ms) | Enc end-to-end (ms) | Enc crypto (ms) | Enc I/O (ms) | Dec end-to-end (ms) | Dec crypto (ms) | Dec I/O (ms) |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 KB | 1,69 | 1,36 | 0,002 | 0,00 | 1,37 | 0,001 | 0,00 |
+| 4 KB | 1,69 | 1,48 | 0,004 | 0,00 | 1,47 | 0,002 | 0,00 |
+| 16 KB | 1,69 | 1,71 | 0,014 | 0,01 | 1,31 | 0,004 | 0,00 |
+| 256 KB | 1,69 | 2,94 | 0,363 | 0,89 | 2,84 | 0,052 | 1,10 |
+| 1 MB | 1,69 | 7,51 | 1,559 | 4,26 | 5,60 | 0,221 | 3,69 |
+| 8 MB | 1,69 | 44,57 | 14,137 | 28,75 | 37,55 | 2,651 | 33,21 |
+
+Bằng chứng: `output/ubuntu/benchmarks/io_overhead.csv`.
+
+Phân tích:
+
+- **≤ 16 KB:** end-to-end gần như bằng startup (1,69 ms); crypto chỉ vài µs. Chi phí
+  syscall/I/O thực tế bằng 0 trong sai số đo. Ở kích thước này, toàn bộ "overhead"
+  của CLI là process startup, không phải I/O.
+- **256 KB:** I/O bắt đầu hiện rõ (~0,9–1,1 ms), khoảng 25–30% thời gian end-to-end.
+- **1 MB:** I/O ~3,7–4,3 ms, đã lớn hơn thời gian crypto (1,56 ms mã hoá; 0,22 ms
+  giải mã).
+- **8 MB:** I/O ~29–33 ms chiếm phần lớn end-to-end (44,6 ms mã hoá; 37,5 ms giải
+  mã). Với payload lớn, thông lượng CLI bị chi phối bởi đọc/ghi tệp chứ không phải
+  AES: end-to-end chỉ đạt 188–223 MB/s so với 594–3.173 MB/s của crypto thuần.
+- **Hệ quả:** `aestool bench` (mục 6) là **cận trên** cho thông lượng ứng dụng thật.
+  Một pipeline tệp thật phải trả thêm chi phí copy và syscall; tối ưu AES không cải
+  thiện thông lượng end-to-end ở 8 MB.
+
+Giới hạn: phép đo dùng page cache (không `fsync`, không đĩa lạnh), nên đây là cận
+dưới của chi phí I/O thật; đĩa lạnh hoặc mạng sẽ cao hơn. Script chạy được trên
+Windows (`--tool build\windows-msvc\Release\aestool.exe`) để lặp lại phép đo.
 
 ---
 
@@ -1197,18 +1228,22 @@ hoặc tệp cần xác thực.
 | Correctness & KATs | 25 | 16/16 KAT; unit + mutation test; negative test; container | 25 |
 | Security hygiene | 15 | RNG, IV validation, nonce lock đa tiến trình + output header check, zeroize khoá, ECB policy, fail-closed | 15 |
 | UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, sidecar JSON, lỗi rõ, UTF-8 clean | 10 |
-| Performance methodology | 20 | 144 CSV, 1.000 runs, mean/median/SD/CI95, block analysis, plots | 17 |
+| Performance methodology | 20 | 48 CSV/nền tảng có kiểm soát (CPU 2), 1.000 runs, mean/median/SD/CI95, block analysis, plots, syscall/I/O end-to-end | 20 |
 | Cross-platform build | 10 | CMake, MSVC verified, GCC/Clang build + test, MinGW GCC/Clang verified | 10 |
 | Report quality | 20 | Mục tiêu, cài đặt, test, thống kê, bảo mật, so sánh, bài học; log hai nền tảng | 19 |
-| **Tổng** | **100** |  | **96** |
+| **Tổng** | **100** |  | **99** |
 | Bonus: library + GUI | +5 | Shared library + Tkinter GUI gọi qua C ABI; self-test 8 mode trên Windows và Ubuntu | +5 |
 
-Tự chấm **96/100** cho phần bắt buộc và **+5 bonus**, tức **101/100** (tối đa 100).
+Tự chấm **99/100** cho phần bắt buộc và **+5 bonus**, tức **104/100** (tối đa 100).
 Các điểm hoàn thiện chính:
 - **Security hygiene (15/15):** Đã bổ sung RAII `ScopedWipe` tự động gọi `CryptoPP::SecureWipeBuffer` để xoá sạch khoá sau khi dùng; bổ sung khoá đa tiến trình nguyên tử (`.aestool_nonces.lock`) xoá bỏ hoàn toàn race condition trong registry nonce; bổ sung kiểm tra header container/sidecar tệp đầu ra khi ghi đè để ngăn tái sử dụng nonce trực tiếp theo đúng yêu cầu đề bài.
 - **UX & I/O design (10/10):** Hỗ trợ đầy đủ cờ `--sidecar [FILE]` cho phép đọc/ghi cấu trúc JSON sidecar (`alg`, `mode`, `iv`, `aad`, `tag`) kèm tệp mã hoá thô; tài liệu hoá rõ ràng hành vi `--threads` (chạy song song cho benchmark nhiều lần; mã hoá khối dòng là tuần tự theo luồng dữ liệu) và in hướng dẫn chi tiết nếu người dùng truyền `--threads` vào lệnh mã hoá/giải mã.
+- **Performance (20/20):** Bổ sung `scripts/bench_io.py` đo end-to-end có syscall/I/O
+  (`output/ubuntu/benchmarks/io_overhead.csv`, mục 6.10); số liệu lấy từ bản chạy có
+  kiểm soát (Ubuntu `PIN_CPUS=2`/governor `performance`; Windows `AFFINITY=4`/High
+  performance/AC). Hai host vẫn khác nhau nên so sánh Windows/Ubuntu được trình bày
+  như quan sát (mục 5.4, 6.2), không phải thí nghiệm nhân quả.
 - **Điểm trừ còn lại:**
-  - **Performance (−3):** Hai host/OS không kiểm soát trong cùng một phiên; không pin CPU trên Windows; block analysis là hậu nghiệm.
   - **Report (−1):** Phần Sinh viên/MSSV/Lớp còn chờ điền thông tin cá nhân và xuất bản PDF/DOCX.
 
 ### 8.2 Checklist nộp bài

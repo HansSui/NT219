@@ -13,6 +13,7 @@ output/
   ubuntu/
     benchmarks/          bench_ubuntu_gcc_*.csv
                          summary.csv, summary_tag_overhead.csv, summary_classes.csv
+                         io_overhead.csv (end-to-end syscall/I/O, see report 6.10)
                          bench_environment.txt (controlled-run metadata)
                          graph/  (7 comparison PNGs)
     key_bin/             key and payload files used by the CLI tests
@@ -86,6 +87,15 @@ python scripts\plot_crossplatform.py
 
 The cross-platform script defaults to `output/ubuntu/benchmarks` and
 `output/windows/benchmarks` and writes to `output/compare/`.
+
+System-call/I/O overhead (report section 6.10) comes from `scripts/bench_io.py`.
+The Ubuntu run used:
+
+```bash
+python3 scripts/bench_io.py --tool build/ubuntu-gcc/aestool \
+    --summary output/ubuntu/benchmarks/summary.csv \
+    --out output/ubuntu/benchmarks/io_overhead.csv
+```
 
 ## Reading the comparison
 

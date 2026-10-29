@@ -1,0 +1,1 @@
+/usr/bin/clang++ -O3 -DNDEBUG -Xlinker --dependency-file=CMakeFiles/test_crossval.dir/link.d CMakeFiles/test_crossval.dir/tests/test_crossval.cpp.o -o test_crossval  libaes_core.a /usr/lib/x86_64-linux-gnu/libcryptopp.so

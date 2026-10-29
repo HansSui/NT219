@@ -1,0 +1,1 @@
+/usr/bin/g++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/aestool.dir/link.d CMakeFiles/aestool.dir/src/main.cpp.o -o aestool  libaes_core.a
