@@ -1,0 +1,114 @@
+===== BENCHMARK =====
+timestamp_utc=20261030T073732Z
+host=han-sui-Vostro-3500
+kernel=Linux 7.0.0-38-generic x86_64
+cpu_model=11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+cpu_cores=8
+cpu_governor=powersave
+cpu_mhz=1861
+mem_total_kb=23796972
+mem_available_kb=15549272
+swap_total_kb=8388604
+compiler=gcc
+compiler_version=g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+git_commit=857cb1b
+binary=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/aestool
+log=/home/han-sui/Downloads/NT219/lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1048576_20261030T073732Z.log
+sample_interval_s=2
+--- CLI ---
+Usage: /home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/aestool <command> [options]
+
+Commands:
+  encrypt    Encrypt data using AES-CTR or AES-XTS
+  decrypt    Decrypt data using AES-CTR or AES-XTS
+  bench      Benchmark encryption/decryption throughput & latency
+  --kat FILE Run Known Answer Tests from JSON vector file
+  help       Display this help message
+
+Encrypt/Decrypt Options:
+  --mode <ctr|xts>                      Cipher mode (default: ctr)
+  --key <file>                          Binary key file (CTR: 16/24/32 B; XTS: 32/48/64 B)
+  --key-hex <hex>                       Hexadecimal key string
+  --iv <file>                           Binary counter / XTS data unit (16 bytes)
+  --iv-hex <hex>                        Hexadecimal IV string (16 bytes = 32 hex chars)
+  --in <file>                           Input data file
+  --text <string>                       Plaintext input string directly
+  --out <file>                          Output data file
+  --out-hex                             Display output as hex to stdout
+
+Benchmark Options:
+  --size <bytes>                        Payload size in bytes (e.g. 1048576 = 1MB)
+  --runs <n>                            Number of iterations (default: 1000)
+  --out <csv_file>                      Output CSV filename
+--- MATRIX ---
+size=1048576 runs=1000
+===== RUN =====
+===== BENCHMARK size=1048576 runs=1000 =====
++ /home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/aestool bench --size 1048576 --runs 1000 --out /home/han-sui/Downloads/NT219/lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1048576.csv
+SYS 2026-10-30T07:37:32Z size=1048576 cpu_busy_pct=0.0 load=0.31/0.64/0.78 mem_used_mb=8055 mem_avail_mb=15183 swap_used_mb=0 proc_cpu_pct=200 proc_rss_mb=6
+SYS 2026-10-30T07:37:34Z size=1048576 cpu_busy_pct=14.2 load=0.31/0.64/0.78 mem_used_mb=8058 mem_avail_mb=15180 swap_used_mb=0 proc_cpu_pct=99.5 proc_rss_mb=6
+SYS 2026-10-30T07:37:36Z size=1048576 cpu_busy_pct=13.5 load=0.36/0.64/0.78 mem_used_mb=8059 mem_avail_mb=15180 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=7
+SYS 2026-10-30T07:37:38Z size=1048576 cpu_busy_pct=14.1 load=0.36/0.64/0.78 mem_used_mb=8057 mem_avail_mb=15181 swap_used_mb=0 proc_cpu_pct=99.8 proc_rss_mb=6
+SYS 2026-10-30T07:37:40Z size=1048576 cpu_busy_pct=13.8 load=0.36/0.64/0.78 mem_used_mb=8054 mem_avail_mb=15185 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=6
+SYS 2026-10-30T07:37:42Z size=1048576 cpu_busy_pct=14.3 load=0.41/0.65/0.78 mem_used_mb=8054 mem_avail_mb=15185 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=7
+SYS 2026-10-30T07:37:44Z size=1048576 cpu_busy_pct=13.7 load=0.41/0.65/0.78 mem_used_mb=8053 mem_avail_mb=15185 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=6
+SYS 2026-10-30T07:37:46Z size=1048576 cpu_busy_pct=14.4 load=0.46/0.65/0.78 mem_used_mb=8087 mem_avail_mb=15152 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=7
+SYS 2026-10-30T07:37:48Z size=1048576 cpu_busy_pct=13.8 load=0.46/0.65/0.78 mem_used_mb=8115 mem_avail_mb=15124 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:37:50Z size=1048576 cpu_busy_pct=14.0 load=0.46/0.65/0.78 mem_used_mb=8104 mem_avail_mb=15134 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=6
+SYS 2026-10-30T07:37:52Z size=1048576 cpu_busy_pct=13.4 load=0.50/0.66/0.78 mem_used_mb=8094 mem_avail_mb=15144 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=7
+SYS 2026-10-30T07:37:54Z size=1048576 cpu_busy_pct=14.2 load=0.50/0.66/0.78 mem_used_mb=8089 mem_avail_mb=15150 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:37:56Z size=1048576 cpu_busy_pct=13.5 load=0.54/0.67/0.79 mem_used_mb=8082 mem_avail_mb=15156 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=6
+SYS 2026-10-30T07:37:58Z size=1048576 cpu_busy_pct=14.6 load=0.54/0.67/0.79 mem_used_mb=8079 mem_avail_mb=15159 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:00Z size=1048576 cpu_busy_pct=14.6 load=0.54/0.67/0.79 mem_used_mb=8057 mem_avail_mb=15181 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:02Z size=1048576 cpu_busy_pct=14.2 load=0.58/0.67/0.79 mem_used_mb=8053 mem_avail_mb=15185 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:04Z size=1048576 cpu_busy_pct=13.6 load=0.58/0.67/0.79 mem_used_mb=8053 mem_avail_mb=15185 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=6
+SYS 2026-10-30T07:38:06Z size=1048576 cpu_busy_pct=19.6 load=0.77/0.71/0.80 mem_used_mb=7883 mem_avail_mb=15355 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:08Z size=1048576 cpu_busy_pct=29.3 load=0.77/0.71/0.80 mem_used_mb=8384 mem_avail_mb=14854 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:10Z size=1048576 cpu_busy_pct=15.6 load=0.77/0.71/0.80 mem_used_mb=8385 mem_avail_mb=14853 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=7
+SYS 2026-10-30T07:38:12Z size=1048576 cpu_busy_pct=14.8 load=0.87/0.73/0.81 mem_used_mb=8385 mem_avail_mb=14854 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=7
+SYS 2026-10-30T07:38:14Z size=1048576 cpu_busy_pct=14.2 load=0.87/0.73/0.81 mem_used_mb=8385 mem_avail_mb=14854 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:16Z size=1048576 cpu_busy_pct=15.1 load=0.96/0.75/0.81 mem_used_mb=8370 mem_avail_mb=14868 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=7
+SYS 2026-10-30T07:38:18Z size=1048576 cpu_busy_pct=15.3 load=0.96/0.75/0.81 mem_used_mb=8359 mem_avail_mb=14879 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:21Z size=1048576 cpu_busy_pct=14.6 load=1.05/0.78/0.82 mem_used_mb=8320 mem_avail_mb=14919 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:23Z size=1048576 cpu_busy_pct=13.8 load=1.05/0.78/0.82 mem_used_mb=8306 mem_avail_mb=14932 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:25Z size=1048576 cpu_busy_pct=15.1 load=1.05/0.78/0.82 mem_used_mb=8296 mem_avail_mb=14943 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:27Z size=1048576 cpu_busy_pct=14.3 load=1.04/0.78/0.82 mem_used_mb=8289 mem_avail_mb=14949 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:29Z size=1048576 cpu_busy_pct=15.2 load=1.04/0.78/0.82 mem_used_mb=8280 mem_avail_mb=14959 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:31Z size=1048576 cpu_busy_pct=15.2 load=1.04/0.78/0.82 mem_used_mb=8275 mem_avail_mb=14963 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:33Z size=1048576 cpu_busy_pct=15.2 load=1.04/0.78/0.82 mem_used_mb=8270 mem_avail_mb=14968 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=6
+SYS 2026-10-30T07:38:35Z size=1048576 cpu_busy_pct=14.0 load=1.04/0.78/0.82 mem_used_mb=8268 mem_avail_mb=14970 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:37Z size=1048576 cpu_busy_pct=14.7 load=1.04/0.79/0.82 mem_used_mb=8268 mem_avail_mb=14970 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:39Z size=1048576 cpu_busy_pct=13.9 load=1.04/0.79/0.82 mem_used_mb=8269 mem_avail_mb=14969 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:41Z size=1048576 cpu_busy_pct=13.9 load=1.03/0.79/0.82 mem_used_mb=8269 mem_avail_mb=14970 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:43Z size=1048576 cpu_busy_pct=13.5 load=1.03/0.79/0.82 mem_used_mb=8266 mem_avail_mb=14972 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:45Z size=1048576 cpu_busy_pct=16.0 load=1.03/0.79/0.82 mem_used_mb=8266 mem_avail_mb=14972 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=7
+SYS 2026-10-30T07:38:47Z size=1048576 cpu_busy_pct=14.0 load=1.11/0.81/0.83 mem_used_mb=8267 mem_avail_mb=14971 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:49Z size=1048576 cpu_busy_pct=14.7 load=1.11/0.81/0.83 mem_used_mb=8278 mem_avail_mb=14961 swap_used_mb=0 proc_cpu_pct=100 proc_rss_mb=6
+SYS 2026-10-30T07:38:51Z size=1048576 cpu_busy_pct=14.1 load=1.18/0.83/0.84 mem_used_mb=8276 mem_avail_mb=14962 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:38:53Z size=1048576 cpu_busy_pct=13.7 load=1.18/0.83/0.84 mem_used_mb=8276 mem_avail_mb=14963 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:55Z size=1048576 cpu_busy_pct=15.2 load=1.18/0.83/0.84 mem_used_mb=8269 mem_avail_mb=14970 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:57Z size=1048576 cpu_busy_pct=27.3 load=1.25/0.85/0.84 mem_used_mb=6737 mem_avail_mb=16501 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:38:59Z size=1048576 cpu_busy_pct=17.1 load=1.25/0.85/0.84 mem_used_mb=6086 mem_avail_mb=17152 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:39:01Z size=1048576 cpu_busy_pct=15.0 load=1.31/0.87/0.85 mem_used_mb=6036 mem_avail_mb=17202 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:39:03Z size=1048576 cpu_busy_pct=20.4 load=1.31/0.87/0.85 mem_used_mb=6099 mem_avail_mb=17139 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:39:05Z size=1048576 cpu_busy_pct=21.0 load=1.31/0.87/0.85 mem_used_mb=6117 mem_avail_mb=17121 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:39:07Z size=1048576 cpu_busy_pct=14.4 load=1.28/0.87/0.85 mem_used_mb=6109 mem_avail_mb=17129 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:39:09Z size=1048576 cpu_busy_pct=15.6 load=1.28/0.87/0.85 mem_used_mb=5969 mem_avail_mb=17269 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:39:11Z size=1048576 cpu_busy_pct=14.4 load=1.26/0.88/0.85 mem_used_mb=5974 mem_avail_mb=17265 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:39:13Z size=1048576 cpu_busy_pct=13.8 load=1.26/0.88/0.85 mem_used_mb=5836 mem_avail_mb=17402 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:39:15Z size=1048576 cpu_busy_pct=13.4 load=1.26/0.88/0.85 mem_used_mb=5819 mem_avail_mb=17420 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:39:17Z size=1048576 cpu_busy_pct=13.3 load=1.24/0.88/0.85 mem_used_mb=5813 mem_avail_mb=17425 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:39:19Z size=1048576 cpu_busy_pct=13.4 load=1.24/0.88/0.85 mem_used_mb=5792 mem_avail_mb=17446 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:39:21Z size=1048576 cpu_busy_pct=13.2 load=1.22/0.88/0.85 mem_used_mb=5788 mem_avail_mb=17450 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=7
+SYS 2026-10-30T07:39:23Z size=1048576 cpu_busy_pct=14.1 load=1.22/0.88/0.85 mem_used_mb=5791 mem_avail_mb=17447 swap_used_mb=0 proc_cpu_pct=99.9 proc_rss_mb=6
+SYS 2026-10-30T07:39:25Z size=1048576 cpu_busy_pct=3.6 load=1.22/0.88/0.85 mem_used_mb=5773 mem_avail_mb=17465 swap_used_mb=0 
+csv=/home/han-sui/Downloads/NT219/lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1048576.csv rows=1000
+===== END size=1048576 =====
+===== END BENCHMARK =====
+elapsed_s=113
+Summarizing results...
+stability: enc noisy 0/1, dec noisy 0/1
+  worst CV: CTR 1MB dec cv=0.050
+  worst CV: CTR 1MB enc cv=0.050
+wrote /home/han-sui/Downloads/NT219/lab02/output/ubuntu/benchmarks/summary.csv
+wrote /home/han-sui/Downloads/NT219/lab02/output/ubuntu/benchmarks/summary_robust.csv

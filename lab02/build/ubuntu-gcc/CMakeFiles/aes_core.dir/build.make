@@ -86,65 +86,33 @@ CMakeFiles/aes_core.dir/src/AES.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/aes_core.dir/src/AES.cpp.s"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/han-sui/Downloads/NT219/lab02/src/AES.cpp -o CMakeFiles/aes_core.dir/src/AES.cpp.s
 
-CMakeFiles/aes_core.dir/src/modesA.cpp.o: CMakeFiles/aes_core.dir/flags.make
-CMakeFiles/aes_core.dir/src/modesA.cpp.o: /home/han-sui/Downloads/NT219/lab02/src/modesA.cpp
-CMakeFiles/aes_core.dir/src/modesA.cpp.o: CMakeFiles/aes_core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/aes_core.dir/src/modesA.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/aes_core.dir/src/modesA.cpp.o -MF CMakeFiles/aes_core.dir/src/modesA.cpp.o.d -o CMakeFiles/aes_core.dir/src/modesA.cpp.o -c /home/han-sui/Downloads/NT219/lab02/src/modesA.cpp
+CMakeFiles/aes_core.dir/src/modes.cpp.o: CMakeFiles/aes_core.dir/flags.make
+CMakeFiles/aes_core.dir/src/modes.cpp.o: /home/han-sui/Downloads/NT219/lab02/src/modes.cpp
+CMakeFiles/aes_core.dir/src/modes.cpp.o: CMakeFiles/aes_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/aes_core.dir/src/modes.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/aes_core.dir/src/modes.cpp.o -MF CMakeFiles/aes_core.dir/src/modes.cpp.o.d -o CMakeFiles/aes_core.dir/src/modes.cpp.o -c /home/han-sui/Downloads/NT219/lab02/src/modes.cpp
 
-CMakeFiles/aes_core.dir/src/modesA.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/aes_core.dir/src/modesA.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/han-sui/Downloads/NT219/lab02/src/modesA.cpp > CMakeFiles/aes_core.dir/src/modesA.cpp.i
+CMakeFiles/aes_core.dir/src/modes.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/aes_core.dir/src/modes.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/han-sui/Downloads/NT219/lab02/src/modes.cpp > CMakeFiles/aes_core.dir/src/modes.cpp.i
 
-CMakeFiles/aes_core.dir/src/modesA.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/aes_core.dir/src/modesA.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/han-sui/Downloads/NT219/lab02/src/modesA.cpp -o CMakeFiles/aes_core.dir/src/modesA.cpp.s
-
-CMakeFiles/aes_core.dir/src/modesC.cpp.o: CMakeFiles/aes_core.dir/flags.make
-CMakeFiles/aes_core.dir/src/modesC.cpp.o: /home/han-sui/Downloads/NT219/lab02/src/modesC.cpp
-CMakeFiles/aes_core.dir/src/modesC.cpp.o: CMakeFiles/aes_core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/aes_core.dir/src/modesC.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/aes_core.dir/src/modesC.cpp.o -MF CMakeFiles/aes_core.dir/src/modesC.cpp.o.d -o CMakeFiles/aes_core.dir/src/modesC.cpp.o -c /home/han-sui/Downloads/NT219/lab02/src/modesC.cpp
-
-CMakeFiles/aes_core.dir/src/modesC.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/aes_core.dir/src/modesC.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/han-sui/Downloads/NT219/lab02/src/modesC.cpp > CMakeFiles/aes_core.dir/src/modesC.cpp.i
-
-CMakeFiles/aes_core.dir/src/modesC.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/aes_core.dir/src/modesC.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/han-sui/Downloads/NT219/lab02/src/modesC.cpp -o CMakeFiles/aes_core.dir/src/modesC.cpp.s
-
-CMakeFiles/aes_core.dir/src/modesD.cpp.o: CMakeFiles/aes_core.dir/flags.make
-CMakeFiles/aes_core.dir/src/modesD.cpp.o: /home/han-sui/Downloads/NT219/lab02/src/modesD.cpp
-CMakeFiles/aes_core.dir/src/modesD.cpp.o: CMakeFiles/aes_core.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/aes_core.dir/src/modesD.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/aes_core.dir/src/modesD.cpp.o -MF CMakeFiles/aes_core.dir/src/modesD.cpp.o.d -o CMakeFiles/aes_core.dir/src/modesD.cpp.o -c /home/han-sui/Downloads/NT219/lab02/src/modesD.cpp
-
-CMakeFiles/aes_core.dir/src/modesD.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/aes_core.dir/src/modesD.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/han-sui/Downloads/NT219/lab02/src/modesD.cpp > CMakeFiles/aes_core.dir/src/modesD.cpp.i
-
-CMakeFiles/aes_core.dir/src/modesD.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/aes_core.dir/src/modesD.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/han-sui/Downloads/NT219/lab02/src/modesD.cpp -o CMakeFiles/aes_core.dir/src/modesD.cpp.s
+CMakeFiles/aes_core.dir/src/modes.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/aes_core.dir/src/modes.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/han-sui/Downloads/NT219/lab02/src/modes.cpp -o CMakeFiles/aes_core.dir/src/modes.cpp.s
 
 # Object files for target aes_core
 aes_core_OBJECTS = \
 "CMakeFiles/aes_core.dir/src/AES.cpp.o" \
-"CMakeFiles/aes_core.dir/src/modesA.cpp.o" \
-"CMakeFiles/aes_core.dir/src/modesC.cpp.o" \
-"CMakeFiles/aes_core.dir/src/modesD.cpp.o"
+"CMakeFiles/aes_core.dir/src/modes.cpp.o"
 
 # External object files for target aes_core
 aes_core_EXTERNAL_OBJECTS =
 
 libaes_core.a: CMakeFiles/aes_core.dir/src/AES.cpp.o
-libaes_core.a: CMakeFiles/aes_core.dir/src/modesA.cpp.o
-libaes_core.a: CMakeFiles/aes_core.dir/src/modesC.cpp.o
-libaes_core.a: CMakeFiles/aes_core.dir/src/modesD.cpp.o
+libaes_core.a: CMakeFiles/aes_core.dir/src/modes.cpp.o
 libaes_core.a: CMakeFiles/aes_core.dir/build.make
 libaes_core.a: CMakeFiles/aes_core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libaes_core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libaes_core.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/aes_core.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/aes_core.dir/link.txt --verbose=$(VERBOSE)
 

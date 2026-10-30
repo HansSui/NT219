@@ -1,12 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/aes_core.dir/src/AES.cpp.o"
   "CMakeFiles/aes_core.dir/src/AES.cpp.o.d"
-  "CMakeFiles/aes_core.dir/src/modesA.cpp.o"
-  "CMakeFiles/aes_core.dir/src/modesA.cpp.o.d"
-  "CMakeFiles/aes_core.dir/src/modesC.cpp.o"
-  "CMakeFiles/aes_core.dir/src/modesC.cpp.o.d"
-  "CMakeFiles/aes_core.dir/src/modesD.cpp.o"
-  "CMakeFiles/aes_core.dir/src/modesD.cpp.o.d"
+  "CMakeFiles/aes_core.dir/src/modes.cpp.o"
+  "CMakeFiles/aes_core.dir/src/modes.cpp.o.d"
   "libaes_core.a"
   "libaes_core.pdb"
 )

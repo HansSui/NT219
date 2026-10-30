@@ -204,7 +204,7 @@ CRYPTOPP_INCLUDE_DIR:PATH=/usr/include
 //Path to a library.
 CRYPTOPP_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/libcryptopp.so
 
-//Enable cross-validation against Crypto++ / OpenSSL
+//Enable cross-validation against Crypto++
 ENABLE_CROSSVAL:BOOL=ON
 
 //Value Computed by CMake

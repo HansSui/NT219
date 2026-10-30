@@ -226,77 +226,29 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/aestool.dir/build.make CMakeFiles/aestool.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
-src/modesA.o: src/modesA.cpp.o
-.PHONY : src/modesA.o
+src/modes.o: src/modes.cpp.o
+.PHONY : src/modes.o
 
 # target to build an object file
-src/modesA.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesA.cpp.o
-.PHONY : src/modesA.cpp.o
+src/modes.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modes.cpp.o
+.PHONY : src/modes.cpp.o
 
-src/modesA.i: src/modesA.cpp.i
-.PHONY : src/modesA.i
-
-# target to preprocess a source file
-src/modesA.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesA.cpp.i
-.PHONY : src/modesA.cpp.i
-
-src/modesA.s: src/modesA.cpp.s
-.PHONY : src/modesA.s
-
-# target to generate assembly for a file
-src/modesA.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesA.cpp.s
-.PHONY : src/modesA.cpp.s
-
-src/modesC.o: src/modesC.cpp.o
-.PHONY : src/modesC.o
-
-# target to build an object file
-src/modesC.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesC.cpp.o
-.PHONY : src/modesC.cpp.o
-
-src/modesC.i: src/modesC.cpp.i
-.PHONY : src/modesC.i
+src/modes.i: src/modes.cpp.i
+.PHONY : src/modes.i
 
 # target to preprocess a source file
-src/modesC.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesC.cpp.i
-.PHONY : src/modesC.cpp.i
+src/modes.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modes.cpp.i
+.PHONY : src/modes.cpp.i
 
-src/modesC.s: src/modesC.cpp.s
-.PHONY : src/modesC.s
-
-# target to generate assembly for a file
-src/modesC.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesC.cpp.s
-.PHONY : src/modesC.cpp.s
-
-src/modesD.o: src/modesD.cpp.o
-.PHONY : src/modesD.o
-
-# target to build an object file
-src/modesD.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesD.cpp.o
-.PHONY : src/modesD.cpp.o
-
-src/modesD.i: src/modesD.cpp.i
-.PHONY : src/modesD.i
-
-# target to preprocess a source file
-src/modesD.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesD.cpp.i
-.PHONY : src/modesD.cpp.i
-
-src/modesD.s: src/modesD.cpp.s
-.PHONY : src/modesD.s
+src/modes.s: src/modes.cpp.s
+.PHONY : src/modes.s
 
 # target to generate assembly for a file
-src/modesD.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modesD.cpp.s
-.PHONY : src/modesD.cpp.s
+src/modes.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modes.cpp.s
+.PHONY : src/modes.cpp.s
 
 tests/test_aes.o: tests/test_aes.cpp.o
 .PHONY : tests/test_aes.o
@@ -389,15 +341,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
-	@echo "... src/modesA.o"
-	@echo "... src/modesA.i"
-	@echo "... src/modesA.s"
-	@echo "... src/modesC.o"
-	@echo "... src/modesC.i"
-	@echo "... src/modesC.s"
-	@echo "... src/modesD.o"
-	@echo "... src/modesD.i"
-	@echo "... src/modesD.s"
+	@echo "... src/modes.o"
+	@echo "... src/modes.i"
+	@echo "... src/modes.s"
 	@echo "... tests/test_aes.o"
 	@echo "... tests/test_aes.i"
 	@echo "... tests/test_aes.s"

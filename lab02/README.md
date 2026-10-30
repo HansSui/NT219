@@ -1,6 +1,6 @@
 # Lab 2 — AES-128 Implementation in Pure C++ (CTR Mode)
 
-`aestool` is a pure C++ implementation of the AES block cipher (AES-128, AES-192, AES-256) and the NIST SP 800-38A CTR (Counter) mode stream cipher.
+`aestool` is a pure C++ implementation of the AES block cipher (AES-128, AES-192, AES-256) and the NIST SP 800-38A CTR (Counter) mode stream cipher. CTR is the only mode required by Lab 2; XTS is implemented as Bonus B.
 
 In strict adherence to the `Lab2.txt` assignment specification:
 * **Zero external cryptographic libraries are used for primitives.** All core logic (`SubBytes`, `ShiftRows`, `MixColumns`, `AddRoundKey`, `KeyExpansion`, and `CTR` keystream generation) is implemented manually in standard C++17.
@@ -17,9 +17,7 @@ lab02/
 ├── BENCHMARKS.md               # Benchmark matrix, methodology & CSV formats
 ├── src/
 │   ├── AES.hpp / AES.cpp       # Pure C++ FIPS-197 AES block cipher core
-│   ├── modesA.hpp / modesA.cpp # CTR mode & counter increment mechanics
-│   ├── modesC.hpp / modesC.cpp # CCM mode implementation
-│   ├── modesD.hpp / modesD.cpp # GCM mode implementation
+│   ├── modes.hpp / modes.cpp   # CTR (required) + XTS (bonus) in one file
 │   ├── minijson.hpp            # Header-only zero-dependency JSON parser
 │   └── main.cpp                # aestool CLI (encrypt, decrypt, bench, --kat)
 ├── tests/
@@ -120,16 +118,35 @@ scripts\build_windows.bat clang
 ./build/ubuntu-gcc/aestool decrypt --mode ctr --key key.bin --iv iv.bin --in ct.bin --out msg.bin
 ```
 
-### 3. Known Answer Tests (KAT)
+### 3. XTS Mode (Bonus B)
+
+The XTS key is two equal AES keys concatenated (`K1 || K2`), so use 32 bytes for
+AES-128-XTS. `--iv` is the 16-byte data-unit number (little-endian sector).
+
+```bash
+./build/ubuntu-gcc/aestool encrypt --mode xts \
+    --key-hex 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f \
+    --iv-hex 01000000000000000000000000000000 \
+    --in msg.bin --out ct.bin
+
+./build/ubuntu-gcc/aestool decrypt --mode xts \
+    --key-hex 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f \
+    --iv-hex 01000000000000000000000000000000 \
+    --in ct.bin --out msg.bin
+```
+
+Sizes that are not a multiple of 16 bytes use IEEE P1619 ciphertext stealing.
+
+### 4. Known Answer Tests (KAT)
 
 ```bash
 ./build/ubuntu-gcc/aestool --kat kat/vectors.json
 ```
 
-Expected output: `7 passed, 0 failed`.
+Expected output: `4 passed, 0 failed`.
 
-### 4. Throughput Benchmarking
+### 5. Throughput Benchmarking
 
 ```bash
-./build/ubuntu-gcc/aestool bench --mode ctr --size 1048576 --runs 100 --out bench_1MB.csv
+./build/ubuntu-gcc/aestool bench --size 1048576 --runs 100 --out bench_1MB.csv
 ```

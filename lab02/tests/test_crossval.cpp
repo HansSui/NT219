@@ -1,10 +1,11 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "AES.hpp"
-#include "modesA.hpp"
+#include "modes.hpp"
 
 #include <cryptopp/aes.h>
 #include <cryptopp/modes.h>
+#include <cryptopp/xts.h>
 #include <cryptopp/filters.h>
 
 #include <vector>
@@ -26,7 +27,7 @@ TEST_CASE("Cross-Validation: Pure C++ AES-128-CTR vs Crypto++ AES-128-CTR", "[cr
 
     // 1. Encrypt with our Pure C++ implementation
     AES our_cipher(key, AES::AES_128);
-    MODEa our_modeA;
+    Modes our_modeA;
     std::vector<uint8_t> our_ct = our_modeA.ctr_encrypt(our_cipher, pt, iv);
 
     // 2. Encrypt with Crypto++ reference oracle
@@ -52,4 +53,41 @@ TEST_CASE("Cross-Validation: Pure C++ AES-128-CTR vs Crypto++ AES-128-CTR", "[cr
     // 4. Cross-decryption: Decrypt Crypto++'s output using our Pure C++ engine
     std::vector<uint8_t> our_decrypted = our_modeA.ctr_decrypt(our_cipher, cryptopp_ct, iv);
     REQUIRE(our_decrypted == pt);
+}
+
+TEST_CASE("Cross-Validation: Pure C++ XTS vs Crypto++ XTS", "[crossval][xts]") {
+    std::vector<uint8_t> key(32);
+    for (size_t i = 0; i < key.size(); ++i) key[i] = static_cast<uint8_t>(i);
+
+    Block dataUnit{};
+    dataUnit[0] = 1; // sector 1, little-endian
+
+    AES key1(key.data(), 16, AES::AES_128);
+    AES key2(key.data() + 16, 16, AES::AES_128);
+    Modes modes;
+
+    // 32/64 are block aligned; the other sizes exercise ciphertext stealing.
+    for (size_t size : std::vector<size_t>{32, 37, 64, 65, 509}) {
+        std::vector<uint8_t> pt(size);
+        for (size_t i = 0; i < size; ++i) pt[i] = static_cast<uint8_t>(i * 13 + 5);
+
+        std::vector<uint8_t> ours = modes.xts_encrypt(key1, key2, pt, dataUnit);
+
+        std::string oracle;
+        CryptoPP::XTS_Mode<CryptoPP::AES>::Encryption enc;
+        enc.SetKeyWithIV(key.data(), key.size(), dataUnit.data(), 16);
+        CryptoPP::StringSource ss(
+            reinterpret_cast<const CryptoPP::byte*>(pt.data()), pt.size(), true,
+            new CryptoPP::StreamTransformationFilter(
+                enc,
+                new CryptoPP::StringSink(oracle),
+                CryptoPP::StreamTransformationFilter::NO_PADDING
+            )
+        );
+
+        std::vector<uint8_t> expected(oracle.begin(), oracle.end());
+        REQUIRE(ours.size() == expected.size());
+        REQUIRE(ours == expected);
+        REQUIRE(modes.xts_decrypt(key1, key2, expected, dataUnit) == pt);
+    }
 }

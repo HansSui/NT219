@@ -6,10 +6,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_TESTING "Build unit tests" ON)
-option(ENABLE_CROSSVAL "Enable cross-validation against Crypto++ / OpenSSL" ON)
+option(ENABLE_CROSSVAL "Enable cross-validation against Crypto++" ON)
+
+message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION} (${CMAKE_CXX_COMPILER})")
 
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} INTERFACE /W4 /O2 /Ob2)
+    add_compile_options(/W4 /O2 /Ob2)
     # Match static runtime if desired
     if(NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -23,9 +25,7 @@ endif()
 # ==============================================================================
 add_library(aes_core STATIC
     src/AES.cpp
-    src/modesA.cpp
-    src/modesC.cpp
-    src/modesD.cpp
+    src/modes.cpp
 )
 target_include_directories(aes_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
@@ -70,7 +70,7 @@ if(BUILD_TESTING)
             HINTS "${CRYPTOPP_ROOT}/lib" "${CRYPTOPP_ROOT}/lib64" "/usr/lib/x86_64-linux-gnu" "/usr/local/lib" "D:/cryptolibrary/libs/cryptopp/msvc")
 
         if(CRYPTOPP_INCLUDE_DIR AND CRYPTOPP_LIBRARY)
-            message(STATUS "Cross-validation enabled: Found Crypto++ at ${CRYPTOPP_LIBRARY}")
+            message(STATUS "Cross-validation enabled: Crypto++ include ${CRYPTOPP_INCLUDE_DIR}, library ${CRYPTOPP_LIBRARY}")
             add_executable(test_crossval tests/test_crossval.cpp)
             target_include_directories(test_crossval PRIVATE
                 "${CMAKE_CURRENT_SOURCE_DIR}/src"

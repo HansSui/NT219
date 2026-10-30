@@ -282,4 +282,4 @@ CMakeFiles/test_core.dir/tests/test_ctr.cpp.o: \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/stl_numeric.h \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/pstl/glue_numeric_defs.h \
   /home/han-sui/Downloads/NT219/lab02/src/AES.hpp \
-  /home/han-sui/Downloads/NT219/lab02/src/modesA.hpp
+  /home/han-sui/Downloads/NT219/lab02/src/modes.hpp

@@ -325,7 +325,30 @@ make -f GNUmakefile install PREFIX=/c/cryptopp-mingw
 
 ---
 
-### 5.2 Build & Test Verification Commands
+### 5.2 Verified Local Paths (Ubuntu 26.04 host, Lab 2)
+
+Absolute paths embedded in the Lab 2 build (`lab02/CMakeLists.txt` prints the
+compiler and Crypto++ paths it actually uses):
+
+| Component | Verified path | Version |
+|---|---|---|
+| GCC | `/usr/bin/gcc` → `/usr/bin/x86_64-linux-gnu-gcc-15` | 15.2.0 |
+| G++ | `/usr/bin/g++` → `/usr/bin/x86_64-linux-gnu-g++-15` | 15.2.0 |
+| Clang | `/usr/bin/clang` → `/usr/lib/llvm-21/bin/clang` | 21.1.8 |
+| Clang++ | `/usr/bin/clang++` → `/usr/lib/llvm-21/bin/clang++` | 21.1.8 |
+| CMake | `/usr/bin/cmake` | 4.2.3 |
+| Make | `/usr/bin/make` | GNU Make |
+| Crypto++ headers | `/usr/include/cryptopp/`, `/usr/local/include/cryptopp/` | 8.9.0 (`CRYPTOPP_VERSION 890`) |
+| Crypto++ libraries | `/usr/lib/x86_64-linux-gnu/libcryptopp.a`, `/usr/lib/x86_64-linux-gnu/libcryptopp.so` | 8.9.0 |
+| OpenSSL headers | `/usr/include/openssl/` | 4.0.2 |
+| OpenSSL libraries | `/usr/lib/x86_64-linux-gnu/libcrypto.so`, `/usr/lib/x86_64-linux-gnu/libssl.so` | 4.0.2 |
+| OpenSSL CLI | `/usr/bin/openssl` | 4.0.2 |
+
+Lab 2 uses **no** external crypto library in `aestool`; Crypto++ is linked only
+into the optional `test_crossval` oracle target. OpenSSL is installed for the
+course but is not linked by Lab 2.
+
+### 5.3 Build & Test Verification Commands
 
 | Action | Ubuntu Linux | Windows MSVC (VS Native Prompt) | Windows MinGW (MSYS2 / CMD) |
 |---|---|---|---|

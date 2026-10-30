@@ -1,9 +1,10 @@
 #include "catch.hpp"
 #include "AES.hpp"
-#include "modesA.hpp"
+#include "modes.hpp"
 #include <vector>
 #include <array>
 #include <string>
+#include <stdexcept>
 
 TEST_CASE("NIST SP 800-38A AES-128 CTR Known Answer Test", "[ctr][kat]") {
     // NIST SP 800-38A CTR Mode Key
@@ -43,7 +44,7 @@ TEST_CASE("NIST SP 800-38A AES-128 CTR Known Answer Test", "[ctr][kat]") {
     };
 
     AES cipher(key, AES::AES_128);
-    MODEa modeA;
+    Modes modeA;
 
     std::vector<uint8_t> ct = modeA.ctr_encrypt(cipher, pt, iv);
     REQUIRE(ct == expected_ct);
@@ -58,7 +59,7 @@ TEST_CASE("CTR Mode - Arbitrary Plaintext Length (No Padding)", "[ctr][partial]"
     iv.fill(0x01);
 
     AES cipher(key, AES::AES_128);
-    MODEa modeA;
+    Modes modeA;
 
     // Test non-multiples of block size (1, 7, 15, 17, 33, 100 bytes)
     std::vector<size_t> test_sizes = {1, 7, 15, 17, 33, 100, 255};
@@ -74,6 +75,47 @@ TEST_CASE("CTR Mode - Arbitrary Plaintext Length (No Padding)", "[ctr][partial]"
     }
 }
 
+TEST_CASE("CTR Mode - Counter overflow fails closed", "[ctr][overflow]") {
+    std::vector<uint8_t> key(16, 0x00);
+    AES cipher(key, AES::AES_128);
+    Modes modeA;
+
+    Block counter;
+    counter.fill(0xFF); // last valid counter block
+
+    // One block is fine; a second block would wrap to 0 and reuse the keystream.
+    std::vector<uint8_t> one_block(16, 0x00);
+    REQUIRE_NOTHROW(modeA.ctr_encrypt(cipher, one_block, counter));
+
+    std::vector<uint8_t> two_blocks(32, 0x00);
+    REQUIRE_THROWS_AS(modeA.ctr_encrypt(cipher, two_blocks, counter), std::runtime_error);
+}
+
+TEST_CASE("XTS - full blocks and ciphertext stealing round trip", "[xts]") {
+    std::vector<uint8_t> key(32);
+    for (size_t i = 0; i < key.size(); ++i) key[i] = static_cast<uint8_t>(i);
+
+    AES key1(key.data(), 16, AES::AES_128);
+    AES key2(key.data() + 16, 16, AES::AES_128);
+    Modes modes;
+
+    Block dataUnit{};
+    dataUnit[0] = 1; // sector 1, little-endian
+
+    for (size_t size : std::vector<size_t>{16, 32, 33, 64, 65, 100}) {
+        std::vector<uint8_t> pt(size);
+        for (size_t i = 0; i < size; ++i) pt[i] = static_cast<uint8_t>(i * 7);
+
+        std::vector<uint8_t> ct = modes.xts_encrypt(key1, key2, pt, dataUnit);
+        REQUIRE(ct.size() == pt.size());
+        REQUIRE(ct != pt);
+        REQUIRE(modes.xts_decrypt(key1, key2, ct, dataUnit) == pt);
+    }
+
+    std::vector<uint8_t> too_short(15, 0);
+    REQUIRE_THROWS_AS(modes.xts_encrypt(key1, key2, too_short, dataUnit), std::invalid_argument);
+}
+
 TEST_CASE("CTR Mode - Negative Tests & Malleability Demonstration", "[ctr][negative]") {
     std::vector<uint8_t> key_valid(16, 0x11);
     std::vector<uint8_t> key_wrong(16, 0x22);
@@ -85,7 +127,7 @@ TEST_CASE("CTR Mode - Negative Tests & Malleability Demonstration", "[ctr][negat
 
     AES cipher_valid(key_valid, AES::AES_128);
     AES cipher_wrong(key_wrong, AES::AES_128);
-    MODEa modeA;
+    Modes modeA;
 
     std::vector<uint8_t> ct = modeA.ctr_encrypt(cipher_valid, pt, iv_valid);
 

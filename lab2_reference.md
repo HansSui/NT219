@@ -2,7 +2,7 @@
 
 > **Course:** NT219 — Information Security / Cryptography Laboratory  
 > **Topic:** Lab 2 — AES-128 Implementation in Pure C++ (CTR Mode, FIPS-197 Compliant)  
-> **Specification Reference:** `Lab2.txt` & [lab requirement.md](file:///home/han-sui/Downloads/NT219/lab%20requirement.md)  
+> **Specification Reference:** `Lab2.txt` is normative and wins on any conflict. [lab requirement.md](file:///home/han-sui/Downloads/NT219/lab%20requirement.md) is only a toolchain appendix.  
 > **Target Platforms:** Ubuntu 26.04 LTS (GCC 15.2 / Clang 21.1) & Windows 11 (MSVC 19.51 / MinGW64)  
 > **Output Path:** [lab2_reference.md](file:///home/han-sui/Downloads/NT219/lab2_reference.md)
 
@@ -39,11 +39,11 @@ A critical requirement of Lab 2 is the complete inversion of external cryptograp
 | **CTR Mode Implementation** | **15 pts** | NIST SP 800-38A compliant stream cipher. 128-bit IV, big-endian counter increment, arbitrary plaintext length, partial final block XOR, no padding. |
 | **KATs & Cross-Validation** | **15 pts** | FIPS-197 Appendix C test vectors, NIST SP 800-38A CTR vectors, automated `--kat` runner, byte-for-byte equivalence with Crypto++/OpenSSL oracle. |
 | **Engineering & Documentation** | **10 pts** | CMake build system, fail-closed CLI, unit test suite (Catch2 + CTest), clean modular structure. |
-| **Performance Evaluation** | **10 pts** | Benchmarks at 1 MiB, 100 MiB, 1 GiB. Table-based vs computed S-box analysis, memory footprint, cache line behavior, branch prediction. |
+| **Performance Evaluation** | **10 pts** | Benchmarks at 1 MiB, 100 MiB, 1 GiB (if feasible). Table-based vs computed S-box analysis, memory footprint, cache line behavior, branch prediction. |
 | **Security Engineering Discussion** | **20 pts** | Timing attacks, S-box cache leakage, bitslicing vs AES-NI, keystream reuse catastrophe, CTR malleability and lack of authentication. |
 | **Bonus A: AES-192 / AES-256** | **+10 pts** | 12-round and 14-round key schedules, extra SubWord step for AES-256 ($i \equiv 4 \pmod 8$), KAT verification. |
 | **Bonus B: AES-XTS Mode** | **+5 pts** | IEEE P1619 two-key cipher, tweak Galois multiplication in $GF(2^{128})$, disk sector encryption architecture. |
-| **Bonus C: Hardware AES-NI** | **+5 pts** | CPUID runtime capability detection, `_mm_aesenc_si128` intrinsics, constant-time software vs hardware analysis. |
+| **Bonus C: AES-NI or Bit-Sliced** | **+5 pts** | CPUID runtime capability detection + `_mm_aesenc_si128` intrinsics, **or** bitsliced software; compare against pure software and explain constant-time impact. |
 
 ---
 
@@ -301,7 +301,7 @@ Unused bytes $S_n[L \dots 15]$ of the final keystream block are simply discarded
 
 ---
 
-## 4. Infrastructure Mapping: Combining `lab_requirement.md`
+## 4. Infrastructure Layout
 
 Lab 2 adopts the identical robust directory layout and automation suite established in `lab01`:
 
@@ -312,20 +312,18 @@ lab02/
 ├── BENCHMARKS.md               # Controlled benchmark methodology & log specs
 ├── src/
 │   ├── AES.hpp / AES.cpp       # Pure C++ FIPS-197 AES core (128/192/256)
-│   ├── modesA.hpp / modesA.cpp # CTR stream cipher & counter mechanics
-│   ├── modesC.hpp / modesC.cpp # CCM mode implementation
-│   ├── modesD.hpp / modesD.cpp # GCM mode implementation
+│   ├── modes.hpp / modes.cpp   # CTR (required) + XTS (bonus B) in one file
 │   ├── minijson.hpp            # Zero-dependency JSON parser for KAT
 │   └── main.cpp                # aestool CLI (encrypt, decrypt, bench, --kat)
 ├── tests/
 │   ├── catch.hpp               # Vendored Catch2 v2.13.10 single header
 │   ├── test_aes.cpp            # FIPS-197 unit tests (Appendix C vectors)
 │   ├── test_ctr.cpp            # NIST SP 800-38A CTR & negative unit tests
-│   ├── test_crossval.cpp       # Oracle parity test against Crypto++/OpenSSL
+│   ├── test_crossval.cpp       # Oracle parity test against Crypto++ (CTR + XTS)
 │   ├── cli_test.sh             # Linux CLI integration smoke test
 │   └── cli_test.cmake          # Windows CMake CLI smoke test
 ├── kat/
-│   └── vectors.json            # Official NIST/RFC test vectors
+│   └── vectors.json            # NIST SP 800-38A + FIPS-197 vectors
 ├── scripts/
 │   ├── build_linux.sh          # Linux GCC/Clang build & test script
 │   ├── build_windows.bat       # Windows MSVC/MinGW build & test script
@@ -352,11 +350,12 @@ lab02/
 ### 4.2 Cross-Validation Oracle Architecture
 In `lab02/CMakeLists.txt`, `test_crossval.cpp` is built conditionally:
 * `aestool` remains 100% pure C++ with zero external crypto links.
-* `test_crossval` discovers the local Crypto++ install (`libcryptopp-dev` on Linux or `D:\cryptolibrary` on Windows) and executes an automated parity test:
+* `test_crossval` discovers the local Crypto++ install (`libcryptopp-dev` on Linux or `D:\cryptolibrary` on Windows) and executes automated parity tests for CTR and for XTS (full blocks and ciphertext stealing):
 ```cpp
 // Assert exact identity between pure C++ implementation and Crypto++ oracle
 REQUIRE(our_ciphertext == cryptopp_ciphertext);
 ```
+* `aestool` never links Crypto++; only the `test_crossval` target does. CCM/GCM are **not** required by `Lab2.txt` and are not part of this lab.
 
 ---
 
@@ -379,7 +378,7 @@ In modern x86/ARM CPUs, memory is cached in 64-byte cache lines. A 256-byte tabl
 
 #### Constant-Time Software Mitigations: Bitslicing
 Bitslicing represents the cipher state as 128 individual 1-bit variables across SIMD registers (e.g., SSE/AVX). The S-box is implemented entirely through logical bitwise equations (AND, XOR, OR) without a single table lookup.
-* **Boyar-Peralta S-box:** Computes the AES S-box in 32 linear gates and 83 non-linear gates.
+* **Boyar-Peralta S-box:** Computes the AES S-box in 32 AND gates and 83 XOR gates (115 gates total, depth 23).
 * **Advantage:** Execution latency is strictly independent of data and key values, eliminating all cache and timing leakage.
 
 #### Hardware Acceleration: AES-NI
@@ -404,6 +403,7 @@ During decryption:
 $$P' = C' \oplus S = (C \oplus \Delta) \oplus S = (P \oplus S) \oplus \Delta \oplus S = P \oplus \Delta$$
 The modification is injected into the plaintext with 100% mathematical certainty, without corrupting adjacent bytes or raising any decryption error.
 * **Conclusion:** CTR mode must **always** be coupled with an authentication mechanism (such as HMAC-SHA256 in an Encrypt-then-MAC scheme) or replaced with an AEAD mode (GCM, CCM).
+* **Why CTR is not AEAD:** CTR emits no tag and performs no verification. Decryption of a tampered ciphertext succeeds silently, so CTR alone can never provide authenticity, only confidentiality.
 
 ---
 
@@ -422,19 +422,25 @@ if (nk > 6 && i % nk == 4) {
 
 ### 6.2 Bonus B: AES-XTS Disk Encryption (+5 Pts)
 * **Standard:** IEEE P1619. Designed specifically for block-level storage devices (sector encryption).
-* **Two-Key Architecture:** Uses two 128-bit keys ($K_1, K_2$).
-  * $K_2$ encrypts the sector index / tweak: $T = \text{AES}_{K_2}(\text{SectorNumber})$.
-  * For block $j$ within the sector, $T_j = T \cdot \alpha^j$ in $GF(2^{128})$ with reduction polynomial $x^{128} + x^7 + x^2 + x + 1$.
+* **Two-Key Architecture:** The XTS key is $K_1 \,\|\, K_2$ (two equal AES keys; 32 bytes for AES-128-XTS).
+  * $K_2$ encrypts the data-unit number: $T = \text{AES}_{K_2}(\text{DataUnit})$, where the 128-bit data unit is encoded **little-endian** (the CLI takes the raw 16-byte block).
+  * For block $j$ within the data unit, $T_j = T \cdot \alpha^j$ in $GF(2^{128})$ with reduction polynomial $x^{128} + x^7 + x^2 + x + 1$.
   * Ciphertext: $C_j = \text{AES}_{K_1}(P_j \oplus T_j) \oplus T_j$.
-* **Ciphertext Stealing (CTS):** Handled for sectors that are not exact multiples of 16 bytes.
+* **Ciphertext Stealing (CTS):** Handled per IEEE P1619 for lengths that are not a multiple of 16 bytes. Inputs shorter than one 16-byte block are rejected.
+* **Disk-encryption use case:** Each sector is one data unit and its sector number is the tweak. Moving a ciphertext block to a different sector yields garbage on decryption, so cut-and-paste attacks across the disk are detected by construction.
 
-### 6.3 Bonus C: Hardware AES-NI Optimization (+5 Pts)
+### 6.3 Bonus C: AES-NI or Bit-Sliced Optimization (+5 Pts)
+
+`Lab2.txt` accepts **either** hardware AES-NI **or** a bitsliced software implementation.
+
+* **Bit-sliced alternative:** Represent the 16 state bytes as 128 bit-planes and compute the S-box with boolean gates (Boyar-Peralta). No table lookups, constant time, but slower than AES-NI.
 * **CPUID Detection:** Verify CPU support for AES-NI (CPUID `Function 1`, `ECX Bit 25`).
 * **Intrinsics (`<wmmintrin.h>`):**
   * `_mm_aeskeygenassist_si128`: Hardware key expansion assistance.
   * `_mm_aesenc_si128`: Complete single round (SubBytes + ShiftRows + MixColumns + AddRoundKey).
   * `_mm_aesenclast_si128`: Final round (SubBytes + ShiftRows + AddRoundKey).
 * **Performance Gain:** Delivers throughput > 4–6 GB/s, representing a 5x–10x speedup over pure software table lookups.
+* **Trade-off:** AES-NI is both faster and constant-time (no secret-dependent table lookups), but it ties the binary to x86 and still needs a software fallback. Software remains portable but leaks through cache/branch timing.
 
 ---
 
@@ -446,31 +452,47 @@ Per `Lab2.txt` Section 4, the test matrix comprises:
 * **Payload Sizes:**
   * 1 MiB ($1,048,576$ bytes) — Fits in L3 cache; measures raw algorithm execution.
   * 100 MiB ($104,857,600$ bytes) — Exceeds CPU cache; reflects memory bandwidth limits.
-  * 1 GiB ($1,073,741,824$ bytes) — Sustained streaming throughput evaluation.
-* **Repetitions:** Minimum 100 runs per size to ensure statistical significance.
+  * 1 GiB ($1,073,741,824$ bytes) — Sustained streaming throughput; optional per `Lab2.txt` ("if feasible").
+* **Repetitions:** 1 MiB = 1000 runs, 100 MiB = 500 runs, 1 GiB = 50 runs. Override with `RUNS_1MB`, `RUNS_100MB`, `RUNS_1GB`.
+* **Required analysis:** table-based vs computed S-box, memory footprint, cache-line behavior, branch-prediction impact, and throughput comparison against Crypto++.
 
 ### 7.2 Benchmark Command Examples
 
+The recommended entry point is `scripts/run_benchmarks.sh`, which writes a `===== BENCHMARK =====` system-tracking log (CPU model/governor/MHz, load, RAM, swap, process CPU/RSS, exact CLI) next to the CSVs:
+
+```bash
+# Full matrix: 1 MiB/1000, 100 MiB/500, 1 GiB/50
+./lab02/scripts/run_benchmarks.sh gcc
+
+# Skip 1 GiB
+BENCH_1GB=0 ./lab02/scripts/run_benchmarks.sh gcc
+```
+
+Raw commands:
+
 ```bash
 # Ubuntu Linux benchmark
-./lab02/build/ubuntu-gcc/aestool bench --mode ctr --size 1048576 --runs 100 \
-    --out lab02/output/ubuntu/benchmarks/bench_ctr_1MB.csv
+./lab02/build/ubuntu-gcc/aestool bench --size 1048576 --runs 1000 \
+    --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1048576.csv
 
-./lab02/build/ubuntu-gcc/aestool bench --mode ctr --size 104857600 --runs 10 \
-    --out lab02/output/ubuntu/benchmarks/bench_ctr_100MB.csv
+./lab02/build/ubuntu-gcc/aestool bench --size 104857600 --runs 500 \
+    --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_104857600.csv
+
+./lab02/build/ubuntu-gcc/aestool bench --size 1073741824 --runs 50 \
+    --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1073741824.csv
 ```
 
 ```bat
 rem Windows MSVC benchmark
-lab02\build\windows-msvc\Release\aestool.exe bench --mode ctr --size 1048576 --runs 100 ^
-    --out lab02\output\windows\benchmarks\bench_msvc_ctr_1MB.csv
+lab02\build\windows-msvc\Release\aestool.exe bench --size 1048576 --runs 1000 ^
+    --out lab02\output\windows\benchmarks\bench_msvc_ctr_1048576.csv
 ```
 
 ---
 
 ## 8. Master Verification & Action Checklist
 
-Use this checklist to guarantee maximum grade completion:
+Status is measured against the current tree, not aspirational.
 
 - [x] **Pure C++ AES-128 Implementation**
   - [x] S-box table lookup & $GF(2^8)$ multiplication (`xtime`, `gmul`).
@@ -481,19 +503,27 @@ Use this checklist to guarantee maximum grade completion:
   - [x] 128-bit big-endian counter increment (`inc128`).
   - [x] Symmetric encryption/decryption using forward cipher only.
   - [x] Partial final block support without PKCS#7 padding.
-  - [x] Input validation (fail-closed on 15-byte key or 8-byte IV).
+  - [x] Counter-overflow fail-closed (wrap-around throws instead of reusing counter 0).
+  - [x] Input validation (fail-closed on wrong key/IV length and file I/O errors).
 - [x] **Validation & Testing Harness**
-  - [x] Known Answer Tests (KATs) for FIPS-197 Appendix C.1/C.2/C.3.
+  - [x] KATs for FIPS-197 Appendix C.1/C.2/C.3 (4 vectors total with CTR).
   - [x] NIST SP 800-38A CTR KAT vector.
-  - [x] Cross-validation target (`test_crossval`) verifying 100% byte parity with Crypto++.
+  - [x] Cross-validation (`test_crossval`) against Crypto++ for CTR and XTS (CTS included).
   - [x] Negative testing (wrong key, wrong IV, tampered ciphertext bit-flipping).
-  - [x] Automated CTest test suite integration (3/3 tests passing).
+  - [x] Automated CTest integration (3/3 tests passing on GCC and Clang).
 - [x] **Infrastructure & Tooling**
-  - [x] CMake build system configured for Ubuntu (GCC/Clang) and Windows (MSVC/MinGW).
-  - [x] CLI `aestool` supporting `encrypt`, `decrypt`, `bench`, and `--kat`.
+  - [x] CMake build system; Ubuntu GCC/Clang verified, Windows configured but unverified.
+  - [x] CLI `aestool` supporting `encrypt`, `decrypt`, `bench`, `--kat`, `--mode ctr|xts`.
   - [x] Shell and Batch automation scripts (`build_linux.sh`, `build_windows.bat`, etc.).
+- [x] **Bonus A: AES-192 / AES-256** — full key schedule, FIPS-197 C.2/C.3 KAT.
+- [x] **Bonus B: AES-XTS** — two-key construction, $GF(2^{128})$ tweak, IEEE P1619 CTS, Crypto++ parity.
+- [ ] **Bonus C: AES-NI or bit-sliced** — not implemented.
+- [ ] **Performance evidence**
+  - [x] Benchmark harness and 1 MiB CSV data (10 runs) on Ubuntu GCC.
+  - [ ] 100 MiB CSV is currently empty; rerun the benchmark.
+  - [ ] 1 GiB run (optional per `Lab2.txt`).
+  - [ ] Summary statistics (`summarize_bench.py`) and throughput plots (`plot_bench.py`).
+  - [ ] Throughput comparison against Crypto++ (cross-validation only covers correctness).
 - [ ] **Report & Evidence Finalization**
-  - [ ] Run benchmark scripts on Ubuntu and Windows.
-  - [ ] Generate summary statistics (`summarize_bench.py`) and throughput plots (`plot_bench.py`).
-  - [ ] Compile theoretical security analysis (cache timing attacks, CTR malleability, two-time pad).
+  - [ ] Compile the mandatory security analysis (cache timing, CTR malleability, two-time pad).
   - [ ] Export final report to `REPORT.pdf`.

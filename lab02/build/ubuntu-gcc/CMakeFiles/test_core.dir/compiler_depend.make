@@ -385,7 +385,7 @@ CMakeFiles/test_core.dir/tests/test_aes.cpp.o: /home/han-sui/Downloads/NT219/lab
 
 CMakeFiles/test_core.dir/tests/test_ctr.cpp.o: /home/han-sui/Downloads/NT219/lab02/tests/test_ctr.cpp \
   /home/han-sui/Downloads/NT219/lab02/src/AES.hpp \
-  /home/han-sui/Downloads/NT219/lab02/src/modesA.hpp \
+  /home/han-sui/Downloads/NT219/lab02/src/modes.hpp \
   /home/han-sui/Downloads/NT219/lab02/tests/catch.hpp \
   /usr/include/alloca.h \
   /usr/include/asm-generic/bitsperlong.h \
@@ -716,7 +716,7 @@ CMakeFiles/test_core.dir/tests/test_aes.cpp.o:
 
 /lib64/ld-linux-x86-64.so.2:
 
-/home/han-sui/Downloads/NT219/lab02/src/modesA.hpp:
+/home/han-sui/Downloads/NT219/lab02/src/modes.hpp:
 
 /home/han-sui/Downloads/NT219/lab02/tests/test_ctr.cpp:
 

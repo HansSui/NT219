@@ -4,7 +4,7 @@
 CMakeFiles/test_crossval.dir/tests/test_crossval.cpp.o
  /home/han-sui/Downloads/NT219/lab02/tests/test_crossval.cpp
  /home/han-sui/Downloads/NT219/lab02/src/AES.hpp
- /home/han-sui/Downloads/NT219/lab02/src/modesA.hpp
+ /home/han-sui/Downloads/NT219/lab02/src/modes.hpp
  /home/han-sui/Downloads/NT219/lab02/tests/catch.hpp
  /usr/include/alloca.h
  /usr/include/asm-generic/bitsperlong.h
@@ -432,6 +432,7 @@ CMakeFiles/test_crossval.dir/tests/test_crossval.cpp.o
  /usr/local/include/cryptopp/stdcpp.h
  /usr/local/include/cryptopp/strciphr.h
  /usr/local/include/cryptopp/trap.h
+ /usr/local/include/cryptopp/xts.h
 
 test_crossval
  /lib64/ld-linux-x86-64.so.2

@@ -136,16 +136,7 @@ CMakeFiles/aestool.dir/src/main.cpp.o: \
  /usr/lib/gcc/x86_64-linux-gnu/15/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
- /usr/include/c++/15/algorithm /usr/include/c++/15/bits/stl_algo.h \
- /usr/include/c++/15/bits/algorithmfwd.h \
- /usr/include/c++/15/bits/stl_heap.h \
- /usr/include/c++/15/bits/uniform_int_dist.h \
- /usr/include/c++/15/bits/stl_tempbuf.h \
- /usr/include/c++/15/pstl/glue_algorithm_defs.h \
- /usr/include/c++/15/pstl/execution_defs.h \
- /home/han-sui/Downloads/NT219/lab02/src/modesA.hpp \
- /home/han-sui/Downloads/NT219/lab02/src/modesC.hpp \
- /home/han-sui/Downloads/NT219/lab02/src/modesD.hpp \
+ /home/han-sui/Downloads/NT219/lab02/src/modes.hpp \
  /home/han-sui/Downloads/NT219/lab02/src/minijson.hpp \
  /usr/include/c++/15/utility /usr/include/c++/15/bits/stl_relops.h \
  /usr/include/c++/15/chrono /usr/include/c++/15/bits/chrono.h \
@@ -204,6 +195,7 @@ CMakeFiles/aestool.dir/src/main.cpp.o: \
  /usr/include/c++/15/bits/locale_conv.h \
  /usr/include/c++/15/bits/quoted_string.h /usr/include/c++/15/sstream \
  /usr/include/c++/15/bits/sstream.tcc /usr/include/c++/15/iostream \
+ /usr/include/c++/15/iterator /usr/include/c++/15/bits/stream_iterator.h \
  /usr/include/c++/15/cstring /usr/include/string.h /usr/include/strings.h \
  /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
  /usr/include/x86_64-linux-gnu/bits/string_fortified.h

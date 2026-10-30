@@ -5,7 +5,6 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdint>
-#include <algorithm>
 
 class AES {
 public:
@@ -66,12 +65,7 @@ public:
         {{0x1B, 0x00, 0x00, 0x00}}, {{0x36, 0x00, 0x00, 0x00}}
     }};
 
-    // Test accessors
-    static uint8_t gmul_test(uint8_t a, uint8_t b) { return gmul(a, b); }
-    
     using State = std::array<std::array<uint8_t, 4>, 4>;
-    static State bytes_to_state_test(const std::array<uint8_t, BLOCK_SIZE>& block) { return bytes_to_state(block); }
-    static std::array<uint8_t, BLOCK_SIZE> state_to_bytes_test(const State& state) { return state_to_bytes(state); }
 
 private:
     std::vector<uint8_t> key_;

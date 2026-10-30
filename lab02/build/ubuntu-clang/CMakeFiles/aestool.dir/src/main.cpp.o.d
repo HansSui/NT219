@@ -160,17 +160,7 @@ CMakeFiles/aestool.dir/src/main.cpp.o: \
   /usr/lib/llvm-21/lib/clang/21/include/stdint.h /usr/include/stdint.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/algorithm \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/stl_algo.h \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/algorithmfwd.h \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/stl_heap.h \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/uniform_int_dist.h \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/stl_tempbuf.h \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/pstl/glue_algorithm_defs.h \
-  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/pstl/execution_defs.h \
-  /home/han-sui/Downloads/NT219/lab02/src/modesA.hpp \
-  /home/han-sui/Downloads/NT219/lab02/src/modesC.hpp \
-  /home/han-sui/Downloads/NT219/lab02/src/modesD.hpp \
+  /home/han-sui/Downloads/NT219/lab02/src/modes.hpp \
   /home/han-sui/Downloads/NT219/lab02/src/minijson.hpp \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/utility \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/stl_relops.h \
@@ -245,5 +235,7 @@ CMakeFiles/aestool.dir/src/main.cpp.o: \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/sstream \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/sstream.tcc \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/iostream \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/iterator \
+  /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/bits/stream_iterator.h \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../../include/c++/15/cstring \
   /usr/include/string.h /usr/include/strings.h

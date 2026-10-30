@@ -239,5 +239,5 @@ CMakeFiles/test_core.dir/tests/test_ctr.cpp.o: \
  /usr/include/c++/15/bits/stl_numeric.h \
  /usr/include/c++/15/pstl/glue_numeric_defs.h \
  /home/han-sui/Downloads/NT219/lab02/src/AES.hpp \
- /home/han-sui/Downloads/NT219/lab02/src/modesA.hpp \
+ /home/han-sui/Downloads/NT219/lab02/src/modes.hpp \
  /home/han-sui/Downloads/NT219/lab02/src/AES.hpp
