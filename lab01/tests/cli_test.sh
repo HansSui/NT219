@@ -18,6 +18,13 @@ mkdir -p "thư mục"
 "$tool" decrypt --mode cbc --key key.bin --in "thư mục/ct.bin" --out "thư mục/out.txt"
 cmp plain.txt "thư mục/out.txt"
 
+"$tool" encrypt --mode cbc --key key.bin --in plain.txt --out ct.b64 --encode base64
+"$tool" decrypt --mode cbc --key key.bin --in ct.b64 --decode base64 --out b64_out.txt
+cmp plain.txt b64_out.txt
+b64_text="$(< ct.b64)"
+"$tool" decrypt --mode cbc --key key.bin --text "$b64_text" --decode base64 --out b64_text_out.txt
+cmp plain.txt b64_text_out.txt
+
 nonce=00112233445566778899aabbccddeeff
 "$tool" encrypt --mode ctr --key key.bin --iv "$nonce" --text first --out first.bin
 if "$tool" encrypt --mode ctr --key key.bin --iv "$nonce" --text second \
@@ -50,6 +57,17 @@ if "$tool" encrypt --mode cbc --key key.bin --iv short.iv --text data --out bad.
     exit 1
 fi
 
+if "$tool" encrypt --mode xts --key key.bin --text data --out xts.bin 2>/dev/null; then
+    echo "XTS accepted a missing IV" >&2
+    exit 1
+fi
+
+if "$tool" encrypt --mode cbc --key key.bin --text data --threads 2 \
+        --out threaded.bin 2>/dev/null; then
+    echo "encrypt accepted --threads" >&2
+    exit 1
+fi
+
 gcm_nonce=00112233445566778899aabb
 "$tool" encrypt --mode gcm --aead --key key.bin --nonce "$gcm_nonce" \
     --text "sidecar test payload" --out sidecar_ct.bin --sidecar sidecar.json
@@ -57,6 +75,27 @@ gcm_nonce=00112233445566778899aabb
     --sidecar sidecar.json --out sidecar_out.txt
 if [[ "$(< sidecar_out.txt)" != "sidecar test payload" ]]; then
     echo "sidecar round trip plaintext mismatch" >&2
+    exit 1
+fi
+
+# --sidecar without a path defaults to OUT.json on encrypt and IN.json on decrypt.
+default_nonce=aabbccddeeff001122334455
+"$tool" encrypt --mode gcm --aead --key key.bin --nonce "$default_nonce" \
+    --text "default sidecar" --out default_ct.bin --sidecar
+"$tool" decrypt --mode gcm --aead --key key.bin --in default_ct.bin \
+    --sidecar --out default_out.txt
+if [[ "$(< default_out.txt)" != "default sidecar" ]]; then
+    echo "default sidecar round trip plaintext mismatch" >&2
+    exit 1
+fi
+
+# A copied sidecar in a fresh working directory must be rejected from the
+# header alone; the per-directory registry there is empty.
+mkdir sidecar-reuse
+cp sidecar.json sidecar-reuse/
+if (cd sidecar-reuse && "$tool" encrypt --mode gcm --aead --key ../key.bin \
+        --iv "$gcm_nonce" --text reuse --out new.bin --sidecar sidecar.json 2>/dev/null); then
+    echo "sidecar nonce reuse was not rejected" >&2
     exit 1
 fi
 

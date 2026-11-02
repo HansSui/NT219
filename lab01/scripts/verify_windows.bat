@@ -27,7 +27,7 @@ echo ===== [2] KAT =====
 "%TOOL%" --kat kat\vectors.json > "%RES%\kat_msvc.txt" 2>&1
 if errorlevel 1 goto :fail
 type "%RES%\kat_msvc.txt"
-findstr /c:"16 passed, 0 failed" "%RES%\kat_msvc.txt" >nul || goto :fail
+findstr /c:"20 passed, 0 failed" "%RES%\kat_msvc.txt" >nul || goto :fail
 
 echo ===== [3] ctest =====
 pushd build\windows-msvc

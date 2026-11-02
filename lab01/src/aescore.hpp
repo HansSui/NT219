@@ -26,6 +26,7 @@ AESCORE_API std::size_t tagSize(Mode mode);
 
 AESCORE_API std::string fromHex(const std::string& hex);
 AESCORE_API std::string toHex(const std::string& bytes);
+AESCORE_API std::string fromBase64(const std::string& text);
 AESCORE_API std::string toBase64(const std::string& bytes);
 AESCORE_API std::string sha256Hex(const std::string& bytes);
 AESCORE_API std::string randomBytes(std::size_t count);

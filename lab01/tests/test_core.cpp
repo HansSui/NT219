@@ -33,6 +33,9 @@ TEST_CASE("hex round-trip") {
 TEST_CASE("base64 encoding") {
     REQUIRE(aes::toBase64("hello") == "aGVsbG8=");
     REQUIRE(aes::toBase64("") == "");
+    REQUIRE(aes::fromBase64("aGVsbG8=") == "hello");
+    REQUIRE(aes::fromBase64("aGVs\nbG8=") == "hello");
+    REQUIRE_THROWS_AS(aes::fromBase64("!!!!"), std::runtime_error);
 }
 
 TEST_CASE("non-AEAD modes round-trip") {

@@ -1,18 +1,28 @@
 # Course documentation
 
-Reference material and run guides. These files are read-only source documents;
-the lab itself lives in `../lab01/`.
+Reference material, lab briefs, and the plan-only blueprint. The implemented
+labs live in `../lab01/` and `../lab02/`; Labs 3-6 are specified only.
 
 | File | Contents |
 |---|---|
+| `blueprint/BLUEPRINT.md` | Plan-only index for Labs 1-6: shared course core, repo model, grading policy, gaps |
+| `blueprint/labs/lab1.md` … `lab6.md` | Per-lab brief: what to do, requirements, expected outcomes, rubric, infrastructure |
+| `missing/lab1.md`, `missing/lab2.md` | Implementation audit against the briefs, with Ubuntu/Windows gaps and minimal fixes |
+| `lab1.txt` | Lab 1 brief: Crypto++ symmetric modes, constraints, rubric |
+| `Lab2.txt` | Lab 2 brief: pure C++ AES-128 and CTR, rubric |
+| `Lab3.txt` | Lab 3 brief: RSA-OAEP and hybrid encryption, rubric |
+| `Lab4.txt` | Lab 4 brief: hashing, PKI, MD5 and length-extension demos, rubric |
+| `Lab5.txt` | Lab 5 brief: ECDSA and RSA-PSS signatures, rubric |
+| `Lab6.txt` | Lab 6 brief: ML-DSA, ML-KEM, and PQ certificates, rubric |
+| `lab2_reference.md` | Deep implementation guide for Lab 2; the brief still wins on conflicts |
 | `course-objectives.txt` | Course-wide learning outcomes for Labs 1-6 |
-| `lab01-brief.txt` | Official Lab 1 brief: scope, constraints, rubric |
-| `guides/ubuntu-run-guide.txt` | Step-by-step Ubuntu commands for the Lab 1 deliverables |
-| `guides/report-guide-vi.txt` | Vietnamese guide for collecting report data |
+| `GradingSystem.txt` | Report template, performance protocol, submission checklist, rubric bands |
+| `lab requirement.md` | Course/toolchain core: compilers, Crypto++, OpenSSL, CMake, Catch2, Python |
 
-The guides were written against older checkout paths. For the current layout and
-commands use:
+For the implemented labs use:
 
 - `../lab01/README.md` - build, CLI, container format, security design
 - `../lab01/BENCHMARKS.md` - benchmark matrix, scripts and output naming
 - `../lab01/output/README.md` - what each output directory contains
+- `../lab02/README.md` - pure C++ AES/CTR build, CLI, tests
+- `../lab02/BENCHMARKS.md` - Lab 2 benchmark matrix and CSV format

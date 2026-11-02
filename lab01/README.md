@@ -186,12 +186,13 @@ also find `bin/aescore.dll`, so the packaged Windows tree works with either
 aestool encrypt --mode MODE [--in FILE | --text STRING] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
-                [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
+                [--encode hex|base64|raw] [--sidecar [FILE]] [--allow-ecb] [--verbose]
 
 aestool decrypt --mode MODE [--in FILE | --text HEX] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
-                [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
+                [--decode hex|base64|raw] [--encode hex|base64|raw]
+                [--sidecar [FILE]] [--allow-ecb] [--verbose]
 
 aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
               [--runs N] [--warmup SECONDS] [--threads N] [--out CSV]
@@ -201,6 +202,9 @@ aestool --kat vectors.json
 ```
 
 Modes: `ecb cbc ofb cfb ctr xts ccm gcm`.
+
+`--sidecar` without a path defaults to `OUT.json` on encrypt and `IN.json` on
+decrypt. `--decode` decodes decrypt input before parsing.
 
 ### Examples
 
@@ -215,7 +219,8 @@ AES-256-CBC with an explicit IV, plaintext supplied as UTF-8 text:
 
 ```bash
 aestool encrypt --mode cbc --key key.bin --iv 000102030405060708090a0b0c0d0e0f \
-                --text "hello" --encode base64
+                --text "hello" --out ct.b64 --encode base64
+aestool decrypt --mode cbc --key key.bin --in ct.b64 --decode base64 --out hello.txt
 ```
 
 AES-256-CTR with an explicit nonce, AAD and hex output:
@@ -230,7 +235,7 @@ Known-answer tests:
 
 ```bash
 ./build/ubuntu-gcc/aestool --kat kat/vectors.json
-# PASS ... for every vector, then: 16 passed, 0 failed
+# PASS ... for every vector, then: 20 passed, 0 failed
 ```
 
 Benchmark AES-256-GCM at 16 KiB and write one CSV row per run:
@@ -240,8 +245,8 @@ Benchmark AES-256-GCM at 16 KiB and write one CSV row per run:
     --runs 1000 --out output/ubuntu/benchmarks/bench_gcc_gcm_16KB.csv
 ```
 
-`--threads N` (default 1) measures runs on N worker threads. It is only used by
-`bench`; the single-payload `encrypt` and `decrypt` commands stay single-threaded.
+`--threads N` (default 1) measures runs on N worker threads. It is only valid
+with `bench`; `encrypt` and `decrypt` reject it instead of silently ignoring it.
 Timings at N > 1 include thread contention, so keep the default for report data.
 
 Run the full matrix (8 modes x 6 sizes x 1000 runs):
@@ -280,7 +285,7 @@ string directly. Valid sizes are 16/24/32 bytes for AES and 32/64 bytes for XTS
 |---|---|---|
 | ECB | none | n/a |
 | CBC, OFB, CFB, CTR | 16 bytes | random and stored in the header |
-| XTS | 16-byte tweak | random and stored in the header |
+| XTS | 16-byte tweak | required (`--iv`); never auto-generated |
 | GCM | 12 bytes | random and stored in the header |
 | CCM | 7..13 bytes (default 12) | random 12 bytes and stored in the header |
 
@@ -344,8 +349,8 @@ plaintext defaults to raw bytes.
   The core accepts 7..13-byte CCM nonces, so the KAT vectors with 13-byte nonces
   work, but the CLI auto-generates 12-byte nonces.
 - The nonce reuse registry is per working directory and synchronized via an atomic cross-process filesystem lock (`.aestool_nonces.lock`). If the lock cannot be acquired within 500 ms, the CLI fails closed instead of continuing unlocked; remove a stale lock only after verifying that no `aestool` process is still running. Upgrade to a centralized store for distributed multi-host deployments.
-- `--threads N` parallelises benchmark runs only; `encrypt`/`decrypt` remain
-  single-threaded, and threaded benchmark timings include contention.
+- `--threads N` parallelises benchmark runs only; `encrypt`/`decrypt` reject it,
+  and threaded benchmark timings include contention.
 - There is no password-based key derivation or key storage/rotation. Keys are
   read from files or hex.
 - The container header is not independently authenticated. For AEAD, changing
@@ -379,11 +384,13 @@ cd build/ubuntu-gcc && ctest --output-on-failure
 The unit suite covers hex handling, all modes, XTS ciphertext stealing, AEAD
 round-trips, tag/AAD/key/IV tampering, invalid lengths, container parsing and key
 file formats. A small CLI test checks round-trip through a non-ASCII path,
-nonce-reuse rejection, the ECB size limit, short-IV rejection and threaded
-benchmark row counts. Unix uses `tests/cli_test.sh`; Windows uses the portable
-`tests/cli_test.cmake`. KAT coverage: NIST SP 800-38A ECB/CBC/CFB/OFB/CTR for
-AES-128 plus AES-192/256 ECB/CBC/CTR, IEEE P1619/D16 XTS-AES-128, NIST GCM test
-cases 3 and 4, RFC 3610 CCM vectors 1 and 2.
+nonce-reuse rejection (container and copied sidecar), base64 decode, the default
+sidecar path, the ECB size limit, short-IV and missing-XTS-IV rejection,
+thread-flag rejection for encrypt/decrypt, and threaded benchmark row counts. Unix
+uses `tests/cli_test.sh`; Windows uses the portable `tests/cli_test.cmake`. KAT
+coverage: NIST SP 800-38A ECB/CBC/CFB/OFB/CTR for AES-128, AES-192/256
+ECB/CBC/CFB/OFB/CTR, IEEE P1619/D16 XTS-AES-128, NIST GCM test cases 3 and 4,
+and RFC 3610 CCM vectors 1 and 2.
 
 KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 
@@ -397,7 +404,7 @@ KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 | Check | Ubuntu (GCC/Clang) | Windows (MSVC 19.51 x64) | Evidence |
 |---|---|---|---|
 | Build, Release | Passed | Passed | — |
-| KAT, 16 vectors | 16/16 passed | 16/16 passed | `output/*/test_results/kat_*` |
+| KAT, 20 vectors | 20/20 passed | 16/16 committed log (rerun pending) | `output/*/test_results/kat_*` |
 | `ctest` | 2/2 passed (Catch2 + CLI) | 2/2 passed (Catch2 + CLI) | `output/*/test_results/ctest_*` |
 | CLI negative/edge cases | 12 logged cases | 17 cases + positive round-trips | `output/ubuntu/neg_results/`, `output/windows/neg_results/` |
 | Benchmark | 48 CSVs (GCC 15.2) | 48 CSVs (MSVC 19.51) | `output/ubuntu/benchmarks/`, `output/windows/benchmarks/` |
@@ -413,14 +420,15 @@ and trimmed means rather than presenting the matrix as perfectly noise-free.
 The Windows KAT, `ctest`, GUI and negative-test logs are committed. The Ubuntu
 logs were regenerated with GCC 15.2 and Clang 21.1.8 and are in
 `output/ubuntu/test_results/`. MinGW GCC 16.2.0 and MinGW Clang 22.1.8 also
-build the project and pass KAT 16/16 and `ctest` 2/2 on Windows; their logs are
-`output/windows/test_results/*_mingw_*.txt`. Windows-only rerun steps are in
-`../LAB1_WINDOWS_TODO.md`.
+build the project and passed the old 16-vector KAT and `ctest` 2/2 on Windows;
+those committed logs predate the 20-vector expansion, so rerun `--kat` for 20/20
+evidence. The Windows rerun checklist was removed; use the committed logs and
+`scripts/bench_windows_controlled.bat`.
 
 ## Report and deliverables
 
 `REPORT.md` is the Vietnamese lab report. It covers objectives, implementation,
-the 16 KAT vectors, unit and negative tests, the Windows-vs-Ubuntu comparison,
+the 20 KAT vectors, unit and negative tests, the Windows-vs-Ubuntu comparison,
 statistical tables (mean, median, SD, CI95, CV), security engineering, the
 Tkinter GUI bonus, limitations and a self-grade table. The current benchmark
 evidence is the 96 CSVs under `output/` (48 Ubuntu GCC + 48 Windows MSVC); the

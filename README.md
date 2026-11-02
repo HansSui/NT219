@@ -8,10 +8,9 @@ CMake, and uses Crypto++ for the cryptographic primitives.
 ```
 NT219/
   README.md           this file
-  LAB1_WINDOWS_TODO.md Windows verification checklist
-  LAB1_LINUX_TODO.md   Linux build/test/benchmark checklist
-  docs/               course brief, objectives and execution guides
+  docs/               course briefs, blueprint and audit notes
   lab01/              Lab 1 - symmetric encryption CLI (aestool)
+  lab02/              Lab 2 - pure C++ AES/CTR
 ```
 
 ### lab01
@@ -32,14 +31,16 @@ REPORT.md             Vietnamese lab report (refresh pending)
 ### docs
 
 ```
-course-objectives.txt       learning outcomes for Labs 1-6
-lab01-brief.txt             official Lab 1 brief, constraints and rubric
-guides/ubuntu-run-guide.txt Ubuntu command guide for collecting lab data
-guides/report-guide-vi.txt  Vietnamese report/data-collection guide
+lab1.txt                    official Lab 1 brief, constraints and rubric
+Lab2.txt ... Lab6.txt       Lab 2-6 briefs
+lab requirement.md          course/toolchain core
+GradingSystem.txt           performance, report and submission rules
+blueprint/                  plan-only blueprint and lab briefs
+missing/                    implementation audit for Labs 1-2
 ```
 
-The guides keep the paths they were written with; use `lab01/README.md` and
-`lab01/BENCHMARKS.md` for the current build and output layout.
+Use `lab01/README.md` and `lab01/BENCHMARKS.md` for the current build and output
+layout.
 
 ## Quick start (Lab 1)
 
@@ -79,11 +80,13 @@ gui\run_gui.bat
 Linux: `./gui/build_gui.sh` then `./gui/run_gui.sh` after
 `sudo apt install python3-tk libcryptopp-dev`.
 
-The build, KAT, `ctest` and benchmark matrix are verified with MSVC 19.51 x64 on
-Windows (logs in `lab01/output/windows/test_results/` and
+The build, KAT (20/20 on Ubuntu), `ctest` and benchmark matrix are verified with
+MSVC 19.51 x64 on Windows (logs in `lab01/output/windows/test_results/` and
 `lab01/output/windows/neg_results/`). MinGW GCC 16.2.0 and MinGW Clang 22.1.8
-also build and pass KAT 16/16 and `ctest` 2/2. The Tkinter GUI bonus is built
-against the shared library and passes its eight-mode self-test on Windows and
+also build and pass the committed 16-vector KAT and `ctest` 2/2. The KAT file
+now has 20 vectors; rerun `--kat` on Windows to refresh that evidence. The
+Tkinter GUI bonus is built against the shared library and passes its eight-mode
+self-test on Windows and
 Linux. The Ubuntu benchmark data is the 48-row GCC 15.2 matrix from
 `lab01/output/ubuntu/benchmarks/`; Ubuntu Clang was built and tested but not
 benchmarked. The Windows benchmark matrix is the controlled 25/10 run, and

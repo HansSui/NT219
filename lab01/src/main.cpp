@@ -34,6 +34,7 @@ struct Options {
     std::string aadPath;
     std::string aadText;
     std::string encode;
+    std::string decode;
     std::string katPath;
     std::string sidecarPath;
 
@@ -47,6 +48,7 @@ struct Options {
     bool hasAad = false;
     bool hasAadText = false;
     bool hasEncode = false;
+    bool hasDecode = false;
     bool hasMode = false;
     bool hasKat = false;
     bool hasSidecar = false;
@@ -67,11 +69,12 @@ Usage:
   aestool encrypt --mode MODE [--in FILE | --text STRING] [--out FILE]
                   (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                   [--aead] [--aad FILE | --aad-text STRING]
-                  [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
+                  [--encode hex|base64|raw] [--sidecar [FILE]] [--allow-ecb] [--verbose]
   aestool decrypt --mode MODE [--in FILE | --text HEX] [--out FILE]
                   (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                   [--aead] [--aad FILE | --aad-text STRING]
-                  [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
+                  [--decode hex|base64|raw] [--encode hex|base64|raw]
+                  [--sidecar [FILE]] [--allow-ecb] [--verbose]
   aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
                 [--runs N] [--warmup SECONDS] [--threads N] [--out CSV]
                 [--allow-ecb]
@@ -81,8 +84,10 @@ Usage:
 Modes:   ecb cbc ofb cfb ctr xts ccm gcm
 AEAD:    gcm and ccm require --aead. GCM nonce is 12 bytes; CCM accepts 7..13.
 Keys:    16/24/32 bytes (AES-128/192/256); XTS uses 32 or 64 bytes.
-Sidecar: --sidecar [FILE] writes/reads JSON metadata (alg, mode, iv, aad, tag) alongside raw ciphertext.
-Threads: --threads applies to bench. Symmetric cipher stream encryption is serial per stream.
+Sidecar: --sidecar [FILE] writes/reads JSON metadata alongside raw ciphertext.
+         Encrypt defaults to OUT.json; decrypt defaults to IN.json (or sidecar.json).
+Decode:  --decode decodes decrypt input before parsing (hex, base64 or raw).
+Threads: --threads is only valid with bench; encrypt/decrypt reject it.
 )";
 
 [[noreturn]] void fail(const std::string& message) { throw std::runtime_error(message); }
@@ -140,10 +145,19 @@ std::string readKey(Options& options) {
 
 std::string readInput(const Options& options, bool decrypting) {
     if (options.hasIn && options.hasText) fail("use either --in or --text, not both");
-    if (options.hasIn) return readAll(options.inPath);
-    if (!options.hasText) fail("an input is required: pass --in FILE or --text STRING");
-    if (!decrypting) return options.text;
-    return looksLikeHex(options.text) ? aes::fromHex(options.text) : options.text;
+    std::string input;
+    if (options.hasIn) input = readAll(options.inPath);
+    else if (options.hasText) input = options.text;
+    else fail("an input is required: pass --in FILE or --text STRING");
+
+    if (!decrypting) return input;
+    if (options.hasDecode) {
+        if (options.decode == "hex") return aes::fromHex(input);
+        if (options.decode == "base64") return aes::fromBase64(input);
+        return input;
+    }
+    if (!options.hasIn && looksLikeHex(input)) return aes::fromHex(input);
+    return input;
 }
 
 std::string readAad(const Options& options) {
@@ -153,10 +167,14 @@ std::string readAad(const Options& options) {
     return {};
 }
 
-void checkEncode(const Options& options) {
-    if (!options.hasEncode) return;
+void checkEncoding(const Options& options) {
     const std::set<std::string> allowed = {"hex", "base64", "raw"};
-    if (!allowed.count(options.encode)) fail("--encode must be hex, base64 or raw");
+    if (options.hasEncode && !allowed.count(options.encode)) {
+        fail("--encode must be hex, base64 or raw");
+    }
+    if (options.hasDecode && !allowed.count(options.decode)) {
+        fail("--decode must be hex, base64 or raw");
+    }
 }
 
 std::string encodeBytes(const std::string& data, const Options& options, bool screen, bool cipher) {
@@ -221,8 +239,25 @@ struct NonceLock {
 
 const char* kNonceRegistry = ".aestool_nonces";
 
+struct SidecarInfo {
+    aes::Mode mode = aes::Mode::CBC;
+    std::string iv;
+    std::string aad;
+    std::string tag;
+};
+
+SidecarInfo readSidecar(const std::string& path) {
+    const minijson::Value root = minijson::parse(readAll(path));
+    SidecarInfo info;
+    info.mode = aes::parseMode(root.getString("mode"));
+    info.iv = aes::fromHex(root.getString("iv"));
+    info.aad = root.has("aad") ? aes::fromHex(root.getString("aad")) : "";
+    info.tag = root.has("tag") ? aes::fromHex(root.getString("tag")) : "";
+    return info;
+}
+
 void checkAndRecordNonce(aes::Mode mode, const std::string& key, const std::string& iv,
-                         const std::string& outPath = "") {
+                         const std::string& outPath, const std::string& sidecarPath) {
     if (mode != aes::Mode::CTR && mode != aes::Mode::CCM && mode != aes::Mode::GCM) return;
 
     // 1. Inspect existing output file header (reject if same nonce is indicated)
@@ -241,6 +276,23 @@ void checkAndRecordNonce(aes::Mode mode, const std::string& key, const std::stri
             }
             if (matches) {
                 fail("nonce reuse rejected: output file header indicates same nonce already used");
+            }
+        }
+    }
+
+    // 1b. Inspect an existing sidecar header. Fail closed if it cannot be parsed.
+    if (!sidecarPath.empty()) {
+        std::error_code ec;
+        if (std::filesystem::exists(std::filesystem::u8path(sidecarPath), ec)) {
+            bool matches = false;
+            try {
+                const SidecarInfo existing = readSidecar(sidecarPath);
+                matches = (existing.mode == mode && existing.iv == iv);
+            } catch (const std::exception& error) {
+                fail("cannot parse existing output sidecar '" + sidecarPath + "': " + error.what());
+            }
+            if (matches) {
+                fail("nonce reuse rejected: output sidecar header indicates same nonce already used");
             }
         }
     }
@@ -277,23 +329,6 @@ void writeSidecar(const std::string& path, aes::Mode mode, std::size_t keyBits,
          << "  \"tag\": \"" << aes::toHex(tag) << "\"\n"
          << "}\n";
     writeAll(path, json.str());
-}
-
-struct SidecarInfo {
-    aes::Mode mode = aes::Mode::CBC;
-    std::string iv;
-    std::string aad;
-    std::string tag;
-};
-
-SidecarInfo readSidecar(const std::string& path) {
-    const minijson::Value root = minijson::parse(readAll(path));
-    SidecarInfo info;
-    info.mode = aes::parseMode(root.getString("mode"));
-    info.iv = aes::fromHex(root.getString("iv"));
-    info.aad = root.has("aad") ? aes::fromHex(root.getString("aad")) : "";
-    info.tag = root.has("tag") ? aes::fromHex(root.getString("tag")) : "";
-    return info;
 }
 
 void printVerbose(const std::string& text, bool verbose) {
@@ -519,9 +554,8 @@ int runKat(const std::string& path) {
 }
 
 int runEncrypt(const Options& options) {
-    if (options.threads > 1) {
-        std::cerr << "note: AES stream encryption is serial per payload; --threads applies to bench\n";
-    }
+    if (options.hasDecode) fail("--decode is only valid with decrypt");
+    if (options.threads > 0) fail("--threads is only valid with bench");
     if (!options.hasMode) fail("encrypt requires --mode");
     const aes::Mode mode = aes::parseMode(options.mode);
     std::string key = readKey(const_cast<Options&>(options));
@@ -543,11 +577,21 @@ int runEncrypt(const Options& options) {
         iv = readValueOrFile(options.iv);
     } else if (options.hasNonce) {
         iv = readValueOrFile(options.nonce);
+    } else if (mode == aes::Mode::XTS) {
+        fail("XTS requires --iv (a 16-byte data unit number); refusing to generate a random tweak");
     } else {
         iv = aes::randomBytes(aes::ivSize(mode));
     }
 
-    checkAndRecordNonce(mode, key, iv, options.outPath);
+    std::string sidecarFile;
+    if (options.hasSidecar) {
+        sidecarFile = options.sidecarPath;
+        if (sidecarFile.empty()) {
+            sidecarFile = options.hasOut ? (options.outPath + ".json") : "sidecar.json";
+        }
+    }
+
+    checkAndRecordNonce(mode, key, iv, options.outPath, sidecarFile);
     const aes::Encrypted encrypted = aes::encrypt(mode, key, iv, plaintext, aad);
 
     printVerbose("mode=" + aes::modeName(mode) + " key=" + std::to_string(key.size() * 8) +
@@ -556,10 +600,6 @@ int runEncrypt(const Options& options) {
                  options.verbose);
 
     if (options.hasSidecar) {
-        std::string sidecarFile = options.sidecarPath;
-        if (sidecarFile.empty()) {
-            sidecarFile = options.hasOut ? (options.outPath + ".json") : "sidecar.json";
-        }
         writeSidecar(sidecarFile, mode, key.size() * 8, iv, aad, encrypted.tag);
         writeResult(encrypted.ciphertext, options, true);
     } else {
@@ -571,15 +611,17 @@ int runEncrypt(const Options& options) {
 }
 
 int runDecrypt(const Options& options) {
-    if (options.threads > 1) {
-        std::cerr << "note: AES stream decryption is serial per payload; --threads applies to bench\n";
-    }
+    if (options.threads > 0) fail("--threads is only valid with bench");
     std::string key = readKey(const_cast<Options&>(options));
     aes::ScopedWipe wipeKey(key);
     const std::string input = readInput(options, true);
 
     if (options.hasSidecar) {
-        const SidecarInfo sidecar = readSidecar(options.sidecarPath);
+        std::string sidecarFile = options.sidecarPath;
+        if (sidecarFile.empty()) {
+            sidecarFile = options.hasIn ? (options.inPath + ".json") : "sidecar.json";
+        }
+        const SidecarInfo sidecar = readSidecar(sidecarFile);
         const aes::Mode mode = options.hasMode ? aes::parseMode(options.mode) : sidecar.mode;
         if (options.hasMode && mode != sidecar.mode) {
             fail("--mode does not match the sidecar header");
@@ -693,6 +735,9 @@ Options parseOptions(int argc, char** argv) {
         } else if (argument == "--encode") {
             options.encode = takeValue();
             options.hasEncode = true;
+        } else if (argument == "--decode") {
+            options.decode = takeValue();
+            options.hasDecode = true;
         } else if (argument == "--sidecar") {
             if (inlineValue) {
                 options.sidecarPath = value;
@@ -751,7 +796,7 @@ int realMain(int argc, char** argv) {
             std::cout << kUsage;
             return 0;
         }
-        checkEncode(options);
+        checkEncoding(options);
         if (options.command == "encrypt") return runEncrypt(options);
         if (options.command == "decrypt") return runDecrypt(options);
         if (options.command == "bench") return runBench(options);

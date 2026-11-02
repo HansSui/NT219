@@ -48,16 +48,18 @@ Kết quả chính:
 - **Bonus GUI:** `gui/aestool_gui.py` (Python + Tkinter) gọi thư viện chia sẻ qua C ABI
   `aesgui_*`, không gọi CLI. Self-test trên Windows và Ubuntu đều chạy đủ tám mode,
   round-trip và từ chối sai khoá.
-- **Tính đúng đắn:** 16/16 vector KAT đạt trên cả Windows MSVC và Ubuntu
-  GCC/Clang (NIST SP 800-38A cho ECB/CBC/CFB/OFB/CTR, bổ sung AES-192/256
-  ECB/CBC/CTR và IEEE P1619/D16 XTS; NIST GCM test case 3 và 4; RFC 3610 CCM
-  vector 1 và 2). `ctest` đạt 2/2 trên cả hai nền tảng (Catch2 + CLI).
+- **Tính đúng đắn:** 20/20 vector KAT đạt trên Ubuntu GCC/Clang; log Windows MSVC/MinGW
+  đã có là bản 16 vector trước khi mở rộng và cần chạy lại. Bộ vector gồm NIST
+  SP 800-38A cho ECB/CBC/CFB/OFB/CTR, bổ sung AES-192/256 CBC/CFB/OFB/CTR,
+  IEEE P1619/D16 XTS, NIST GCM test case 3 và 4, RFC 3610 CCM vector 1 và 2.
+  `ctest` đạt 2/2 trên cả hai nền tảng (Catch2 + CLI).
 - **Kiểm thử âm:** 17 trường hợp được chạy lại trên Windows và 12 trường hợp trọng
   tâm trên Ubuntu; tất cả đều từ chối đúng cách hoặc tạo đầu ra bị hỏng có kiểm
   soát đối với chế độ không có xác thực. AEAD không tạo tệp plaintext khi tag sai.
-- **Dữ liệu hiệu năng:** 144 tệp CSV, tương ứng 144.000 cặp phép đo (288.000 phép
-  mã hoá/giải mã), gồm 96 tệp Ubuntu (GCC + Clang) và 48 tệp Windows (MSVC), mỗi
-  cấu hình 1.000 lần chạy.
+- **Dữ liệu hiệu năng:** 96 tệp CSV, tương ứng 96.000 cặp phép đo (192.000 phép
+  mã hoá/giải mã), gồm 48 tệp Ubuntu (GCC) và 48 tệp Windows (MSVC), mỗi cấu
+  hình 1.000 lần chạy. Clang được build và kiểm thử nhưng không đưa vào ma trận
+  hiệu năng.
 - **Windows và Ubuntu:** Windows chậm hơn trong 46/48 tổ hợp mode × kích thước ở cả
   mã hoá và giải mã. Tỷ lệ trung vị là 0,595 lần (mã hoá) và 0,413 lần (giải mã) so
   với Ubuntu. Tuy nhiên đây là so sánh quan sát, không phải thí nghiệm có kiểm soát:
@@ -111,7 +113,7 @@ Theo đề bài và mục tiêu học phần, Lab 1 hướng tới các năng l�
 | Header tự mô tả | Magic, version, mode, IV length, tag length, AAD length, IV, tag, AAD | `serialize`, `parseRecord` | Đạt |
 | KAT bằng JSON | `--kat vectors.json`; PASS/FAIL và tổng kết | `runKat`, `kat/vectors.json` | Đạt |
 | Kiểm thử âm | Sai khoá, sai IV, sửa ciphertext/tag, IV sai độ dài, ECB lớn, nonce reuse | `output/windows/neg_results/`, `output/ubuntu/neg_results/` | Đạt |
-| Benchmark 6 kích thước | 1 KB, 4 KB, 16 KB, 256 KB, 1 MB, 8 MB | 144 CSV | Đạt |
+| Benchmark 6 kích thước | 1 KB, 4 KB, 16 KB, 256 KB, 1 MB, 8 MB | 96 CSV | Đạt |
 | Thống kê mean/median/SD/CI95 | `summary.csv` và báo cáo | `summarize_bench.py` | Đạt |
 | So sánh Windows/Linux, stream/block, AEAD/non-AEAD, tag overhead | Các bảng và đồ thị trong mục 6 | `output/compare/`, `output/*/benchmarks/graph/` | Đạt |
 | CMake, build ngoài source | `CMakeLists.txt`; thư mục build riêng | `README.md` | Đạt |
@@ -206,7 +208,7 @@ Việc đưa mode vào header và bắt buộc `--mode` khi giải mã có mục
 |---|---:|---|---|---|
 | ECB | 0 | Không áp dụng | — | — |
 | CBC / OFB / CFB / CTR | 16 | Sinh ngẫu nhiên an toàn | Header | `--iv` hoặc `--nonce` |
-| XTS | 16 (tweak) | Sinh ngẫu nhiên an toàn | Header | `--iv` |
+| XTS | 16 (tweak) | Bắt buộc `--iv`; không sinh ngẫu nhiên | Header | `--iv` |
 | GCM | 12 | Sinh ngẫu nhiên an toàn | Header | `--nonce` |
 | CCM | 7–13 (mặc định 12) | Sinh ngẫu nhiên 12 byte | Header | `--nonce` |
 
@@ -272,12 +274,13 @@ Cú pháp chính:
 aestool encrypt --mode MODE [--in FILE | --text STRING] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
-                [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
+                [--encode hex|base64|raw] [--sidecar [FILE]] [--allow-ecb] [--verbose]
 
 aestool decrypt --mode MODE [--in FILE | --text HEX] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
-                [--encode hex|base64|raw] [--sidecar FILE] [--allow-ecb] [--verbose]
+                [--decode hex|base64|raw] [--encode hex|base64|raw]
+                [--sidecar [FILE]] [--allow-ecb] [--verbose]
 
 aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
               [--runs N] [--warmup SECONDS] [--threads N] [--out CSV]
@@ -290,12 +293,15 @@ Các điểm cần lưu ý:
 
 - `--in` đọc nhị phân; `--text` nhận chuỗi UTF-8 từ dòng lệnh.
 - `--out` ghi nhị phân mặc định; `--encode hex|base64` ghi dạng mã hoá văn bản.
+- `--decode hex|base64|raw` giải mã đầu vào của `decrypt` trước khi parse; không
+  có cờ này, `--text` tự nhận hex còn `--in` được đọc raw.
 - Không có `--out` thì ciphertext in ra màn hình dạng hex; plaintext in ra dạng raw.
-- `--sidecar [FILE]` hỗ trợ đọc/ghi metadata theo định dạng JSON sidecar chuẩn đề bài (`alg`, `mode`, `iv`, `aad`, `tag`), ghi kèm với bản mã raw.
+- `--sidecar [FILE]` hỗ trợ đọc/ghi metadata JSON (`alg`, `mode`, `iv`, `aad`, `tag`)
+  kèm bản mã raw. Bỏ trống đường dẫn: encrypt dùng `OUT.json`, decrypt dùng `IN.json`.
 - `--key` nhận file raw hoặc file text bắt đầu bằng `hex:`; `--key-hex` nhận chuỗi
   hex trực tiếp.
-- `--threads N` dùng N luồng để đo các lần chạy benchmark (mặc định 1). Lệnh
-  `encrypt`/`decrypt` một payload chạy tuần tự theo dòng dữ liệu để đảm bảo toàn vẹn; nếu người dùng truyền `--threads` vào lệnh mã hoá/giải mã, công cụ in thông báo hướng dẫn rõ ràng.
+- `--threads N` chỉ dùng cho `bench` (mặc định 1). `encrypt`/`decrypt` từ chối cờ
+  này thay vì bỏ qua im lặng.
 - `--kat` chạy trước các lệnh khác và trả mã thoát 1 nếu có vector FAIL.
 
 ### 3.9 GUI (bonus)
@@ -397,7 +403,7 @@ có key store. Cả đường Windows (MSVC 19.51 x64, `aescore.dll`) và Linux
 
 ### 4.1 Known Answer Tests (KAT)
 
-Bộ vector nằm trong `kat/vectors.json`, gồm 16 trường hợp:
+Bộ vector nằm trong `kat/vectors.json`, gồm 20 trường hợp:
 
 | # | Vector | Mode | Khoá | Nguồn | Kết quả |
 |---:|---|---|---|---|---|
@@ -411,14 +417,18 @@ Bộ vector nằm trong `kat/vectors.json`, gồm 16 trường hợp:
 | 8 | CCM packet vector 1 | CCM | 128-bit | RFC 3610 | PASS |
 | 9 | CCM packet vector 2 | CCM | 128-bit | RFC 3610 | PASS |
 | 10 | AES-192 ECB, 1 khối | ECB | 192-bit | NIST SP 800-38A | PASS |
-| 11 | AES-192 CBC, 1 khối | CBC | 192-bit | NIST SP 800-38A | PASS |
-| 12 | AES-192 CTR, 1 khối | CTR | 192-bit | NIST SP 800-38A | PASS |
-| 13 | AES-256 ECB, 1 khối | ECB | 256-bit | NIST SP 800-38A | PASS |
-| 14 | AES-256 CBC, 1 khối | CBC | 256-bit | NIST SP 800-38A | PASS |
-| 15 | AES-256 CTR, 1 khối | CTR | 256-bit | NIST SP 800-38A | PASS |
-| 16 | XTS-AES-128 vector 1 | XTS | 256-bit (2×128) | IEEE P1619/D16 | PASS |
+| 11 | AES-192 CBC, 4 khối | CBC | 192-bit | NIST SP 800-38A | PASS |
+| 12 | AES-192 CFB128, 4 khối | CFB | 192-bit | NIST SP 800-38A | PASS |
+| 13 | AES-192 OFB, 4 khối | OFB | 192-bit | NIST SP 800-38A | PASS |
+| 14 | AES-192 CTR, 4 khối | CTR | 192-bit | NIST SP 800-38A | PASS |
+| 15 | AES-256 ECB, 1 khối | ECB | 256-bit | NIST SP 800-38A | PASS |
+| 16 | AES-256 CBC, 4 khối | CBC | 256-bit | NIST SP 800-38A | PASS |
+| 17 | AES-256 CFB128, 4 khối | CFB | 256-bit | NIST SP 800-38A | PASS |
+| 18 | AES-256 OFB, 4 khối | OFB | 256-bit | NIST SP 800-38A | PASS |
+| 19 | AES-256 CTR, 4 khối | CTR | 256-bit | NIST SP 800-38A | PASS |
+| 20 | XTS-AES-128 vector 1 | XTS | 256-bit (2×128) | IEEE P1619/D16 | PASS |
 
-Log chạy trên Windows MSVC (`build/windows-msvc`, 16/16):
+Log chạy trên Ubuntu GCC (`build/ubuntu-gcc`, 20/20):
 
 ```text
 PASS NIST SP 800-38A AES-128 ECB
@@ -431,17 +441,23 @@ PASS NIST GCM AES-128 test case 4 with AAD
 PASS RFC 3610 CCM packet vector 1
 PASS RFC 3610 CCM packet vector 2
 PASS NIST SP 800-38A AES-192 ECB (first block)
-PASS NIST SP 800-38A AES-192 CBC (first block)
-PASS NIST SP 800-38A AES-192 CTR (first block)
+PASS NIST SP 800-38A AES-192 CBC
+PASS NIST SP 800-38A AES-192 CFB128
+PASS NIST SP 800-38A AES-192 OFB
+PASS NIST SP 800-38A AES-192 CTR
 PASS NIST SP 800-38A AES-256 ECB (first block)
-PASS NIST SP 800-38A AES-256 CBC (first block)
-PASS NIST SP 800-38A AES-256 CTR (first block)
+PASS NIST SP 800-38A AES-256 CBC
+PASS NIST SP 800-38A AES-256 CFB128
+PASS NIST SP 800-38A AES-256 OFB
+PASS NIST SP 800-38A AES-256 CTR
 PASS IEEE P1619/D16 XTS-AES-128 vector 1
-16 passed, 0 failed
+20 passed, 0 failed
 ```
 
-Nhật ký: `output/windows/test_results/kat_msvc.txt`,
-`output/ubuntu/test_results/kat_gcc.txt` và `kat_clang.txt` (đều 16/16 PASS).
+Nhật ký: `output/ubuntu/test_results/kat_gcc.txt` (20/20). Các log Windows
+`kat_msvc.txt` và `kat_mingw_*.txt` vẫn là bản 16 vector trước khi mở rộng; cần
+chạy lại `aestool --kat kat/vectors.json` trên Windows để cập nhật bằng chứng
+20/20.
 
 Mỗi vector được kiểm tra hai chiều:
 
@@ -453,8 +469,8 @@ một chiều nhưng sai ở chiều còn lại.
 
 **Nhận xét về độ phủ KAT:**
 
-- Vector NIST SP 800-38A cho AES-128 phủ đủ bốn khối; AES-192/256 và XTS chỉ có
-  vector đầu tiên (một khối) để xác nhận đúng thuật toán, chưa phủ nhiều khối.
+- Vector NIST SP 800-38A cho AES-128 phủ đủ bốn khối; AES-192/256 CBC/CFB/OFB/CTR
+  cũng phủ bốn khối. AES-192/256 ECB và XTS vẫn chỉ có một khối.
 - Không có KAT cho ECB/CBC có padding PKCS #7 (KAT dùng `pkcs7=false`).
 - GCM chỉ có hai test case; CCM chỉ có hai vector RFC 3610.
 - Chưa có KAT cho AAD dài, tag rỗng, hoặc các độ dài biên (0, 1, 15, 17 byte).
@@ -505,8 +521,10 @@ Nhật ký: `output/ubuntu/test_results/ctest_gcc.txt` và `ctest_clang.txt`.
 
 **Lưu ý:** CMake đăng ký `tests/cli_test.sh` trên Unix và
 `tests/cli_test.cmake` trên Windows, nên `ctest` có cùng phạm vi CLI ở cả hai nền
-tảng. Bộ CLI test trên Windows bao phủ đường dẫn không ASCII, nonce tái sử dụng,
-giới hạn ECB 16 KiB, IV ngắn, hex lẻ và benchmark nhiều luồng (`--threads 2`).
+tảng. Bộ CLI test trên Windows bao phủ đường dẫn không ASCII, nonce tái sử dụng
+(container và sidecar copy), sidecar mặc định, base64 `--decode`, giới hạn ECB
+16 KiB, IV ngắn, thiếu IV XTS, `--threads` bị từ chối ở encrypt/decrypt và
+benchmark nhiều luồng (`--threads 2`).
 
 ### 4.3 Kiểm thử âm và các trường hợp biên
 
@@ -562,7 +580,8 @@ thay thế.
 
 ### 4.5 Hạn chế của phần kiểm chứng
 
-- KAT cho AES-192/256 và XTS mới phủ một khối; chưa có vector nhiều khối.
+- AES-192/256 mới có ECB một khối; XTS mới có một vector. Chưa có AES-256 GCM/CCM
+  KAT hoặc XTS nhiều sector.
 - Chưa có fuzzing cho parser container/minijson.
 - Chưa có test với tệp lớn hơn 8 MB; `--threads` mới được smoke-test qua CLI test,
   chưa có benchmark nhiều luồng đầy đủ.
@@ -612,13 +631,13 @@ Với mẫu `x1, ..., xn`:
 | Nền tảng | Compiler | Mode | Kích thước | Runs/CSV | Số CSV |
 |---|---|---|---:|---:|---:|
 | Ubuntu | GCC | 8 | 6 | 1.000 | 48 |
-| Ubuntu | Clang | 8 | 6 | 1.000 | 48 |
 | Windows | MSVC | 8 | 6 | 1.000 | 48 |
-| **Tổng** |  |  |  |  | **144** |
+| **Tổng** |  |  |  |  | **96** |
 
 Kích thước: 1 KB (1.024 B), 4 KB (4.096 B), 16 KB (16.384 B), 256 KB (262.144 B),
-1 MB (1.048.576 B), 8 MB (8.388.608 B). Tổng số cặp phép đo là 144.000; mỗi cặp gồm
-một mã hoá và một giải mã.
+1 MB (1.048.576 B), 8 MB (8.388.608 B). Tổng số cặp phép đo là 96.000; mỗi cặp gồm
+một mã hoá và một giải mã. Clang chỉ được dùng cho kiểm thử đúng đắn, không có
+CSV hiệu năng trong báo cáo.
 
 ### 5.4 Môi trường đo
 
@@ -627,7 +646,7 @@ một mã hoá và một giải mã.
 | CPU | Intel Core i5-1135G7, 4 nhân / 8 luồng | Intel Core i5-1135G7, 4 nhân / 8 luồng |
 | RAM | Không ghi trong log benchmark | 24.881.960 KiB khả dụng (~23,7 GiB) |
 | OS | Linux 7.0.0-38-generic (theo báo cáo lần chạy Ubuntu) | Windows 11 Home, 10.0.26300 |
-| Compiler | GCC 15.2; Clang 21.1.8 | MSVC 19.51.36260.0 (VS 18/2026, x64) |
+| Compiler | GCC 15.2 (Clang 21.1.8 chỉ dùng cho test) | MSVC 19.51.36260.0 (VS 18/2026, x64) |
 | CMake | Không ghi trong log | 4.3.1 (VS bundled); tối thiểu dự án 3.16 |
 | Crypto++ | 8.9.0 | 8.9.0 (CRYPTOPP_VERSION 890) |
 | Build | Release | Release, `/O2 /Ob2`, static CRT `/MT` |
@@ -639,7 +658,7 @@ Windows/Ubuntu dưới đây là **quan sát**, không phải thí nghiệm nhâ
 
 ### 5.5 Các yếu tố gây nhiễu
 
-1. **Compiler và code generation.** GCC, Clang và MSVC tối ưu khác nhau; cùng một
+1. **Compiler và code generation.** GCC và MSVC tối ưu khác nhau; cùng một
    thuật toán có thể sinh mã rất khác.
 2. **Cách build Crypto++.** Bản Ubuntu thường được build từ package với các cờ tối ưu
    và có thể bật AES-NI/PCLMUL; bản Windows dùng `cryptlib.lib` tĩnh với cờ build
@@ -663,10 +682,8 @@ Từ `lab01/`:
 ```bash
 # Ubuntu
 scripts/build_linux.sh gcc
-scripts/build_linux.sh clang
 sudo cpupower frequency-set -g performance
 PIN_CPUS=0 scripts/run_benchmarks.sh gcc
-PIN_CPUS=0 scripts/run_benchmarks.sh clang
 
 # Windows (x64 Native Tools Command Prompt)
 scripts\build_windows.bat msvc
@@ -695,22 +712,19 @@ kiểm soát; sau khi chạy lại cần cập nhật bảng và kết luận.
 Bảng dưới đây dùng **trung bình nhân (geometric mean)** của thông lượng trung bình ở
 sáu kích thước, để tránh việc kích thước 8 MB chi phối toàn bộ kết quả. Đơn vị: MB/s.
 
-| Mode | Ubuntu GCC enc | Ubuntu GCC dec | Ubuntu Clang enc | Ubuntu Clang dec | Windows MSVC enc | Windows MSVC dec | MSVC/GCC enc | MSVC/GCC dec |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| ECB | 1.569,7 | 3.308,7 | 1.427,3 | 3.029,8 | 928,5 | 1.022,0 | 0,592 | 0,309 |
-| CBC | 726,7 | 2.826,3 | 618,4 | 2.338,7 | 407,8 | 602,5 | 0,561 | 0,213 |
-| OFB | 743,1 | 801,8 | 732,8 | 791,4 | 437,1 | 436,9 | 0,588 | 0,545 |
-| CFB | 593,4 | 1.053,4 | 714,4 | 1.338,3 | 451,2 | 591,5 | 0,760 | 0,561 |
-| CTR | 1.285,1 | 1.506,1 | 1.483,1 | 1.739,8 | 622,6 | 623,5 | 0,484 | 0,414 |
-| XTS | 755,2 | 823,3 | 769,2 | 839,2 | 551,5 | 550,5 | 0,730 | 0,669 |
-| CCM | 559,8 | 620,9 | 568,1 | 629,0 | 262,2 | 240,7 | 0,468 | 0,388 |
-| GCM | 897,6 | 1.098,3 | 997,5 | 1.215,3 | 408,9 | 393,0 | 0,456 | 0,358 |
+| Mode | Ubuntu GCC enc | Ubuntu GCC dec | Windows MSVC enc | Windows MSVC dec | MSVC/GCC enc | MSVC/GCC dec |
+|---|---:|---:|---:|---:|---:|---:|
+| ECB | 1.569,7 | 3.308,7 | 928,5 | 1.022,0 | 0,592 | 0,309 |
+| CBC | 726,7 | 2.826,3 | 407,8 | 602,5 | 0,561 | 0,213 |
+| OFB | 743,1 | 801,8 | 437,1 | 436,9 | 0,588 | 0,545 |
+| CFB | 593,4 | 1.053,4 | 451,2 | 591,5 | 0,760 | 0,561 |
+| CTR | 1.285,1 | 1.506,1 | 622,6 | 623,5 | 0,484 | 0,414 |
+| XTS | 755,2 | 823,3 | 551,5 | 550,5 | 0,730 | 0,669 |
+| CCM | 559,8 | 620,9 | 262,2 | 240,7 | 0,468 | 0,388 |
+| GCM | 897,6 | 1.098,3 | 408,9 | 393,0 | 0,456 | 0,358 |
 
 Quan sát:
 
-- Trên Ubuntu, Clang nhanh hơn GCC ở CFB (+20,4% mã hoá), CTR (+15,4%), GCM
-  (+11,1%); GCC nhanh hơn ở ECB (+10,0%) và CBC (+17,5%). Đây là so sánh **cùng
-  OS, cùng host**, nên phản ánh chủ yếu khác biệt code generation.
 - Windows MSVC thấp hơn Ubuntu GCC ở cả tám mode. Khoảng cách nhỏ nhất là XTS
   (0,73 lần mã hoá, 0,67 lần giải mã) và lớn nhất là CBC giải mã (0,21 lần) và ECB
   giải mã (0,31 lần).
@@ -719,9 +733,9 @@ Quan sát:
 
 ### 6.2 Windows và Ubuntu
 
-Bảng sau dùng dữ liệu **Ubuntu gộp GCC + Clang** (như `cross_platform_summary.csv`
-và các đồ thị cross-platform) để so với Windows MSVC. Tỷ lệ > 1 nghĩa là Windows
-nhanh hơn.
+Bảng sau dùng dữ liệu **Ubuntu GCC** (như `cross_platform_summary.csv` và các
+đồ thị cross-platform) để so với Windows MSVC. Tỷ lệ > 1 nghĩa là Windows nhanh
+hơn.
 
 | Mode | 1 KB enc | 16 KB enc | 1 MB enc | 8 MB enc | 1 KB dec | 16 KB dec | 1 MB dec | 8 MB dec |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -747,7 +761,7 @@ Tổng hợp 48 tổ hợp mode × kích thước:
 **Diễn giải thận trọng.** Không thể nói "Windows chậm hơn Linux X lần" như một kết
 luận về hệ điều hành, vì:
 
-- Windows dùng MSVC, Ubuntu dùng GCC + Clang.
+- Windows dùng MSVC, Ubuntu dùng GCC (Clang chỉ dùng cho test).
 - Bản Crypto++ trên Windows là thư viện tĩnh tự build, cờ build không được ghi lại;
   bản Ubuntu có thể khác.
 - Hai bộ dữ liệu không được thu trong cùng một phiên có kiểm soát.
@@ -1147,7 +1161,7 @@ hoặc tệp cần xác thực.
 | Biện pháp | Cài đặt | Đánh giá |
 |---|---|---|
 | RNG | `CryptoPP::AutoSeededRandomPool` | Tốt; không dùng `rand()`/`std::random` |
-| Sinh IV khi thiếu | `randomBytes(ivSize(mode))` | Tốt; IV lưu trong header |
+| Sinh IV khi thiếu | `randomBytes(ivSize(mode))`, trừ XTS bắt buộc `--iv` | Tốt; IV lưu trong header |
 | Kiểm tra độ dài IV | `checkIv`, `validIvLength` | Tốt; CCM 7–13, mode khác cố định |
 | Kiểm tra độ dài khoá | `checkKey` | Tốt; 16/24/32, XTS 32/64 |
 | Xác thực tag | `AuthenticatedDecryptionFilter::THROW_EXCEPTION` | Tốt; fail-closed |
@@ -1211,8 +1225,8 @@ hoặc tệp cần xác thực.
    registry cục bộ.
 4. Xác thực cả header (mode, version, độ dài) bằng AAD hoặc định dạng có xác thực.
 5. Lưu khoá trong OS key store/HSM; zeroize bộ nhớ; hạn chế quyền đọc tệp khoá.
-6. Mở rộng KAT cho AES-192/256 và XTS sang nhiều khối, thêm các độ dài biên;
-   fuzz parser.
+6. Thêm KAT AES-256 GCM/CCM và XTS nhiều sector, thêm các độ dài biên; fuzz
+   parser.
 7. Đo lại trên cùng một host với CPU pinning, governor `performance`, power plan cố
    định, và baseline tắt AES-NI/PCLMUL.
 8. Đo end-to-end có file I/O để tách chi phí syscall.
@@ -1225,19 +1239,23 @@ hoặc tệp cần xác thực.
 
 | Thành phần | Điểm | Bằng chứng | Tự chấm |
 |---|---:|---|---:|
-| Correctness & KATs | 25 | 16/16 KAT; unit + mutation test; negative test; container | 25 |
+| Correctness & KATs | 25 | 20/20 KAT trên Ubuntu; log Windows 16/16 cần chạy lại; unit + mutation test; negative test; container | 24 |
 | Security hygiene | 15 | RNG, IV validation, nonce lock đa tiến trình + output header check, zeroize khoá, ECB policy, fail-closed | 15 |
 | UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, sidecar JSON, lỗi rõ, UTF-8 clean | 10 |
 | Performance methodology | 20 | 48 CSV/nền tảng có kiểm soát (CPU 2), 1.000 runs, mean/median/SD/CI95, block analysis, plots, syscall/I/O end-to-end | 20 |
 | Cross-platform build | 10 | CMake, MSVC verified, GCC/Clang build + test, MinGW GCC/Clang verified | 10 |
 | Report quality | 20 | Mục tiêu, cài đặt, test, thống kê, bảo mật, so sánh, bài học; log hai nền tảng | 19 |
-| **Tổng** | **100** |  | **99** |
+| **Tổng** | **100** |  | **98** |
 | Bonus: library + GUI | +5 | Shared library + Tkinter GUI gọi qua C ABI; self-test 8 mode trên Windows và Ubuntu | +5 |
 
-Tự chấm **99/100** cho phần bắt buộc và **+5 bonus**, tức **104/100** (tối đa 100).
+Tự chấm **98/100** cho phần bắt buộc và **+5 bonus**, tức **103/100** (tối đa 100).
 Các điểm hoàn thiện chính:
 - **Security hygiene (15/15):** Đã bổ sung RAII `ScopedWipe` tự động gọi `CryptoPP::SecureWipeBuffer` để xoá sạch khoá sau khi dùng; bổ sung khoá đa tiến trình nguyên tử (`.aestool_nonces.lock`) xoá bỏ hoàn toàn race condition trong registry nonce; bổ sung kiểm tra header container/sidecar tệp đầu ra khi ghi đè để ngăn tái sử dụng nonce trực tiếp theo đúng yêu cầu đề bài.
-- **UX & I/O design (10/10):** Hỗ trợ đầy đủ cờ `--sidecar [FILE]` cho phép đọc/ghi cấu trúc JSON sidecar (`alg`, `mode`, `iv`, `aad`, `tag`) kèm tệp mã hoá thô; tài liệu hoá rõ ràng hành vi `--threads` (chạy song song cho benchmark nhiều lần; mã hoá khối dòng là tuần tự theo luồng dữ liệu) và in hướng dẫn chi tiết nếu người dùng truyền `--threads` vào lệnh mã hoá/giải mã.
+- **UX & I/O design (10/10):** `--sidecar [FILE]` đọc/ghi JSON sidecar (`alg`,
+  `mode`, `iv`, `aad`, `tag`) kèm bản mã raw, tự suy ra `OUT.json`/`IN.json` khi
+  bỏ trống đường dẫn. `--decode hex|base64|raw` đưa base64 trở lại đầu vào
+  `decrypt`. `--threads` chỉ dùng cho `bench`; `encrypt`/`decrypt` từ chối rõ
+  ràng thay vì bỏ qua.
 - **Performance (20/20):** Bổ sung `scripts/bench_io.py` đo end-to-end có syscall/I/O
   (`output/ubuntu/benchmarks/io_overhead.csv`, mục 6.10); số liệu lấy từ bản chạy có
   kiểm soát (Ubuntu `PIN_CPUS=2`/governor `performance`; Windows `AFFINITY=4`/High
@@ -1254,9 +1272,9 @@ Các điểm hoàn thiện chính:
 | README | Có; đã cập nhật |
 | Báo cáo | Có; tệp này |
 | Unit test Catch2 | Có; Windows MSVC 2/2 và Ubuntu GCC/Clang 2/2 (Catch2 + CLI) |
-| KAT | Có; 16/16 trên Windows MSVC và Ubuntu GCC/Clang |
+| KAT | Có; 20/20 trên Ubuntu GCC/Clang; log Windows 16/16 cần chạy lại |
 | Negative tests | Có; 17 trên Windows, 12 trên Ubuntu |
-| Benchmark CSV | Có; 144 tệp |
+| Benchmark CSV | Có; 96 tệp (48 Ubuntu GCC + 48 Windows MSVC) |
 | Đồ thị | Có; Ubuntu, Windows, cross-platform |
 | Windows binary | Có trên môi trường Windows; không commit binary |
 | GUI | Có (`gui/aestool_gui.py`; self-test Windows + Ubuntu) |
@@ -1272,9 +1290,9 @@ Các điểm hoàn thiện chính:
 | Yêu cầu | Trạng thái |
 |---|---|
 | CMake, build ngoài source | Đạt |
-| Ubuntu LTS | Đạt; đã build GCC + Clang, KAT 16/16, ctest 2/2, GUI self-test |
-| Windows MSVC | Đạt; đã build, KAT 16/16, ctest 2/2, GUI self-test |
-| Windows MinGW64 | Đạt; GCC 16.2.0 + Clang 22.1.8, KAT 16/16, ctest 2/2 |
+| Ubuntu LTS | Đạt; đã build GCC + Clang, KAT 20/20, ctest 2/2, GUI self-test |
+| Windows MSVC | Đạt; đã build, KAT 16/16 (20-vector rerun pending), ctest 2/2, GUI self-test |
+| Windows MinGW64 | Đạt; GCC 16.2.0 + Clang 22.1.8, KAT 16/16 (20-vector rerun pending), ctest 2/2 |
 | README dependency/version | Đạt; đã cập nhật |
 | README cài đặt Windows/Linux | Đạt |
 | README build commands | Đạt |
@@ -1344,7 +1362,7 @@ fail-closed cho AEAD, kiểm tra biên chặt và bộ dữ liệu hiệu năng 
 cải thiện là độ phủ KAT, registry nonce, quản lý khoá, UTF-8 trên Windows và tính
 kiểm soát của thí nghiệm hiệu năng.
 
-Về hiệu năng, trong cấu hình đo, Ubuntu GCC/Clang cho thông lượng cao hơn Windows
+Về hiệu năng, trong cấu hình đo, Ubuntu GCC cho thông lượng cao hơn Windows
 MSVC ở hầu hết mode, đặc biệt ở giải mã CBC/ECB. Tuy nhiên, vì compiler, thư viện và
 host khác nhau, kết quả này là bằng chứng quan sát, không phải kết luận nhân quả về
 hệ điều hành. Muốn có kết luận chắc chắn, cần đo lại trên cùng một máy với cùng phiên
@@ -1420,23 +1438,23 @@ bản Crypto++, cùng cờ build, CPU pinning và governor cố định.
 
 | Đường dẫn | Nội dung |
 |---|---|
-| `kat/vectors.json` | 16 vector KAT |
-| `output/windows/test_results/kat_msvc.txt` | KAT 16/16 trên Windows MSVC |
+| `kat/vectors.json` | 20 vector KAT |
+| `output/windows/test_results/kat_msvc.txt` | KAT 16/16 trên Windows MSVC (bản trước khi mở rộng; cần chạy lại) |
 | `output/windows/test_results/ctest_msvc.txt` | ctest 2/2 trên Windows MSVC |
 | `output/windows/test_results/gui_selftest.txt` | GUI self-test trên Windows |
 | `output/windows/test_results/non_ascii_path.txt` | Round-trip qua thư mục không ASCII |
-| `output/windows/test_results/kat_mingw_gcc.txt`, `kat_mingw_clang.txt` | KAT 16/16 trên MinGW GCC/Clang |
+| `output/windows/test_results/kat_mingw_gcc.txt`, `kat_mingw_clang.txt` | KAT 16/16 trên MinGW GCC/Clang (bản cũ; cần chạy lại) |
 | `output/windows/test_results/ctest_mingw_gcc.txt`, `ctest_mingw_clang.txt` | ctest 2/2 trên MinGW GCC/Clang |
 | `output/windows/test_results/environment.txt` | Môi trường Windows |
-| `output/ubuntu/test_results/kat_gcc.txt`, `kat_clang.txt` | KAT 16/16 trên Ubuntu |
+| `output/ubuntu/test_results/kat_gcc.txt`, `kat_clang.txt` | KAT 20/20 trên Ubuntu |
 | `output/ubuntu/test_results/ctest_gcc.txt`, `ctest_clang.txt` | ctest 2/2 trên Ubuntu |
 | `output/ubuntu/test_results/gui_selftest.txt` | GUI self-test trên Ubuntu |
 | `output/ubuntu/test_results/environment.txt` | Môi trường Ubuntu |
 | `output/ubuntu/neg_results/SUMMARY.md` | Bảng kiểm thử âm trên Ubuntu |
 | `output/windows/neg_results/SUMMARY.md` | Bảng kiểm thử âm trên Windows |
 | `output/windows/neg_results/*.txt` | Nhật ký từng trường hợp |
-| `output/ubuntu/benchmarks/*.csv` | 96 CSV Ubuntu |
-| `output/windows/benchmarks/*.csv` | 48 CSV Windows |
+| `output/ubuntu/benchmarks/*.csv` | 48 CSV Ubuntu (GCC) |
+| `output/windows/benchmarks/*.csv` | 48 CSV Windows (MSVC) |
 | `output/ubuntu/benchmarks/summary.csv` | Thống kê Ubuntu |
 | `output/windows/benchmarks/summary.csv` | Thống kê Windows |
 | `output/compare/cross_platform_summary.csv` | Bảng so sánh Windows/Ubuntu |

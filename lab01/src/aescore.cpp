@@ -207,6 +207,37 @@ std::string randomBytes(std::size_t count) {
     return out;
 }
 
+std::string fromBase64(const std::string& text) {
+    std::string compact;
+    for (unsigned char c : text) {
+        if (!std::isspace(c)) compact.push_back(static_cast<char>(c));
+    }
+    require(compact.size() % 4 == 0, "invalid base64 length");
+    std::size_t padding = 0;
+    for (std::size_t i = 0; i < compact.size(); ++i) {
+        const char c = compact[i];
+        if (c == '=') {
+            require(i + 2 >= compact.size(), "invalid base64 padding");
+            ++padding;
+        } else {
+            const bool valid = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                               (c >= '0' && c <= '9') || c == '+' || c == '/';
+            require(valid, "invalid base64 character");
+            require(padding == 0, "invalid base64 padding");
+        }
+    }
+    require(padding <= 2, "invalid base64 padding");
+
+    std::string out;
+    try {
+        CryptoPP::StringSource(
+            compact, true, new CryptoPP::Base64Decoder(new CryptoPP::StringSink(out)));
+    } catch (const CryptoPP::Exception& error) {
+        throw std::runtime_error(std::string("invalid base64: ") + error.what());
+    }
+    return out;
+}
+
 std::string toBase64(const std::string& bytes) {
     std::string out;
     CryptoPP::StringSource(

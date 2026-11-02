@@ -37,6 +37,18 @@ function(run_expect_failure name)
     endif()
 endfunction()
 
+function(run_expect_failure_in name workdir)
+    execute_process(
+        COMMAND "${TOOL}" ${ARGN}
+        WORKING_DIRECTORY "${workdir}"
+        RESULT_VARIABLE result
+        OUTPUT_VARIABLE output
+        ERROR_VARIABLE error)
+    if(result EQUAL 0)
+        message(FATAL_ERROR "${name}: expected failure, but the command succeeded\n${output}${error}")
+    endif()
+endfunction()
+
 # Round-trip through a non-ASCII directory and a raw key file.
 set(unicode_dir "${WORK_DIR}/thư mục")
 file(MAKE_DIRECTORY "${unicode_dir}")
@@ -51,6 +63,30 @@ execute_process(COMMAND "${CMAKE_COMMAND}" -E compare_files
                 RESULT_VARIABLE result)
 if(NOT result EQUAL 0)
     message(FATAL_ERROR "round-trip plaintext does not match")
+endif()
+
+# Base64 output must be accepted back through --decode.
+run_expect_success(base64-encode encrypt --mode cbc --key "${unicode_dir}/key.bin"
+                   --in "${unicode_dir}/plain.txt" --out "${unicode_dir}/ct.b64"
+                   --encode base64)
+run_expect_success(base64-decode decrypt --mode cbc --key "${unicode_dir}/key.bin"
+                   --in "${unicode_dir}/ct.b64" --decode base64
+                   --out "${unicode_dir}/b64_out.txt")
+execute_process(COMMAND "${CMAKE_COMMAND}" -E compare_files
+                        "${unicode_dir}/plain.txt" "${unicode_dir}/b64_out.txt"
+                RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+    message(FATAL_ERROR "base64 plaintext does not match")
+endif()
+file(READ "${unicode_dir}/ct.b64" b64_text)
+run_expect_success(base64-text-decode decrypt --mode cbc --key "${unicode_dir}/key.bin"
+                   --text "${b64_text}" --decode base64
+                   --out "${unicode_dir}/b64_text_out.txt")
+execute_process(COMMAND "${CMAKE_COMMAND}" -E compare_files
+                        "${unicode_dir}/plain.txt" "${unicode_dir}/b64_text_out.txt"
+                RESULT_VARIABLE result)
+if(NOT result EQUAL 0)
+    message(FATAL_ERROR "base64 --text plaintext does not match")
 endif()
 
 # The same key+nonce must be rejected on the second CTR use.
@@ -73,6 +109,10 @@ run_expect_failure(ecb-blocked encrypt --mode ecb --key-hex "${key}"
                    --in "${WORK_DIR}/large.bin" --out ecb.bin)
 run_expect_failure(short-iv encrypt --mode cbc --key-hex "${key}"
                    --iv 0001020304050607 --text data --out short.bin)
+run_expect_failure(xts-missing-iv encrypt --mode xts --key-hex "${key}"
+                   --text data --out xts.bin)
+run_expect_failure(threads-encrypt encrypt --mode cbc --key-hex "${key}"
+                   --text data --threads 2 --out threaded.bin)
 
 # Odd hex is malformed input.
 run_expect_failure(odd-hex encrypt --mode ecb --key-hex abc --text data --out odd.bin)
@@ -88,6 +128,30 @@ run_expect_success(sidecar-decrypt decrypt --mode gcm --aead --key-hex "${key}"
 file(READ "${WORK_DIR}/sidecar_out.txt" recovered_sidecar)
 if(NOT recovered_sidecar STREQUAL "sidecar test")
     message(FATAL_ERROR "sidecar plaintext mismatch: got '${recovered_sidecar}'")
+endif()
+
+# --sidecar without a path defaults to OUT.json on encrypt and IN.json on decrypt.
+set(default_nonce "aabbccddeeff001122334455")
+run_expect_success(sidecar-default-encrypt encrypt --mode gcm --aead --key-hex "${key}"
+                   --iv "${default_nonce}" --text "default sidecar"
+                   --out "${WORK_DIR}/default_ct.bin" --sidecar)
+run_expect_success(sidecar-default-decrypt decrypt --mode gcm --aead --key-hex "${key}"
+                   --in "${WORK_DIR}/default_ct.bin" --sidecar
+                   --out "${WORK_DIR}/default_out.txt")
+file(READ "${WORK_DIR}/default_out.txt" recovered_default)
+if(NOT recovered_default STREQUAL "default sidecar")
+    message(FATAL_ERROR "default sidecar plaintext mismatch: got '${recovered_default}'")
+endif()
+
+# A copied sidecar in a fresh directory must be rejected from the header alone.
+set(sidecar_reuse_dir "${WORK_DIR}/sidecar-reuse")
+file(MAKE_DIRECTORY "${sidecar_reuse_dir}")
+file(COPY "${WORK_DIR}/sidecar.json" DESTINATION "${sidecar_reuse_dir}")
+run_expect_failure_in(sidecar-nonce-reuse "${sidecar_reuse_dir}"
+    encrypt --mode gcm --aead --key-hex "${key}" --iv "${gcm_nonce}"
+    --text reuse --out new.bin --sidecar sidecar.json)
+if(EXISTS "${sidecar_reuse_dir}/new.bin")
+    message(FATAL_ERROR "sidecar-nonce-reuse: wrote an output file")
 endif()
 
 # Threaded benchmark writes one header plus one row per run.
