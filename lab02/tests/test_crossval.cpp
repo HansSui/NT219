@@ -55,6 +55,48 @@ TEST_CASE("Cross-Validation: Pure C++ AES-128-CTR vs Crypto++ AES-128-CTR", "[cr
     REQUIRE(our_decrypted == pt);
 }
 
+TEST_CASE("Cross-Validation: AES-192/AES-256 CTR vs Crypto++", "[crossval][bonus]") {
+    Block iv = {
+        0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7,
+        0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff
+    };
+    std::vector<uint8_t> pt(257);
+    for (size_t i = 0; i < pt.size(); ++i) pt[i] = static_cast<uint8_t>(i * 11 + 7);
+
+    struct Case {
+        std::vector<uint8_t> key;
+        AES::KeyLength length;
+    };
+    const std::vector<Case> cases = {
+        {{0x8e, 0x73, 0xb0, 0xf7, 0xda, 0x0e, 0x64, 0x52,
+          0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5,
+          0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b}, AES::AES_192},
+        {{0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
+          0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81,
+          0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7,
+          0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4}, AES::AES_256},
+    };
+
+    for (const auto& item : cases) {
+        AES ours(item.key, item.length);
+        Modes modes;
+        std::vector<uint8_t> our_ct = modes.ctr_encrypt(ours, pt, iv);
+
+        std::string oracle;
+        CryptoPP::CTR_Mode<CryptoPP::AES>::Encryption enc;
+        enc.SetKeyWithIV(item.key.data(), item.key.size(), iv.data(), iv.size());
+        CryptoPP::StringSource ss(
+            reinterpret_cast<const CryptoPP::byte*>(pt.data()), pt.size(), true,
+            new CryptoPP::StreamTransformationFilter(
+                enc,
+                new CryptoPP::StringSink(oracle),
+                CryptoPP::StreamTransformationFilter::NO_PADDING));
+        std::vector<uint8_t> expected(oracle.begin(), oracle.end());
+        REQUIRE(our_ct == expected);
+        REQUIRE(modes.ctr_decrypt(ours, expected, iv) == pt);
+    }
+}
+
 TEST_CASE("Cross-Validation: Pure C++ XTS vs Crypto++ XTS", "[crossval][xts]") {
     std::vector<uint8_t> key(32);
     for (size_t i = 0; i < key.size(); ++i) key[i] = static_cast<uint8_t>(i);

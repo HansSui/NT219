@@ -21,7 +21,8 @@ tests/
   test_core.cpp         unit tests
   cli_test.sh           CLI smoke test (Unix)
   cli_test.cmake        CLI smoke test (Windows)
-kat/vectors.json        NIST SP 800-38A, NIST GCM and RFC 3610 CCM vectors
+  nonce_race_test.py    8-process nonce-lock stress test
+kat/vectors.json        NIST SP 800-38A, NIST/RFC GCM/CCM, NIST CAVP XTS/GCM/CCM
 gui/
   aestool_gui.py        Tkinter GUI calling aescore through ctypes
   build_gui.bat/.sh     shared-library build helpers
@@ -29,6 +30,8 @@ gui/
 scripts/
   build_linux.sh        GCC or Clang build + ctest
   build_windows.bat     MSVC, MinGW GCC or MinGW Clang build + ctest
+  verify_windows.bat    refresh Windows KAT/ctest/GUI/nonce-race evidence
+  package_lab1.py       stage and zip the submission
   run_benchmarks.sh     all modes x all sizes x 1000 runs (Linux)
   run_benchmarks.bat    all modes x all sizes x 1000 runs (Windows)
   plot_compare.py       combined comparison charts from all benchmark CSVs
@@ -235,7 +238,7 @@ Known-answer tests:
 
 ```bash
 ./build/ubuntu-gcc/aestool --kat kat/vectors.json
-# PASS ... for every vector, then: 20 passed, 0 failed
+# PASS ... for every vector, then: 29 passed, 0 failed
 ```
 
 Benchmark AES-256-GCM at 16 KiB and write one CSV row per run:
@@ -385,12 +388,29 @@ The unit suite covers hex handling, all modes, XTS ciphertext stealing, AEAD
 round-trips, tag/AAD/key/IV tampering, invalid lengths, container parsing and key
 file formats. A small CLI test checks round-trip through a non-ASCII path,
 nonce-reuse rejection (container and copied sidecar), base64 decode, the default
-sidecar path, the ECB size limit, short-IV and missing-XTS-IV rejection,
-thread-flag rejection for encrypt/decrypt, and threaded benchmark row counts. Unix
-uses `tests/cli_test.sh`; Windows uses the portable `tests/cli_test.cmake`. KAT
-coverage: NIST SP 800-38A ECB/CBC/CFB/OFB/CTR for AES-128, AES-192/256
+sidecar path, the ECB size limit (blocked and `--allow-ecb`), short-IV and
+missing-XTS-IV rejection, thread-flag rejection for encrypt/decrypt, CCM bad
+tags, GCM wrong AAD, AEAD-without-`--aead`, AAD on a non-AEAD mode, mode/header
+mismatch, nonce-lock contention, and threaded benchmark row counts. Unix uses
+`tests/cli_test.sh`; Windows uses the portable `tests/cli_test.cmake`.
+
+KAT coverage: NIST SP 800-38A ECB/CBC/CFB/OFB/CTR for AES-128, AES-192/256
 ECB/CBC/CFB/OFB/CTR, IEEE P1619/D16 XTS-AES-128, NIST GCM test cases 3 and 4,
-and RFC 3610 CCM vectors 1 and 2.
+RFC 3610 CCM vectors 1 and 2, NIST CAVP XTSGen AES-128/AES-256, NIST CAVP
+AES-256 GCM (no AAD, with AAD, and a two-block payload), and NIST CAVP AES-256
+CCM (13-byte nonce, 8-byte tag). The two CAVP CCM vectors come from one CAVP
+group and therefore share a key/nonce; they are algorithm KATs, not CLI nonce
+tests.
+
+A separate manual concurrency check is available:
+
+```bash
+python3 tests/nonce_race_test.py --tool build/ubuntu-gcc/aestool --processes 8
+```
+
+It starts eight processes with the same key+nonce and requires exactly one
+success and one output file. It is not registered with `ctest` because it needs
+Python and depends on host scheduling.
 
 KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 
@@ -404,9 +424,10 @@ KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 | Check | Ubuntu (GCC/Clang) | Windows (MSVC 19.51 x64) | Evidence |
 |---|---|---|---|
 | Build, Release | Passed | Passed | — |
-| KAT, 20 vectors | 20/20 passed | 16/16 committed log (rerun pending) | `output/*/test_results/kat_*` |
+| KAT, 29 vectors | 20/20 logged (rerun pending) | 29/29 passed (MSVC and MinGW) | `output/*/test_results/kat_*` |
 | `ctest` | 2/2 passed (Catch2 + CLI) | 2/2 passed (Catch2 + CLI) | `output/*/test_results/ctest_*` |
-| CLI negative/edge cases | 12 logged cases | 17 cases + positive round-trips | `output/ubuntu/neg_results/`, `output/windows/neg_results/` |
+| CLI negative/edge cases | 12 legacy logs; 19 cases in ctest | 17 legacy logs; 19 cases in ctest | `output/*/neg_results/` |
+| Nonce race, 8 processes | script added, run pending | 1 success / 7 rejections | `tests/nonce_race_test.py` |
 | Benchmark | 48 CSVs (GCC 15.2) | 48 CSVs (MSVC 19.51) | `output/ubuntu/benchmarks/`, `output/windows/benchmarks/` |
 | GUI `--self-test` | 8/8 modes, negative cases | 8/8 modes, negative cases | `output/*/test_results/gui_selftest.txt` |
 
@@ -417,22 +438,35 @@ warm-up/cooldown, 30 s pilot warm-up). `summary_robust.csv` flags 5 of the 48
 Windows configurations as noisy in at least one direction, so use its medians
 and trimmed means rather than presenting the matrix as perfectly noise-free.
 
-The Windows KAT, `ctest`, GUI and negative-test logs are committed. The Ubuntu
-logs were regenerated with GCC 15.2 and Clang 21.1.8 and are in
-`output/ubuntu/test_results/`. MinGW GCC 16.2.0 and MinGW Clang 22.1.8 also
-build the project and passed the old 16-vector KAT and `ctest` 2/2 on Windows;
-those committed logs predate the 20-vector expansion, so rerun `--kat` for 20/20
-evidence. The Windows rerun checklist was removed; use the committed logs and
-`scripts/bench_windows_controlled.bat`.
+The Windows KAT, `ctest`, GUI, non-ASCII-path and nonce-race logs were rerun on
+2026-11-02 against the 29-vector KAT with MSVC 19.51, MinGW GCC 16.2.0 and
+MinGW Clang 22.1.8; see `output/windows/test_results/`. The committed Ubuntu
+logs were produced before the KAT expansion and still show 20/20, so rerun
+`aestool --kat kat/vectors.json` and `ctest` on Ubuntu to refresh them to
+29/29. Use the committed logs and `scripts/bench_windows_controlled.bat` for the
+Windows benchmark run; no separate checklist is needed.
+
+The Ubuntu negative-case evidence can be regenerated after a Linux build with
+the same 19 cases that `ctest` now runs; the committed
+`output/ubuntu/neg_results/` logs predate the CCM/GCM-policy additions.
 
 ## Report and deliverables
 
 `REPORT.md` is the Vietnamese lab report. It covers objectives, implementation,
-the 20 KAT vectors, unit and negative tests, the Windows-vs-Ubuntu comparison,
+the 29 KAT vectors, unit and negative tests, the Windows-vs-Ubuntu comparison,
 statistical tables (mean, median, SD, CI95, CV), security engineering, the
 Tkinter GUI bonus, limitations and a self-grade table. The current benchmark
-evidence is the 96 CSVs under `output/` (48 Ubuntu GCC + 48 Windows MSVC); the
-report copy is being refreshed separately.
+evidence is the 96 CSVs under `output/` (48 Ubuntu GCC + 48 Windows MSVC).
 
-Export `REPORT.md` to PDF/DOCX for submission, and fill in the student name /
-student ID / class placeholders at the top of the report.
+Fill the identity fields when packaging rather than editing the tracked report:
+
+```bash
+python scripts/package_lab1.py --student "..." --student-id ... --class-name ... \
+    --windows-bin build/windows-msvc/Release/aestool.exe --linux-bin build/ubuntu-gcc/aestool
+```
+
+The script stages the source, report, evidence and optional binaries under
+`output/package/`, fills the staged report header, writes `SUBMISSION.md` with
+the academic-integrity statement, and creates the zip. Export `REPORT.md` to
+PDF/DOCX for submission if the course requires it; the archive keeps the
+Markdown source.

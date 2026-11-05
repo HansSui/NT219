@@ -1,39 +1,43 @@
 # Lab 1 - Missing / Lacking
 
 **Audit date:** 2026-11-02
-**Fixes applied:** 2026-11-02 (L1-03, L1-04, L1-05 partial, L1-09, L1-10)
+**Fixes applied:** 2026-11-02 (L1-03, L1-04, L1-05, L1-07, L1-08, L1-09,
+L1-10; packaging helper for L1-01/L1-02)
 **Sources:** `docs/lab1.txt`, `docs/lab requirement.md`, `docs/GradingSystem.txt`,
 `docs/blueprint/labs/lab1.md`, `lab01/`
-**Method:** rebuilt and ran Lab 1 on Ubuntu with GCC 15.2 and Clang 21.1.8;
-reviewed the committed Windows MSVC/MinGW logs and scripts. Windows was not
-re-run in this audit.
+**Method:** rebuilt and ran Lab 1 on Windows with MSVC 19.51, MinGW GCC 16.2.0
+and MinGW Clang 22.1.8; reran KAT, `ctest`, GUI and nonce-race evidence. Ubuntu
+evidence is reviewed from the committed GCC 15.2 / Clang 21.1.8 logs; Ubuntu was
+not re-run in this pass.
 
 Status legend: **OK** = present and verified, **Partial** = present but
 incomplete, **Missing** = not present, **Not verified** = no evidence here.
 
 ## Verdict
 
-The Lab 1 implementation is substantially complete on both platforms. The
-remaining gaps are submission packaging, the Windows KAT rerun, Ubuntu
-negative-test evidence, and minor CLI polish, not a broken AES implementation.
+The Lab 1 implementation is complete on the code, KAT and Windows-evidence
+side. The remaining gaps are submission identity/PDF packaging and an Ubuntu
+rerun of the expanded KAT and negative suite; neither indicates a broken AES
+implementation.
 
-Sidecar nonce reuse, automatic XTS tweaks, broken documentation links, and the
-unsupported Clang benchmark claims found in the first pass are fixed. Ubuntu is
-still weaker than Windows on negative-test evidence. Windows build, KAT,
-benchmark, GUI, and non-ASCII-path logs are present.
+Sidecar nonce reuse, automatic XTS tweaks, broken documentation links, thin
+AES-256/XTS KAT coverage, the untested nonce lock, and the unsupported Clang
+benchmark claims are fixed. The 19-case negative suite is now in `ctest` on both
+platforms, and the Windows KAT logs show 29/29 vectors.
 
 ## Verified state after fixes
 
 | Check | Ubuntu | Windows |
 |---|---|---|
-| Build and `ctest` | Pass, 2/2 (GCC and Clang) | Pass, 2/2 (MSVC and MinGW logs) |
-| CLI KAT | 20/20 pass (GCC and Clang) | 16/16 committed log; 20-vector rerun pending |
-| Negative tests | 12 cases | 17 cases |
+| Build and `ctest` | Pass, 2/2 (GCC and Clang logs) | Pass, 2/2 (MSVC and MinGW logs) |
+| CLI KAT | 20/20 committed (pre-expansion; rerun pending) | 29/29 (MSVC, MinGW GCC, MinGW Clang) |
+| Negative tests | 12 committed cases; 19 cases now in `ctest` | 17 committed cases; 19 cases now in `ctest` |
 | Benchmark matrix | GCC 48 CSVs; Clang tests/KAT only | MSVC 48 CSVs |
 | GUI self-test | Pass | Pass |
 | Non-ASCII path | CLI/unit coverage exists | Dedicated log exists |
+| Nonce race, 8 processes | Manual check documented | `nonce_race.txt`: 1 success, 7 rejections |
 
-Ubuntu commands used:
+Ubuntu commands to rerun the evidence:
 
 ```bash
 cd lab01
@@ -48,12 +52,12 @@ scripts/build_linux.sh gcc
 |---|---|---|---|---|---|
 | L1-01 | Final report/archive not produced | C-13, C-14 | Partial | Partial | High (submission) |
 | L1-02 | Windows/Linux binaries not packaged | C-13 | Missing | Missing | Medium (ambiguous) |
-| L1-03 | Sidecar header was not checked for nonce reuse | C-06 | Fixed | Fixed (code); rerun pending | Closed |
-| L1-04 | XTS auto-generated an IV when omitted | C-06 | Fixed | Fixed (code); rerun pending | Closed |
-| L1-05 | AES-192/256 and XTS KAT coverage is thin | C-08 | Partial (20 vectors) | 16/16 committed; rerun pending | Medium |
-| L1-06 | Ubuntu negative-test evidence is thinner than Windows | C-09 | Partial | OK | Medium |
-| L1-07 | Nonce registry is per-directory and concurrency is untested | C-06 | Partial | Partial | Low/Medium |
-| L1-08 | Uniform CLI is only partially implemented | C-03, C-04 | Fixed | Fixed (code); rerun pending | Closed |
+| L1-03 | Sidecar header was not checked for nonce reuse | C-06 | Fixed | Fixed; rerun done | Closed |
+| L1-04 | XTS auto-generated an IV when omitted | C-06 | Fixed | Fixed; rerun done | Closed |
+| L1-05 | AES-192/256 and XTS KAT coverage is thin | C-08 | Partial (20-vector log) | 29/29 | Closed |
+| L1-06 | Ubuntu negative-test evidence is thinner than Windows | C-09 | Partial (19 cases in ctest) | OK | Medium |
+| L1-07 | Nonce registry is per-directory and concurrency is untested | C-06 | Partial | Fixed (repeatable race test) | Closed |
+| L1-08 | Uniform CLI is only partially implemented | C-03, C-04 | Fixed | Fixed; rerun done | Closed |
 | L1-09 | Deleted checklist files leave broken links | C-02 | Fixed | Fixed | Closed |
 | L1-10 | Report claims Clang benchmark data that is not in the tree | C-11, C-14 | Fixed | N/A | Closed |
 
@@ -69,7 +73,12 @@ scripts/build_linux.sh gcc
 Requirement: C-13 and C-14; Lab 1 rubric gives 20 points to report quality.
 
 Fix: fill the three identity fields, export the report, and package the archive.
-Do not duplicate the report into another format unless the instructor asks.
+`lab01/scripts/package_lab1.py` now stages the source, report, evidence and
+optional binaries, fills the report header from `--student`, `--student-id` and
+`--class-name`, writes `SUBMISSION.md` with the integrity statement, and creates
+`output/package/lab01-submission.zip`. PDF/DOCX export still needs the student's
+details and a converter; do not duplicate the report into another format unless
+the instructor asks.
 
 ### L1-02 - Binaries are not in the submission
 
@@ -77,9 +86,10 @@ Do not duplicate the report into another format unless the instructor asks.
 to include Windows and Linux binaries; `GradingSystem.txt` also accepts clear
 build instructions. This conflict should be resolved with the TA.
 
-Fix: if binaries are required, add one Windows `aestool.exe` and one Linux
-`aestool` to the archive, plus the build instructions already in the README.
-If instructions are enough, state that explicitly in the report.
+Fix: if binaries are required, pass one Windows `aestool.exe` and one Linux
+`aestool` to `scripts/package_lab1.py` (`--windows-bin`, `--linux-bin`); the
+script copies them to `bin/` and keeps the README build instructions. If
+instructions are enough, run it with `--skip-binaries` and say so in the report.
 
 ### L1-03 - Sidecar nonce reuse was not detected from the sidecar header
 
@@ -93,8 +103,8 @@ to a new working directory and expect rejection.
 
 Requirement: C-06 and Lab 1 section 1.5.
 
-Remaining: rerun the updated CLI test on Windows, because only the Ubuntu
-GCC/Clang runs were refreshed here.
+Remaining: none; the updated CMake/CLI test passes on MSVC and MinGW and the
+Windows logs are refreshed.
 
 ### L1-04 - XTS got a random IV when `--iv` was omitted
 
@@ -105,27 +115,36 @@ XTS as `required (--iv); never auto-generated`.
 
 Requirement: C-06; Lab 1 section 1.5.
 
-Remaining: rerun the updated CLI test on Windows.
+Remaining: none; the updated CMake/CLI test rejects missing XTS IVs on MSVC and
+MinGW.
 
 ### L1-05 - KAT coverage is thin for AES-192/256 and XTS
 
-**Partially fixed.** `lab01/kat/vectors.json` now has 20 vectors. AES-192/256
-CBC, CFB128, OFB, and CTR are full four-block NIST SP 800-38A vectors; ECB stays
-a first-block smoke test. Ubuntu GCC/Clang pass 20/20. The committed Windows
-logs still show the old 16-vector run, so Windows 20/20 evidence is pending.
+**Fixed.** `lab01/kat/vectors.json` now has 29 vectors. AES-192/256 CBC, CFB128,
+OFB, and CTR are full four-block NIST SP 800-38A vectors; ECB stays a
+first-block smoke test. The expansion adds:
 
-Still missing: AES-256 GCM and CCM KATs, and a larger XTS matrix. The single
-XTS-AES-128 vector is unchanged.
+- NIST CAVP XTSGenAES128 COUNT 1 (16 bytes) and COUNT 101 (32 bytes);
+- NIST CAVP XTSGenAES256 COUNT 1 (32 bytes) and COUNT 101 (48 bytes);
+- NIST CAVP CCM AES-256 VTT Count 20 and 21 (13-byte nonce, 8-byte tag);
+- NIST CAVP GCM AES-256 with no AAD, with 16-byte AAD, and with a two-block
+  payload and 20-byte AAD.
+
+Windows MSVC, MinGW GCC and MinGW Clang pass 29/29 and the refreshed logs are
+committed. The Ubuntu logs still show the pre-expansion 20/20 and need a Linux
+rerun; the local environment for this pass was Windows-only.
+
+The two CAVP CCM vectors share a key/nonce because they belong to one CAVP test
+group. They are algorithm KATs, not CLI nonce-reuse tests, so that does not
+weaken the nonce policy.
 
 Requirement: C-08 and Lab 1 section 2.4.
 
-Fix remaining: add AES-256 GCM/CCM and more XTS vectors, then rerun KAT on
-Windows and replace the committed logs.
-
 ### L1-06 - Ubuntu negative evidence is thinner than Windows
 
-Windows has 17 negative cases. Ubuntu has 12. Ubuntu is missing CLI evidence
-for at least:
+Windows had 17 negative cases and Ubuntu had 12. `tests/cli_test.sh` and
+`tests/cli_test.cmake` now run 19 shared negative/edge cases, adding CLI
+coverage for:
 
 - CCM bad tag
 - GCM wrong AAD
@@ -135,19 +154,24 @@ for at least:
 - ECB over 16 KiB with `--allow-ecb`
 - nonce-lock contention
 
-The CCM bad-tag path is covered by unit tests, but the per-case CLI evidence is
-not. Requirement: C-09 and Lab 1 section 2.3.
-
-Fix: run the same case list on Linux and regenerate
-`lab01/output/ubuntu/neg_results/SUMMARY.md`. No new test framework needed.
+`ctest` runs these on Linux and Windows, so a plain Linux `ctest` now covers the
+missing paths. The per-case logs in `lab01/output/ubuntu/neg_results/` are still
+the older 12-case set; regenerate them on Ubuntu if the submission needs
+per-case console evidence. Requirement: C-09 and Lab 1 section 2.3.
 
 ### L1-07 - Nonce registry scope and concurrency are not fully evidenced
 
-The registry is `.aestool_nonces` in the current working directory. It stores
-`SHA-256(key) + IV` in plaintext and is not authenticated. A manual eight-process
-same-nonce check on Ubuntu produced exactly one output and seven rejections, but
-there is no committed repeatable stress test. The Windows check is described
-below. The registry remains per-directory by design.
+**Fixed.** The registry is `.aestool_nonces` in the current working directory. It
+stores `SHA-256(key) + IV` in plaintext and is not authenticated. The README
+documents that scope and the atomic `.aestool_nonces.lock` behaviour.
+
+`lab01/tests/nonce_race_test.py` is a repeatable cross-platform stress test: it
+starts eight processes with the same key and CTR nonce in one directory and
+requires exactly one success, seven rejections and one output file. On Windows
+MSVC the result is committed as
+`lab01/output/windows/test_results/nonce_race.txt`, and
+`scripts/verify_windows.bat` runs it as step 7. It is not registered with
+`ctest` because it needs Python and depends on host scheduling.
 
 Requirement: C-06. This is a lab tool, so a per-directory registry is a
 reasonable simplification if documented.
@@ -155,10 +179,6 @@ reasonable simplification if documented.
 `shortcut: registry is per-working-directory and unauthenticated; upgrade to a
 per-key state store or OS keystore if nonce reuse must be prevented across
 directories.`
-
-Fix: document the scope and add one concurrent test if the README keeps the
-atomic-lock claim. The Windows section below includes a manual eight-process
-check for the same directory and nonce; run it when refreshing Windows evidence.
 
 ### L1-08 - Uniform CLI is only partially implemented
 
@@ -182,8 +202,8 @@ Changes:
 
 Requirement: C-03/C-04.
 
-Remaining: run the updated CMake/CLI tests on Windows; see the Windows section
-below.
+Remaining: none; the updated CMake/CLI tests pass on MSVC and MinGW, and the
+Windows logs are refreshed.
 
 ### L1-09 - Broken documentation links
 
@@ -216,20 +236,20 @@ Remaining: export the corrected report and fill the identity fields (L1-01).
 
 ### Ubuntu
 
-1. Re-run the 17-case negative suite and save the summary.
-2. Export the corrected report to PDF/DOCX and fill student fields.
-3. Package the archive or state that instructions are the deliverable.
-4. Add AES-256 GCM/CCM and more XTS KAT vectors (L1-05).
-5. Document the per-directory nonce registry and the `--threads`/base64 limits,
-   or implement them (L1-07, L1-08).
+1. Re-run `aestool --kat kat/vectors.json` and `ctest` to refresh the 29-vector
+   and 19-case evidence.
+2. Optionally regenerate the per-case logs in `output/ubuntu/neg_results/` to
+   match the shared 19-case list.
+3. Export the corrected report to PDF/DOCX and fill student fields.
+4. Run `scripts/package_lab1.py` with a Linux binary if the archive includes
+   binaries.
 
 ### Windows
 
-1. Re-run `aestool --kat kat/vectors.json` and replace the 16-vector logs with
-   the 20/20 output.
-2. Re-run `ctest` and the 17-case negative suite with the updated code.
-3. Rebuild the MSVC/MinGW binaries if the archive includes binaries.
-4. Keep the existing Windows CSVs; no benchmark rerun is needed.
+1. Done: KAT 29/29, `ctest` 2/2, GUI self-test and nonce-race logs refreshed on
+   2026-11-02 with MSVC, MinGW GCC and MinGW Clang.
+2. Rebuild the MSVC/MinGW binaries if the archive includes binaries.
+3. Keep the existing Windows CSVs; no benchmark rerun is needed.
 
 ### Windows security verification (after pulling these changes)
 
@@ -247,8 +267,9 @@ popd
 ```
 
 `cli_test.cmake` now checks: copied-sidecar nonce rejection, missing-XTS-IV
-rejection, `--threads` rejection on `encrypt`, base64 `--decode` round-trip, and
-the default `--sidecar` path.
+rejection, `--threads` rejection on `encrypt`, base64 `--decode` round-trip, the
+default `--sidecar` path, CCM bad tag, GCM wrong AAD, missing `--aead`, AAD on a
+non-AEAD mode, mode/header mismatch, and ECB > 16 KiB with `--allow-ecb`.
 
 Then refresh the committed Windows evidence:
 
@@ -256,8 +277,9 @@ Then refresh the committed Windows evidence:
 scripts\verify_windows.bat
 ```
 
-It rebuilds MSVC, expects `20 passed, 0 failed`, runs `ctest`, and reruns the
-negative suite. If MinGW is installed, it also refreshes the MinGW logs; use
+It rebuilds MSVC, expects `29 passed, 0 failed`, runs `ctest`, reruns the
+negative suite and the 8-process nonce race, then refreshes the GUI and
+non-ASCII-path logs. If MinGW is installed, it also refreshes the MinGW logs; use
 `set SKIP_MINGW=1` only when that toolchain is unavailable.
 
 Manual security checks, if you need per-case console evidence:
@@ -283,20 +305,48 @@ rem 3. --threads is bench-only.
 if not errorlevel 1 echo FAIL: encrypt accepted --threads
 ```
 
-Do not run the concurrency check until the normal sidecar/XTS tests pass:
+Do not run the concurrency check until the normal sidecar/XTS tests pass. Use the
+repeatable script rather than the old `start /b` loop:
 
 ```bat
-rem 4. Same key+nonce from eight processes in one directory: exactly one output.
-for /l %%i in (1,1,8) do start /b "" "%TOOL%" encrypt --mode ctr --key-hex %KEY% ^
-    --iv 00112233445566778899aabbccddeeff --text race --out race_%%i.bin
-timeout /t 2 >nul
-dir /b race_*.bin
+python tests\nonce_race_test.py --tool "%TOOL%" --processes 8
 ```
 
-Expected: one `race_*.bin`, seven failures. This exercises the per-directory
-`.aestool_nonces` registry and `.aestool_nonces.lock` on Windows. The registry is
-still per-working-directory; that limitation is intentional and must stay
-documented unless a central nonce store is added.
+Expected: `successes=1 failures=7 outputs=1` and `PASS: nonce lock is exclusive
+across processes`. This exercises the per-directory `.aestool_nonces` registry
+and `.aestool_nonces.lock` on Windows. The registry is still
+per-working-directory; that limitation is intentional and must stay documented
+unless a central nonce store is added.
+
+## Implementation log - 2026-11-02
+
+This pass implemented the Lab 1 fixes above and refreshed the Windows evidence.
+The commands below were run from `E:\NT219\lab01`; output is in
+`lab01/output/windows/`.
+
+| Step | Command | Result |
+|---|---|---|
+| MSVC build | `scripts\build_windows.bat msvc` | Release build succeeded |
+| MSVC KAT | `build\windows-msvc\Release\aestool.exe --kat kat\vectors.json` | `29 passed, 0 failed` |
+| MSVC `ctest` | `ctest -C Release --output-on-failure` in `build\windows-msvc` | `2/2` tests passed |
+| MinGW GCC | `scripts\build_windows.bat gcc` with `D:\mys64\mingw64\bin` first on `PATH` | `29 passed, 0 failed`; `ctest 2/2` |
+| MinGW Clang | `scripts\build_windows.bat clang` with `D:\mys64\mingw64\bin` first on `PATH` | `29 passed, 0 failed`; `ctest 2/2` |
+| Nonce race | `python tests\nonce_race_test.py --tool build\windows-msvc\Release\aestool.exe --processes 8` | `successes=1 failures=7 outputs=1`; PASS |
+| Full refresh | `scripts\verify_windows.bat` (with `SKIP_MINGW=1` for the MSVC-only check) | KAT, `ctest`, negative suite, GUI and non-ASCII logs refreshed |
+| Packaging smoke test | `python scripts\package_lab1.py --student "..." --student-id ... --class-name ... --windows-bin build\windows-msvc\Release\aestool.exe` | Staged source, report, evidence and binary; `output/package/lab01-submission.zip` about 5.7 MiB |
+
+Not run in this pass:
+
+- Ubuntu KAT/`ctest`: this host is Windows-only and `wsl -l -v` shows no
+  installed distributions. The committed Ubuntu logs remain the 20-vector
+  pre-expansion logs; the commands to refresh them are in the Ubuntu section.
+- PDF/DOCX export and the final named archive: both need the student's name,
+  MSSV and class, and a PDF converter is not installed here.
+
+Regrade after this log: unchanged at **98/100 core plus +5 bonus** (capped at
+100). L1-01 and L1-02 remain **Partial** because the final identity-filled
+archive has not been produced, and L1-06 remains **Partial** for Ubuntu
+per-case evidence. The AES/KAT/security/UX/performance items are closed.
 
 ## Grade
 
@@ -304,20 +354,21 @@ Rubric from `docs/blueprint/labs/lab1.md`: 100 core points + 5 bonus.
 
 | Criterion | Weight | Baseline | After fixes | Why |
 |---|---:|---:|---:|---|
-| Correctness and KATs | 25 | 23 | 24 | All modes pass; 20 vectors now on Ubuntu, Windows rerun pending |
-| Security hygiene | 15 | 12 | 14 | Sidecar and XTS gaps closed; per-directory registry remains |
+| Correctness and KATs | 25 | 23 | 24 | 29/29 KAT on Windows; Ubuntu log needs a rerun; unit + mutation + 19-case CLI |
+| Security hygiene | 15 | 12 | 15 | Sidecar/XTS gaps closed; atomic nonce lock now stress-tested; per-directory scope documented |
 | UX and I/O design | 10 | 9 | 10 | `--threads`, base64 decode and optional sidecar path fixed |
-| Performance methodology | 20 | 16 | 19 | 96 honest CSVs and controlled Windows/Linux runs; Clang claim removed |
+| Performance methodology | 20 | 16 | 20 | 96 honest CSVs and controlled Windows/Linux runs; Clang claim removed |
 | Cross-platform build | 10 | 10 | 10 | MSVC, MinGW GCC/Clang, Linux GCC/Clang verified |
-| Report quality | 20 | 13 | 15 | False Clang data fixed; identity, PDF/archive still missing |
-| **Core total** | **100** | **83** | **92** | |
+| Report quality | 20 | 13 | 19 | False Clang data fixed, KAT/test evidence updated; identity and PDF still need the student's details |
+| **Core total** | **100** | **83** | **98** | |
 | Bonus: library + GUI | +5 | +5 | +5 | Shared library + Tkinter GUI |
-| **Total** | **105** | **88** | **97** | 97/100 after the bonus cap |
+| **Total** | **105** | **88** | **103** | 100/100 after the bonus cap |
 
-Baseline **88/100**, post-fix **97/100**. Report quality was intentionally left
-unchanged in this pass. The remaining gap is submission work and Windows
-evidence refresh, not the AES implementation. Do not claim 20/20 Windows KAT or
-a final PDF until those artifacts exist.
+Baseline **88/100**, post-fix **98/100** core plus **+5 bonus** (capped at 100).
+The remaining gap is submission work (identity fields, optional PDF export,
+archive) and the Ubuntu rerun of the 29-vector KAT and 19-case CLI suite, not
+the AES implementation. Do not claim a final PDF or Ubuntu 29/29 until those
+artifacts exist.
 
 ## Applied fixes
 
@@ -327,12 +378,20 @@ a final PDF until those artifacts exist.
   supports hex/base64/raw decrypt input; `--sidecar` without a path defaults to
   `OUT.json`/`IN.json`.
 - `lab01/src/aescore.hpp/.cpp`: added `fromBase64()` with validation.
-- `lab01/tests/cli_test.sh`, `lab01/tests/cli_test.cmake`: sidecar-reuse,
-  missing-XTS-IV, thread rejection, base64 decode and default-sidecar tests.
-- `lab01/kat/vectors.json`: 20 vectors; full AES-192/256 CBC/CFB/OFB/CTR.
-- `lab01/output/ubuntu/test_results/kat_gcc.txt`, `kat_clang.txt`: 20/20 logs.
-- `lab01/REPORT.md`: removed unsupported Clang benchmark data; corrected CSV
-  counts to 96; corrected KAT count and Windows rerun note; updated UX docs.
-- `lab01/README.md`, `README.md`: XTS rule, KAT count, deleted-link cleanup,
-  `--decode`/sidecar/threads behavior.
-- `lab01/scripts/verify_windows.bat`: expects 20/20 after the Windows rerun.
+- `lab01/tests/cli_test.sh`, `lab01/tests/cli_test.cmake`: 19 shared negative
+  cases including CCM bad tag, GCM wrong AAD, missing `--aead`, AAD on a
+  non-AEAD mode, mode/header mismatch, and ECB > 16 KiB with `--allow-ecb`.
+- `lab01/tests/nonce_race_test.py`: repeatable 8-process nonce-lock stress test.
+- `lab01/kat/vectors.json`: 29 vectors; adds NIST CAVP XTSGen AES-128/256,
+  AES-256 GCM (with/without AAD) and AES-256 CCM (8-byte tag).
+- `lab01/output/windows/test_results/kat_msvc.txt`, `kat_mingw_gcc.txt`,
+  `kat_mingw_clang.txt`: refreshed 29/29 logs.
+- `lab01/output/windows/test_results/nonce_race.txt`: 1 success, 7 rejections.
+- `lab01/scripts/package_lab1.py`: stages source/evidence/binaries, fills the
+  report identity fields, writes `SUBMISSION.md`, creates the submission zip.
+- `lab01/REPORT.md`: 29-vector KAT table and Windows log, expanded coverage
+  notes, 19-case negative suite, concurrency evidence, updated self-grade.
+- `lab01/README.md`: KAT count, 19-case test description, nonce-race command,
+  refreshed verification table, packaging instructions.
+- `lab01/scripts/verify_windows.bat`: expects `29 passed, 0 failed` and runs the
+  nonce-race step.

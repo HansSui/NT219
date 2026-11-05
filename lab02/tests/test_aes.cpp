@@ -89,6 +89,13 @@ TEST_CASE("FIPS-197 AES-256 Block Cipher Vector (NIST C.3 - Bonus)", "[aes][aes2
     REQUIRE(decrypted == pt);
 }
 
+TEST_CASE("Computed S-box matches the FIPS-197 table", "[aes][sbox]") {
+    for (int i = 0; i < 256; ++i) {
+        REQUIRE(AES::sbox_computed(static_cast<uint8_t>(i)) ==
+                AES::S_BOX[static_cast<size_t>(i)]);
+    }
+}
+
 TEST_CASE("Key Validation - Fail Closed", "[aes][validation]") {
     std::vector<uint8_t> bad_key_15(15, 0x00);
     std::vector<uint8_t> bad_key_17(17, 0x00);

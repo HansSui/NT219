@@ -14,6 +14,12 @@ public:
 
     AES(const std::vector<uint8_t>& key, KeyLength key_length = AES_128);
     AES(const uint8_t* key, size_t key_size, KeyLength key_length = AES_128);
+    ~AES();
+
+    AES(const AES&) = default;
+    AES& operator=(const AES&) = default;
+    AES(AES&&) noexcept = default;
+    AES& operator=(AES&&) noexcept = default;
 
     std::array<uint8_t, BLOCK_SIZE> encrypt(const std::array<uint8_t, BLOCK_SIZE>& data) const;
     std::array<uint8_t, BLOCK_SIZE> decrypt(const std::array<uint8_t, BLOCK_SIZE>& ciphertext) const;
@@ -37,6 +43,12 @@ public:
         0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
         0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
     };
+
+    // Constant-time-style reference S-box computed from GF(2^8) inversion and
+    // the affine transform. It is used to verify the table and to discuss the
+    // table-vs-computed trade-off in the report; the cipher itself keeps the
+    // faster table lookup.
+    static uint8_t sbox_computed(uint8_t value);
 
     static constexpr std::array<uint8_t, 256> INV_S_BOX = {
         0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,

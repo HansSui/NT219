@@ -1,307 +1,353 @@
 # Lab 2 - Missing / Lacking
 
-**Audit date:** 2026-11-02
+**Audit date:** 2026-11-02 (updated 2026-11-05)
+**Implementation pass:** 2026-11-02; Windows benchmark audit 2026-11-05
 **Sources:** `docs/Lab2.txt`, `docs/lab2_reference.md`,
 `docs/lab requirement.md`, `docs/GradingSystem.txt`,
 `docs/blueprint/labs/lab2.md`, `lab02/`
-**Method:** rebuilt and ran Lab 2 on Ubuntu with GCC 15.2; reviewed the scripts,
-committed benchmark artifacts, and output directories. Windows was not run in
-this audit.
+**Method:** inspected the existing Ubuntu artifacts, rebuilt and tested Lab 2
+on Windows with MSVC 19.51, MinGW GCC 16.2.0 and MinGW Clang 22.1.8, and
+reviewed the code, tests, scripts and committed benchmark CSVs. On
+2026-11-05 I validated the new Windows MSVC benchmark CSVs, generated summary
+and plots, and wrote `lab02/output/windows/benchmarks/AUDIT.md`. Ubuntu was
+not re-run in this pass because this host has no WSL/Linux distribution.
 
 Status legend: **OK** = present and verified, **Partial** = present but
 incomplete, **Missing** = not present, **Not verified** = no evidence here.
 
 ## Verdict
 
-The pure C++ AES core, CTR mode, unit tests, cross-validation, and the 1 MiB /
-100 MiB / 1 GiB benchmark data are working on Ubuntu. Lab 2 is **not**
-submission-complete: there is no Windows evidence, no committed Ubuntu test
-logs, no report, and the KAT/benchmark coverage is thinner than the brief
-requires. The Windows CLI also has a likely UTF-8 path/argument problem that
-Lab 1 already solved.
+The required AES-128 core, CTR mode, KAT/cross-validation, CLI and Windows
+test evidence are now in place. Lab 2 is **code-complete and
+test-complete on Windows**, with bonus A (AES-192/256) and bonus B (XTS)
+working. The Windows MSVC benchmark now exists for all three sizes with
+summary and plots. It is **not final-submission-complete**: the Ubuntu test
+logs are still missing, the Ubuntu benchmark data uses the old warm-up and
+`powersave` governor, the Windows run uses the chosen 1000/100/30 counts (the
+blueprint's nominal 500/50 is not required) and has no run-time environment
+log, the Ubuntu 1 GiB plot and Crypto++ throughput comparison are missing,
+and there is no PDF/DOCX report.
 
-## Verified baseline
+## Baseline before this pass
 
 | Check | Ubuntu | Windows |
 |---|---|---|
-| Build and `ctest` | Pass, 3/3 (GCC) | Missing / not verified |
+| Build and `ctest` | Pass, 3/3 (GCC, no committed log) | Missing / not verified |
 | CLI KAT | 4/4 pass | Missing / not verified |
 | Cross-validation | Pass, 3/3 | Missing / not verified |
-| Benchmark data | 1 MiB, 100 MiB, 1 GiB CSVs + summary | Missing |
+| Benchmark data | 1 MiB/1000, 100 MiB/100, 1 GiB/30 CSV + summary | Missing |
 | Test evidence logs | Directory empty | Directory empty |
 | Report | No report file | No report file |
 
-Ubuntu commands used:
+Chosen benchmark rows: 1 MiB = 1000, 100 MiB = 100, 1 GiB = 30. The
+blueprint's nominal 500/50 is a target, but the chosen 100/30 is within the
+course's N >= 30 band and is the accepted run for this submission.
+
+Current Windows benchmark (2026-11-05, MSVC): also 1000/100/30, throughput
+6.74 / 7.02 / 7.09 MiB/s, CV 6.3% / 1.3% / 0.7%, all `ok`. It has summary and
+six plots but no run-time environment log; see
+`lab02/output/windows/benchmarks/AUDIT.md`.
+
+## Implementation log - 2026-11-02
+
+All commands below were run from `E:\NT219\lab02`; logs are in
+`lab02/output/windows/test_results/`.
+
+| Step | Command | Result |
+|---|---|---|
+| MSVC build | `cmd /c scripts\build_windows.bat msvc` | Release build OK; Crypto++ oracle found at `D:/cryptolibrary` |
+| MSVC KAT | `build\windows-msvc\Release\aestool.exe --kat kat\vectors.json` | `9 passed, 0 failed` |
+| MSVC `ctest` | `ctest -C Release --output-on-failure` in `build/windows-msvc` | `4/4` passed |
+| MSVC unit tests | `build\windows-msvc\Release\test_core.exe` | 351 assertions in 11 test cases |
+| MSVC cross-validation | `build\windows-msvc\Release\test_crossval.exe` | 22 assertions in 3 test cases |
+| MinGW GCC | `scripts\build_windows.bat gcc` with `D:\mys64\mingw64\bin` first on `PATH` | `9/9` KAT, `4/4` CTest |
+| MinGW Clang | `scripts\build_windows.bat clang` with the same `PATH` | `9/9` KAT, `4/4` CTest |
+| Bench progress | `aestool bench ... --verbose` | `progress: i/N (%, elapsed, ETA)` and `bench: completed ...` on stderr; CSV unchanged |
+| Evidence files | KAT/CTest redirects and `environment.txt` under `output/windows/test_results/` | written |
+
+The MinGW Clang build links the GCC-built Crypto++ archive. The local
+`D:\cryptolibrary\libs\cryptopp\clang\libcryptopp.a` produced a heap-corruption
+crash in `test_crossval` with MinGW clang; the GCC archive links and passes.
+The build script now selects the GCC archive for both MinGW compilers. This is
+a local oracle-build issue, not an `aestool` issue.
+
+Build directories are ignored with `lab02/.gitignore` (`build/`); only source,
+tests, docs and evidence are intended to be committed.
+
+## Status after this pass
+
+| ID | Gap | Status | Evidence / remaining |
+|---|---|---|---|
+| L2-01 | No Windows build/test/KAT evidence | **OK** | MSVC + MinGW GCC + MinGW Clang KAT/CTest logs exist; Windows benchmark CSV, summary and plots added |
+| L2-02 | No committed Ubuntu test/KAT logs | **Partial** | Commands documented; no Linux host here |
+| L2-03 | No final report | **Partial** | `lab02/REPORT.md` written; PDF/DOCX and identity fields missing |
+| L2-04 | Thin KAT coverage; skips hidden | **OK** | 9 KATs; unsupported mode counts as skip and exits nonzero |
+| L2-05 | Cross-validation optional | **OK** | CMake fails if `ENABLE_CROSSVAL=ON` and Crypto++ is missing |
+| L2-06 | Benchmark protocol not required | **Partial** | Time-based warm-up, 4 threads and Windows High Performance/affinity implemented; Windows data is 1000/100/30 and Ubuntu still old |
+| L2-07 | No Crypto++ performance or S-box analysis | **Partial** | S-box computed/verified and report analysis written; Crypto++ throughput benchmark still missing |
+| L2-08 | CLI not course-uniform | **OK** | `--encode`, `--decode`, `--nonce`, `--threads`, `--verbose`; conflicts and unknown bench options rejected; `bench --verbose` reports progress/ETA |
+| L2-09 | Windows UTF-8 paths/text broken | **OK** | `GetCommandLineW` + UTF-8 + `u8path`; Windows CLI test covers `thư mục` and Vietnamese text |
+| L2-10 | Whole-file buffering | **Partial** | Documented; CTR streaming not implemented |
+| L2-11 | No key wiping / IV-reuse discussion | **Partial** | Key/round-key wipe and report security section added; no stateful IV registry |
+| L2-12 | Docs/plots/counts disagree | **Partial** | README/BENCHMARKS aligned with actual counts; Windows 1 GiB plots exist, Ubuntu 1 GiB plot still missing |
+
+### L2-01 - Windows evidence
+
+Now present:
+
+- `output/windows/test_results/kat_msvc.txt`
+- `output/windows/test_results/ctest_msvc.txt`
+- `output/windows/test_results/kat_mingw_gcc.txt`
+- `output/windows/test_results/ctest_mingw_gcc.txt`
+- `output/windows/test_results/kat_mingw_clang.txt`
+- `output/windows/test_results/ctest_mingw_clang.txt`
+- `output/windows/test_results/unit_*.txt` (351 assertions / 11 cases)
+- `output/windows/test_results/crossval_*.txt` (22 assertions / 3 cases)
+- `output/windows/test_results/environment.txt`
+
+All three compilers pass `9/9` KAT and `4/4` CTest. `ctest` includes unit
+tests, KAT, CLI and cross-validation. The Windows MSVC benchmark now has
+three CSVs, `summary.csv`, `summary_robust.csv`, six plots and `AUDIT.md`
+under `output/windows/benchmarks/`. Row counts are 1000/100/30; the CSV schema
+does not record power plan, affinity or thread count.
+
+### L2-02 - Ubuntu test/KAT logs
+
+Still missing because this machine has no Linux/WSL. The commands are:
 
 ```bash
 cd lab02
 scripts/build_linux.sh gcc
-./build/ubuntu-gcc/aestool --kat kat/vectors.json
-(cd build/ubuntu-gcc && ctest --output-on-failure)
-```
-
-Committed Ubuntu benchmark rows: 1 MiB = 1000 runs, 100 MiB = 100 runs,
-1 GiB = 30 runs.
-
-`docs/lab2_reference.md` section 8 is partly stale: the 1 GiB run, summaries,
-and some plots now exist. The Windows evidence, report, Crypto++ performance
-comparison, and full statistical write-up are still missing.
-
-## Gaps
-
-| ID | Gap | Requirement | Ubuntu | Windows | Severity |
-|---|---|---|---|---|---|
-| L2-01 | No Windows build/test/KAT/bench evidence | C-01, C-10, C-13 | N/A | Missing | High |
-| L2-02 | No committed Ubuntu test/KAT logs | C-10, C-13 | Partial | N/A | Medium |
-| L2-03 | No final report | C-14 | Missing | Missing | High (submission) |
-| L2-04 | KAT coverage is thin; unsupported vectors are silently skipped | C-08 | Partial | Partial | Medium |
-| L2-05 | Cross-validation is optional at configure time | C-08 | Partial | Partial | Medium |
-| L2-06 | Benchmark protocol is not the required one | C-11 | Partial | Partial | High/Medium |
-| L2-07 | No Crypto++ performance comparison or S-box/cache analysis | C-11, Lab 2 section 2.5 | Missing | Missing | Medium |
-| L2-08 | CLI is not the course-uniform CLI | C-03, C-04 | Partial | Partial | Medium |
-| L2-09 | Windows UTF-8 paths and `--text` are likely broken | C-04 | N/A | Not verified | High (probable) |
-| L2-10 | Whole-file buffering limits large inputs | C-11 (large payload) | Partial | Partial | Low/Medium |
-| L2-11 | No key wiping, no CTR IV-reuse guard, security section missing | C-12 | Partial | Partial | Medium |
-| L2-12 | Docs, plots, and actual benchmark counts disagree | C-02, C-11 | Partial | Partial | Low |
-
-### L2-01 - No Windows evidence
-
-`lab02/output/windows/` exists but contains no files. There is no
-`build/windows-*` directory, no `ctest` log, no KAT log, and no Windows
-benchmark CSV. `scripts/build_windows.bat` and
-`scripts/run_benchmarks.bat` exist, but they have not been demonstrated here.
-
-Requirement: C-01, C-10, C-13; Lab 2 section 2.1 requires Ubuntu and Windows
-MSVC/MinGW64.
-
-Fix: run `scripts\build_windows.bat msvc` (and MinGW if available), save
-`ctest`, KAT, and benchmark logs under `output/windows/`, and add the Windows
-CSVs to the comparison. If no Windows host is available, state that limitation
-explicitly rather than implying cross-platform verification.
-
-### L2-02 - No committed Ubuntu test/KAT logs
-
-`lab02/output/ubuntu/test_results/` is empty even though the README directory
-tree advertises it. The tests pass locally, but a grader cannot see the
-evidence without rebuilding.
-
-Requirement: C-10 and C-13.
-
-Fix:
-
-```bash
-(cd build/ubuntu-gcc && ctest --output-on-failure) \
-  | tee output/ubuntu/test_results/ctest_gcc.txt
 ./build/ubuntu-gcc/aestool --kat kat/vectors.json \
   | tee output/ubuntu/test_results/kat_gcc.txt
+(cd build/ubuntu-gcc && ctest --output-on-failure) \
+  | tee output/ubuntu/test_results/ctest_gcc.txt
 ```
 
-### L2-03 - No final report
+Expected counts after the changes: `9 passed, 0 failed` and `4/4` CTest.
+Do not fabricate Ubuntu logs.
 
-There is no `lab02/REPORT.md`, PDF, or DOCX. `docs/lab2_reference.md` is an
-implementation guide, not the submitted report.
+### L2-03 - Report
 
-Requirement: C-14; Lab 2 rubric has 10 points for engineering/documentation and
-20 for security discussion.
+`lab02/REPORT.md` now covers objective, design, KATs, cross-validation,
+negative tests, benchmark method, the committed performance table, S-box/cache
+analysis, nonce reuse, malleability, key wiping, AES-NI, rubric self-grade and
+remaining work.
 
-Fix: write the one report section for Lab 2 using the existing benchmark CSVs.
-Cover the AES round structure, CTR overflow, KAT/cross-validation, benchmark
-method, S-box/cache/timing analysis, two-time pad, malleability, and AES-NI.
-Do not create a separate report format for every lab.
+Still missing: student name/MSSV/class, PDF/DOCX export, and a final package.
+The report explicitly labels the Ubuntu numbers as old-protocol data.
 
-### L2-04 - KAT coverage is thin and skips are hidden
+### L2-04 - KAT coverage and skips
 
-`lab02/kat/vectors.json` has only four vectors:
+`lab02/kat/vectors.json` now has 9 vectors:
 
-- FIPS-197 AES-128/192/256 ECB single blocks.
-- One NIST SP 800-38A AES-128 CTR vector.
+- NIST SP 800-38A AES-128/AES-192/AES-256 CTR, four blocks each.
+- NIST SP 800-38A AES-128 CTR truncated to 20 bytes (partial final block).
+- FIPS-197 C.1/C.2/C.3 ECB single blocks.
+- IEEE P1619/D16 XTS-AES-128 vector 1.
+- NIST CAVP XTSGenAES128 COUNT 1.
 
-Missing coverage:
+The KAT runner handles `ctr`, `ecb` and `xts`; an unsupported mode increments
+`skipped` and makes the process exit nonzero. The CLI test checks both the
+9/9 success and the unsupported-mode failure.
 
-- AES-192 and AES-256 CTR KATs.
-- Explicit partial-final-block cases in the KAT runner (unit tests cover them,
-  but the JSON KAT does not).
-- An official IEEE P1619 XTS vector, even though XTS is claimed as Bonus B.
+### L2-05 - Cross-validation
 
-`runKat()` also prints `SKIP` and `continue`s for unsupported modes without
-counting them as failures, so a KAT file with an unsupported mode can still end
-with `0 failed`.
+`CMakeLists.txt` now fails configuration when `ENABLE_CROSSVAL=ON` and either
+the Crypto++ headers or library is missing. It also searches `cryptlib` (the
+MSVC static archive) and the local `libs/cryptopp/{msvc,gcc}` directories.
+`-DENABLE_CROSSVAL=OFF` is an explicit opt-out that prints a warning; such a
+build cannot claim the cross-validation requirement.
 
-Requirement: C-08; Lab 2 sections 2.4 and 2.7.
+### L2-06 - Benchmark protocol
 
-Fix: add the missing CTR/192/256 vectors and at least one XTS vector. Count
-skips in the summary, or make unsupported modes a failure. Unit tests already
-cover partial blocks and counter overflow, but they do not replace official
-KATs.
+Implemented:
 
-### L2-05 - Cross-validation can silently disappear
+- `bench --warmup <seconds>` with a default 1.0 s, using at most a 1 MiB
+  prefix so a 1 GiB case is not delayed by a minute-long warm-up.
+- `bench --threads <n>` with a worker-thread split of the payload.
+- Linux `run_benchmarks.sh` uses `taskset -c ${PIN_CPU:-0}` when available,
+  logs governor/pinning, and passes `--warmup` and `--threads`.
+- Windows `run_benchmarks.bat` defaults to the chosen 1 MiB/1000,
+  100 MiB/100, 1 GiB/30 matrix, uses High Performance, `/high /affinity`,
+  and passes `--warmup`/`--threads`. The nominal 500/50 can be set with
+  `RUNS_100MB=500 RUNS_1GB=50`.
+- Both scripts default to `THREADS=4`; `THREADS=1` gives the single-thread
+  baseline. Windows uses `PIN_MASK=F` (CPUs 0-3) for 4 threads and
+  `PIN_MASK=4` for one thread; the script warns when affinity selects only
+  one CPU.
+- Windows benchmark data now exists at 1000/100/30, with summary and plots.
 
-`lab02/CMakeLists.txt` enables `ENABLE_CROSSVAL` by default, but if Crypto++ is
-not found it prints "skipping optional cross-validation test target" and
-continues. `ctest` then passes 2/2 without proving byte equality. The brief says
-cross-validation is required.
+Not done: the Windows run uses the chosen 1000/100/30 counts but has no
+run-time environment log. Ubuntu still has the old 5-iteration warm-up,
+`powersave`, one thread and no pinning; it must be rerun.
 
-Requirement: C-08; Lab 2 section 2.4.
+Ubuntu rerun:
 
-Fix: if `ENABLE_CROSSVAL=ON` and Crypto++ is missing, fail configuration or
-mark the requirement explicitly as not met. On Windows, point
-`CRYPTOPP_ROOT` at the installed oracle; do not link Crypto++ into `aestool`.
+```bash
+cd lab02
+scripts/build_linux.sh gcc
+THREADS=4 PIN_CPU=0-3 scripts/run_benchmarks.sh gcc
+python3 scripts/summarize_bench.py --dir output/ubuntu/benchmarks
+for f in output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_*.csv; do
+  python3 scripts/plot_bench.py "$f" \
+    --out-dir output/ubuntu/benchmarks/graphs --platform gcc
+done
+```
 
-### L2-06 - Benchmark protocol is not the required one
+Windows rerun (only if a different matrix is required):
 
-`runBench()` warms up with five iterations, not 1-2 seconds of wall time. At
-1 MiB this is under a second; at 1 GiB it is several minutes. The committed
-Ubuntu logs also show `cpu_governor=powersave` and no CPU pinning. Lab 1's
-benchmarks used `performance` and `taskset`; Lab 2 did not.
+```bat
+cd lab02
+scripts\build_windows.bat msvc
+scripts\run_benchmarks.bat msvc
+python scripts\summarize_bench.py --dir output\windows\benchmarks
+```
 
-`BENCHMARKS.md` says 100 MiB = 500 runs and 1 GiB = 50; the committed summary
-has 100 and 30. Those counts are still inside the course's 30-100 repeat band,
-so the data is usable, but the documentation is wrong.
+### L2-07 - Crypto++ performance and S-box analysis
 
-The Windows script only covers 1 MiB and 100 MiB, both with 100 runs. It has no
-1 GiB run, no system log, no summary, and no plots.
+Added `AES::sbox_computed()`, which computes the S-box from GF(2^8) inversion
+and the affine transform. A unit test checks all 256 entries against the
+FIPS-197 table. `REPORT.md` discusses the cache-timing risk of the table,
+why the computed version is not automatically constant-time, and the
+table-vs-computed trade-off.
 
-Requirement: C-11; Lab 2 section 2.5.
+Still missing: a test-only Crypto++ **throughput** benchmark. Cross-validation
+proves byte equality only. A fair comparison needs the same payload sizes,
+compiler, flags, CPU pinning and governor, and must not link Crypto++ into
+`aestool`.
 
-Fix:
+### L2-08 - CLI uniformity
 
-1. Replace the five-iteration warm-up with a time-based 1-2 s warm-up.
-2. Run on `performance` and pin the process, or record why not.
-3. Make Windows run the full matrix and generate the same summary/plots.
-4. Correct `BENCHMARKS.md` to the actual counts, or re-run at the documented
-   counts.
+Added:
 
-`shortcut: warm-up is five iterations; upgrade to time-based warm-up before
-comparing with Lab 1 or Crypto++.`
+- `--encode hex|base64|raw` and `--decode hex|base64|raw`.
+- `--nonce` / `--nonce-hex` aliases for the CTR counter / XTS data unit.
+- `--threads N` (bench only; rejected for encrypt/decrypt).
+- `--verbose` (prints mode, key bits, IV, sizes to stderr; never the key).
+  For `bench` it also prints `progress: i/N (percent%, elapsed, ETA)` and a
+  final completion line, so long 100 MiB/1 GiB runs are not a black box.
+- Rejection of `--key` + `--key-hex`, multiple IV sources, unknown options,
+  and unknown `bench` options.
+- `bench --mode` accepts only `ctr`; `--warmup` and `--threads` are parsed.
+- `run_benchmarks.sh` and `run_benchmarks.bat` pass `--verbose` automatically.
 
-### L2-07 - No performance comparison or S-box/cache analysis
+The CLI tests cover base64 round-trip, nonce alias, XTS CTS, UTF-8 path/text,
+conflicting keys, threads-on-encrypt, unknown bench options, and
+`bench --verbose` progress/completion output.
 
-`test_crossval` proves correctness only. There is no Crypto++ throughput
-benchmark, no table-based-vs-computed S-box measurement, no memory-footprint or
-cache-line measurement, and no branch-prediction analysis.
+### L2-09 - Windows UTF-8
 
-Requirement: C-11 and Lab 2 section 2.5; rubric gives 10 points to performance
-evaluation.
-
-Fix: add a test-only Crypto++ CTR benchmark target with the same payload sizes,
-and add either a second S-box/T-table implementation or a clearly cited
-analytical comparison. Put the numbers and interpretation in the report. Do not
-put Crypto++ in the production `aestool` binary.
-
-### L2-08 - CLI is not the course-uniform CLI
-
-Present: `encrypt`, `decrypt`, `bench`, `--kat`, `--mode`, `--key`,
-`--key-hex`, `--iv`, `--iv-hex`, `--in`, `--text`, `--out`, `--out-hex`.
-
-Missing or divergent:
-
-- No `--encode hex|base64|raw`; only `--out-hex`.
-- No `--threads N`.
-- No `--verbose`.
-- No `--nonce`; only `--iv`/`--iv-hex`.
-- `--key` plus `--key-hex` is not rejected; `--key-hex` silently wins.
-- `--iv` plus `--iv-hex` has the same problem.
-- `bench` silently ignores unknown options such as `--warmup` or `--mode`.
-
-Requirement: C-03/C-04. Lab 2's required CTR flow still works.
-
-Fix: add the course flags or document the deviations; reject conflicting key/IV
-options; make `bench` fail on unknown options so a mistyped benchmark flag does
-not silently change the run.
-
-### L2-09 - Windows UTF-8 paths and `--text` are likely broken
-
-`lab02/src/main.cpp` uses `main(int argc, char* argv[])` and
-`std::ifstream(std::string)` / `std::ofstream(std::string)`. It has no `wmain`,
-no `std::filesystem::u8path`, and no `WideCharToMultiByte` conversion. On
-Windows, non-ASCII paths and Vietnamese `--text` are interpreted through the
-ANSI code page and can be mangled or fail to open.
-
-Lab 1 already has the correct pattern: `wmain` plus UTF-8 argument conversion
-and `std::filesystem::u8path` on file paths. Lab 2's Linux CLI test covers a
-Vietnamese directory, but `lab02/tests/cli_test.cmake` does not.
-
-Requirement: C-04 (UTF-8 input/output). Windows status is "not verified here",
-but the code path is clearly platform-dependent and likely wrong.
-
-Fix: copy Lab 1's `wmain` argument conversion and use `u8path` in
-`readFile`/`writeFile`; add a Windows non-ASCII CLI case. This is the main
-Windows blocker after the missing evidence.
+`main.cpp` now has a Windows `main()` wrapper using `GetCommandLineW()` and
+`CommandLineToArgvW()`; it converts every argument to UTF-8 with
+`WideCharToMultiByte(CP_UTF8, ...)`. File I/O uses
+`std::filesystem::u8path()`. `cli_test.cmake` creates `thư mục`, writes
+Vietnamese text, encrypts/decrypts through that path and compares the result.
+This passes on MSVC, MinGW GCC and MinGW Clang.
 
 ### L2-10 - Whole-file buffering
 
-`encrypt`/`decrypt` read the complete input into a `std::vector`, allocate the
-ciphertext, and allocate the recovered plaintext. A 1 GiB run therefore needs
-roughly 3 GiB at peak by construction. That works on this host but is not
-streaming, and the brief describes arbitrary-length plaintext.
+Still whole-file. The report states the ~3 GiB peak for a 1 GiB input and
+lists chunked CTR as future work. XTS with ciphertext stealing is harder to
+stream and is kept whole-file.
 
-This is not a hard CTR correctness failure, but it is a real ceiling.
+### L2-11 - Key handling and IV reuse
 
-`shortcut: whole-file buffering; upgrade to chunked CTR if inputs can exceed
-available RAM.`
+- The raw `key_` buffer is wiped and released immediately after key expansion;
+  `AES::~AES()` wipes every round-key word with a volatile write.
+- The report documents that this is best-effort (copies, swap, core dumps).
+- The report documents the CTR/XTS IV uniqueness contract and explains why a
+  stateless CLI cannot enforce it.
+- No stateful nonce registry was added; that would need a deliberate design
+  for lock files/registry scope, and is not required by the Lab 2 brief.
 
-Fix: stream CTR in chunks (the counter increment is already sequential). XTS
-with ciphertext stealing is harder; keep XTS whole-file if only the bonus uses
-it. Record the limit in the README either way.
+### L2-12 - Docs, plots and counts
 
-### L2-11 - Security hardening and analysis are incomplete
+Fixed in docs:
 
-- `AES` stores the key and expanded round keys; there is no secure wipe.
-- CTR accepts any supplied IV and does not warn about reuse; the brief treats
-  reuse as catastrophic, so the report must at least discuss it. A local tool
-  cannot guarantee uniqueness without state, but it can document the rule.
-- There is no report section on S-box cache/timing leakage, constant-time
-  coding, or AES-NI.
+- README now says 9 KATs, 4 CTest tests, and lists the new flags.
+- `BENCHMARKS.md` separates the actual committed counts from the target
+  matrix and explains the old warm-up/governor.
+- `output/README.md` maps every evidence file and gives rerun commands.
 
-Requirement: C-12; Lab 2 section 2.6 and the 20-point security rubric.
+Still missing:
 
-Fix: add key zeroization for the core object (portable `SecureZeroMemory` /
-`explicit_bzero` wrapper), document the IV contract, and write the security
-section. AES-NI remains optional Bonus C; not implementing it is not a gap.
+- Ubuntu 1 GiB plot (Windows 1 GiB plots are present).
+- Windows benchmark run-time environment log; the chosen 1000/100/30 counts
+  are accepted, so the nominal 500/50 is not required.
+- A PDF/DOCX report.
+- A final archive with student identity.
 
-### L2-12 - Docs, plots, and counts disagree
+## Regrade
 
-- `BENCHMARKS.md` says 100 MiB = 500 runs and 1 GiB = 50; the summary has 100
-  and 30.
-- `output/ubuntu/benchmarks/graphs/` has 1 MiB and 100 MiB plots, but no 1 GiB
-  plots.
-- `lab02/README.md` advertises `output/ubuntu/test_results/` and
-  `output/windows/test_results/`; both are empty.
-- The Windows benchmark script has no 1 GiB run.
+Rubric: 100 core + 20 bonus (Bonus A +10, B +5, C +5).
 
-Requirement: C-02 and C-11. Low impact compared with L2-01/L2-06.
+| Criterion | Max | Before | After | Reason |
+|---|---:|---:|---:|---|
+| FIPS-197 AES-128 core | 30 | 30 | 30 | manual core, vectors pass |
+| CTR correctness | 15 | 15 | 15 | big-endian, partial, overflow fail-closed |
+| KAT and cross-validation | 15 | 10 | 14 | 9 KATs + 3 parity tests; Ubuntu logs still missing |
+| Engineering and documentation | 10 | 7 | 9 | CMake, tests, CLI, README/report; no PDF |
+| Performance evaluation | 10 | 4 | 8 | Windows 3 sizes, summary + 6 plots; no Crypto++ perf, no run-time log; chosen 100/30 (N >= 30) |
+| Security discussion | 20 | 8 | 16 | report analysis + key wipe; no constant-time core/IV registry |
+| **Core** | **100** | **74** | **92** | |
+| Bonus A: AES-192/256 | +10 | +10 | +10 | schedules, KATs, parity |
+| Bonus B: XTS | +5 | +5 | +5 | GF tweak, CTS, KATs, parity |
+| Bonus C: AES-NI/bitsliced | +5 | 0 | 0 | not implemented |
+| **Total** | **120** | **89** | **107 -> 100** | bonus cap at 100 |
 
-Fix: make the docs match the actual artifacts, generate the 1 GiB plots, or
-mark the 1 GiB run as optional and not part of the documented matrix.
+Current self-grade: **92/100 core + 15 bonus = 107, capped at 100**. The
+conservative core score is 92 because the Ubuntu test logs, Windows run-time
+environment log and Crypto++ throughput comparison are still missing. The
+chosen 1000/100/30 matrix is accepted (N >= 30); the nominal 500/50 is only a
+blueprint target. If the missing evidence is refreshed, the KAT and
+performance criteria can move up.
 
-## Per-environment actions
+## Remaining actions
 
-### Ubuntu
+1. On Ubuntu: build, run `--kat`, `ctest`, and save logs under
+   `output/ubuntu/test_results/`.
+2. Rerun the Ubuntu benchmark with `THREADS=4`, `PIN_CPU=0-3`, a
+   `performance` governor, and the new warm-up; regenerate summaries and all
+   three plots.
+3. Add a test-only Crypto++ throughput target for the same sizes and compare.
+4. Optional: rerun Windows with the console environment header; the current
+   1000/100/30 data is the chosen matrix.
+5. Add a PDF/DOCX export with student identity.
+6. Optional: stream CTR in chunks; optional Bonus C (AES-NI/bitsliced).
+7. Optional: add a stateful nonce/IV registry if the course wants enforcement
+   rather than documentation.
 
-1. Save `ctest` and KAT logs under `output/ubuntu/test_results/`.
-2. Add the missing KAT vectors and make skips visible.
-3. Fix the benchmark warm-up, governor/pinning, and count documentation.
-4. Add the Crypto++ performance comparison and 1 GiB plots.
-5. Write the Lab 2 report section.
-6. Decide whether to stream large inputs (L2-10).
+## Benchmark commands
 
-### Windows
+Windows data already exists; the command below is for a future rerun.
 
-1. Run `scripts\build_windows.bat msvc` and, if available, the MinGW build.
-2. Save `ctest`, KAT, and benchmark logs; run the full 1 MiB/100 MiB/1 GiB
-   matrix.
-3. Fix the UTF-8 `wmain`/`u8path` issue before claiming Windows support.
-4. Ensure Crypto++ is found for cross-validation, or mark it as not met.
-5. Add the Windows CSVs to the cross-platform comparison and report.
+Chosen matrix (1000/100/30), which is now the script default:
 
-## Minimal fix order
+```bash
+cd lab02
+scripts/build_linux.sh gcc
+THREADS=4 PIN_CPU=0-3 scripts/run_benchmarks.sh gcc
+python3 scripts/summarize_bench.py --dir output/ubuntu/benchmarks
+for f in output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_*.csv; do
+  python3 scripts/plot_bench.py "$f" \
+    --out-dir output/ubuntu/benchmarks/graphs --platform gcc
+done
+```
 
-1. Fix Windows UTF-8 and produce Windows evidence (L2-09, L2-01).
-2. Save Ubuntu test/KAT logs and write the report (L2-02, L2-03).
-3. Enforce cross-validation and expand KATs (L2-05, L2-04).
-4. Fix benchmark protocol and add the Crypto++ comparison (L2-06, L2-07).
-5. Align the CLI and documentation (L2-08, L2-12).
-6. Add key wiping and document IV reuse (L2-11).
-7. Add streaming only if large inputs are a real requirement (L2-10).
+Optional nominal 1000/500/50 if a grader explicitly requires it:
 
-No source code was changed by this audit.
+```bash
+cd lab02
+scripts/build_linux.sh gcc
+THREADS=4 PIN_CPU=0-3 RUNS_100MB=500 RUNS_1GB=50 \
+  scripts/run_benchmarks.sh gcc
+```
+
+```bat
+rem Windows: chosen 1000/100/30 (default); add RUNS_100MB=500 RUNS_1GB=50 for 500/50.
+cd lab02
+scripts\build_windows.bat msvc
+scripts\run_benchmarks.bat msvc
+python scripts\summarize_bench.py --dir output\windows\benchmarks
+```

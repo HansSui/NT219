@@ -41,7 +41,7 @@
 * **Build Targets:**
   * Static CLI: `build/ubuntu-gcc/aestool` (`scripts/build_linux.sh gcc`).
   * Shared Library (GUI): `build/ubuntu-gcc-shared/libaescore.so` (`cmake -S . -B build/ubuntu-gcc-shared -DBUILD_SHARED_LIBS=ON`).
-* **Validation Evidence:** KAT 16/16 vectors passed (`output/ubuntu/test_results/kat_gcc.txt`), `ctest` 2/2 passed (`ctest_gcc.txt`), full 48-CSV benchmark matrix recorded under CPU pinning (`PIN_CPUS=2`, `performance` governor).
+* **Validation Evidence:** KAT 20/20 in the committed log (`output/ubuntu/test_results/kat_gcc.txt`; 29-vector rerun pending), `ctest` 2/2 passed (`ctest_gcc.txt`), full 48-CSV benchmark matrix recorded under CPU pinning (`PIN_CPUS=2`, `performance` governor).
 
 #### Microsoft Windows (MinGW-w64)
 * **Role:** Portability verification and cross-compiler consistency testing on Windows.
@@ -53,7 +53,7 @@
 * **Build Targets & Execution:**
   * MSYS2 MinGW 64-bit Terminal or `cmd.exe` with `C:\msys64\mingw64\bin` on `PATH`.
   * CLI Executable: `build\windows-gcc\aestool.exe` (`scripts\build_windows.bat gcc`).
-* **Validation Evidence:** KAT 16/16 passed (`output/windows/test_results/kat_mingw_gcc.txt`), `ctest` 2/2 passed (`ctest_mingw_gcc.txt`).
+* **Validation Evidence:** KAT 29/29 passed (`output/windows/test_results/kat_mingw_gcc.txt`), `ctest` 2/2 passed (`ctest_mingw_gcc.txt`).
 
 ---
 
@@ -73,7 +73,7 @@
   * CMake Invocation: `-DCMAKE_CXX_COMPILER=clang++`.
 * **Build Targets:**
   * Static CLI: `build/ubuntu-clang/aestool` (`scripts/build_linux.sh clang`).
-* **Validation Evidence:** KAT 16/16 vectors passed (`output/ubuntu/test_results/kat_clang.txt`), `ctest` 2/2 passed (`ctest_clang.txt`). *(Note: Benchmarks were intentionally restricted to GCC in the final report to avoid mixed compiler noise).*
+* **Validation Evidence:** KAT 20/20 in the committed log (`output/ubuntu/test_results/kat_clang.txt`; 29-vector rerun pending), `ctest` 2/2 passed (`ctest_clang.txt`). *(Note: Benchmarks were intentionally restricted to GCC in the final report to avoid mixed compiler noise).*
 
 #### Microsoft Windows (MinGW-w64 Clang)
 * **Role:** Verification of LLVM/Clang on Windows under the MinGW environment.
@@ -84,7 +84,7 @@
   ```
 * **Build Targets & Execution:**
   * CLI Executable: `build\windows-clang\aestool.exe` (`scripts\build_windows.bat clang`).
-* **Validation Evidence:** KAT 16/16 passed (`output/windows/test_results/kat_mingw_clang.txt`), `ctest` 2/2 passed (`ctest_mingw_clang.txt`).
+* **Validation Evidence:** KAT 29/29 passed (`output/windows/test_results/kat_mingw_clang.txt`), `ctest` 2/2 passed (`ctest_mingw_clang.txt`).
 
 ---
 
@@ -115,7 +115,7 @@
 * **Build Targets:**
   * CLI Executable: `build\windows-msvc\Release\aestool.exe` (`scripts\build_windows.bat msvc`).
   * Shared Library (GUI): `build\windows-msvc-shared\Release\aescore.dll` (`gui\build_gui.bat`).
-* **Validation Evidence:** KAT 16/16 passed (`output/windows/test_results/kat_msvc.txt`), `ctest` 2/2 passed (`ctest_msvc.txt`), 17 negative edge cases verified (`output/windows/neg_results/`), full 48-CSV controlled benchmark suite (CPU pinned to logical core 2 via `start /affinity 4`, High Performance power profile, high process priority).
+* **Validation Evidence:** KAT 29/29 passed (`output/windows/test_results/kat_msvc.txt`), `ctest` 2/2 passed (`ctest_msvc.txt`), 19 negative/edge cases in `cli_test.cmake` plus 17 per-case logs (`output/windows/neg_results/`), 8-process nonce race (`nonce_race.txt`), full 48-CSV controlled benchmark suite (CPU pinned to logical core 2 via `start /affinity 4`, High Performance power profile, high process priority).
 
 #### Ubuntu Linux
 * **Status:** **N/A** (MSVC is proprietary to Windows and cannot run natively on Linux. Cross-compilation via wine/clang-cl is not used in the lab).

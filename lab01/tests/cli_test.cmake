@@ -117,6 +117,46 @@ run_expect_failure(threads-encrypt encrypt --mode cbc --key-hex "${key}"
 # Odd hex is malformed input.
 run_expect_failure(odd-hex encrypt --mode ecb --key-hex abc --text data --out odd.bin)
 
+# AEAD flag and AAD policy failures.
+run_expect_failure(aead-without-flag encrypt --mode gcm --key-hex "${key}"
+                   --text data --out no_aead.bin)
+run_expect_failure(aad-non-aead encrypt --mode cbc --key-hex "${key}"
+                   --aad-text header --text data --out aad_nonaead.bin)
+
+# GCM with the wrong AAD must fail and leave no plaintext.
+set(gcm_aad_nonce "112233445566778899aabbcc")
+run_expect_success(gcm-aad-encrypt encrypt --mode gcm --aead --key-hex "${key}"
+                   --nonce "${gcm_aad_nonce}" --aad-text right
+                   --text "aad payload" --out "${WORK_DIR}/aad_ct.bin")
+run_expect_failure(gcm-wrong-aad decrypt --mode gcm --aead --key-hex "${key}"
+                   --in "${WORK_DIR}/aad_ct.bin" --aad-text wrong
+                   --out "${WORK_DIR}/aad_out.txt")
+if(EXISTS "${WORK_DIR}/aad_out.txt")
+    message(FATAL_ERROR "gcm-wrong-aad: wrote an output file")
+endif()
+
+# CCM with a modified ciphertext must fail tag verification and write nothing.
+set(ccm_nonce "ccddeeff0011223344556677")
+run_expect_success(ccm-encrypt encrypt --mode ccm --aead --key-hex "${key}"
+                   --nonce "${ccm_nonce}" --text "ccm payload"
+                   --out "${WORK_DIR}/ccm_ct.bin")
+file(APPEND "${WORK_DIR}/ccm_ct.bin" "X")
+run_expect_failure(ccm-bad-tag decrypt --mode ccm --aead --key-hex "${key}"
+                   --in "${WORK_DIR}/ccm_ct.bin" --out "${WORK_DIR}/ccm_out.txt")
+if(EXISTS "${WORK_DIR}/ccm_out.txt")
+    message(FATAL_ERROR "ccm-bad-tag: wrote an output file")
+endif()
+
+# The container header mode must match --mode.
+run_expect_success(cbc-mismatch-encrypt encrypt --mode cbc --key-hex "${key}"
+                   --text mismatch --out "${WORK_DIR}/cbc_mismatch.bin")
+run_expect_failure(mode-header-mismatch decrypt --mode gcm --aead --key-hex "${key}"
+                   --in "${WORK_DIR}/cbc_mismatch.bin" --out "${WORK_DIR}/mismatch.out")
+
+# --allow-ecb is the explicit override for the 16 KiB limit.
+run_expect_success(ecb-allowed encrypt --mode ecb --key-hex "${key}" --allow-ecb
+                   --in "${WORK_DIR}/large.bin" --out "${WORK_DIR}/ecb_allowed.bin")
+
 # Sidecar JSON header export and round-trip.
 set(gcm_nonce "00112233445566778899aabb")
 run_expect_success(sidecar-encrypt encrypt --mode gcm --aead --key-hex "${key}"

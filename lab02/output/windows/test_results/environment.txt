@@ -1,0 +1,16 @@
+﻿Lab 2 Windows evidence
+Date: 2026-11-02
+Host OS: Microsoft Windows 11 Home 10.0.26300
+CPU: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+CMake: cmake version 3.29.2
+MSVC compiler: MSVC 19.51.36260.0 (Visual Studio 18 2026)
+MinGW GCC: g++.exe (Rev4, Built by MSYS2 project) 16.2.0
+MinGW Clang: clang version 22.1.8 (https://github.com/msys2/MINGW-packages d34feaaa1d0aff624c870910b6f2589aa40d20de)
+KAT: 9 passed, 0 failed on MSVC, MinGW GCC and MinGW Clang
+ctest: 4/4 on MSVC, MinGW GCC and MinGW Clang
+Cross-validation oracle: Crypto++ (test-only target)
+Note: Ubuntu evidence was not refreshed in this pass; the committed Ubuntu
+benchmark CSVs are from an earlier GCC 15.2 run. See docs/missing/lab2.md.
+Crypto++ archive: D:\cryptolibrary\libs\cryptopp\gcc\libcryptopp.a (MinGW GCC and Clang); MSVC uses cryptlib.lib
+Clang note: the local clang-built Crypto++ archive was ABI-incompatible; the GCC archive is used and all tests pass.
+

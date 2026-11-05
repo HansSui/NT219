@@ -1,5 +1,12 @@
 # Windows negative / edge-case test evidence
 
+> **Status (2026-11-02):** these per-case logs are the 17-case run. The shared
+> `tests/cli_test.cmake` now runs 19 negative/edge cases (adding CCM bad tag,
+> GCM wrong AAD, missing `--aead`, AAD on a non-AEAD mode, mode/header mismatch,
+> and ECB > 16 KiB with `--allow-ecb`); `ctest` passes 2/2 on MSVC and MinGW.
+> The 8-process nonce-race evidence is in
+> `../test_results/nonce_race.txt`.
+
 Generated from the Release MSVC build (`build/windows-msvc/Release/aestool.exe`)
 with a 32-byte AES-256 key and a UTF-8 Vietnamese plaintext. Each case has a
 captured command log in this directory. The `.aestool_nonces` registry used by

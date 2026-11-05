@@ -48,14 +48,17 @@ Kết quả chính:
 - **Bonus GUI:** `gui/aestool_gui.py` (Python + Tkinter) gọi thư viện chia sẻ qua C ABI
   `aesgui_*`, không gọi CLI. Self-test trên Windows và Ubuntu đều chạy đủ tám mode,
   round-trip và từ chối sai khoá.
-- **Tính đúng đắn:** 20/20 vector KAT đạt trên Ubuntu GCC/Clang; log Windows MSVC/MinGW
-  đã có là bản 16 vector trước khi mở rộng và cần chạy lại. Bộ vector gồm NIST
-  SP 800-38A cho ECB/CBC/CFB/OFB/CTR, bổ sung AES-192/256 CBC/CFB/OFB/CTR,
-  IEEE P1619/D16 XTS, NIST GCM test case 3 và 4, RFC 3610 CCM vector 1 và 2.
-  `ctest` đạt 2/2 trên cả hai nền tảng (Catch2 + CLI).
+- **Tính đúng đắn:** 29/29 vector KAT đạt trên Windows MSVC, MinGW GCC và MinGW
+  Clang; log Ubuntu GCC/Clang hiện là bản 20 vector trước khi mở rộng và cần chạy
+  lại. Bộ vector gồm NIST SP 800-38A cho ECB/CBC/CFB/OFB/CTR, bổ sung AES-192/256
+  CBC/CFB/OFB/CTR, IEEE P1619/D16 XTS, NIST GCM test case 3 và 4, RFC 3610 CCM
+  vector 1 và 2, NIST CAVP XTSGen AES-128/256, NIST CAVP GCM AES-256 và NIST CAVP
+  CCM AES-256. `ctest` đạt 2/2 trên cả hai nền tảng (Catch2 + CLI).
 - **Kiểm thử âm:** 17 trường hợp được chạy lại trên Windows và 12 trường hợp trọng
-  tâm trên Ubuntu; tất cả đều từ chối đúng cách hoặc tạo đầu ra bị hỏng có kiểm
-  soát đối với chế độ không có xác thực. AEAD không tạo tệp plaintext khi tag sai.
+  tâm trên Ubuntu; `ctest` hiện chạy 19 trường hợp âm/edge trên cả hai nền tảng.
+  Tất cả đều từ chối đúng cách hoặc tạo đầu ra bị hỏng có kiểm soát đối với chế độ
+  không có xác thực. AEAD không tạo tệp plaintext khi tag sai. Tranh chấp nonce với
+  8 tiến trình cho đúng 1 thành công và 1 tệp output.
 - **Dữ liệu hiệu năng:** 96 tệp CSV, tương ứng 96.000 cặp phép đo (192.000 phép
   mã hoá/giải mã), gồm 48 tệp Ubuntu (GCC) và 48 tệp Windows (MSVC), mỗi cấu
   hình 1.000 lần chạy. Clang được build và kiểm thử nhưng không đưa vào ma trận
@@ -403,7 +406,7 @@ có key store. Cả đường Windows (MSVC 19.51 x64, `aescore.dll`) và Linux
 
 ### 4.1 Known Answer Tests (KAT)
 
-Bộ vector nằm trong `kat/vectors.json`, gồm 20 trường hợp:
+Bộ vector nằm trong `kat/vectors.json`, gồm 29 trường hợp:
 
 | # | Vector | Mode | Khoá | Nguồn | Kết quả |
 |---:|---|---|---|---|---|
@@ -427,8 +430,20 @@ Bộ vector nằm trong `kat/vectors.json`, gồm 20 trường hợp:
 | 18 | AES-256 OFB, 4 khối | OFB | 256-bit | NIST SP 800-38A | PASS |
 | 19 | AES-256 CTR, 4 khối | CTR | 256-bit | NIST SP 800-38A | PASS |
 | 20 | XTS-AES-128 vector 1 | XTS | 256-bit (2×128) | IEEE P1619/D16 | PASS |
+| 21 | XTSGenAES128 COUNT 1, 16 byte | XTS | 256-bit (2×128) | NIST CAVP | PASS |
+| 22 | XTSGenAES128 COUNT 101, 32 byte | XTS | 256-bit (2×128) | NIST CAVP | PASS |
+| 23 | XTSGenAES256 COUNT 1, 32 byte | XTS | 512-bit (2×256) | NIST CAVP | PASS |
+| 24 | XTSGenAES256 COUNT 101, 48 byte | XTS | 512-bit (2×256) | NIST CAVP | PASS |
+| 25 | CCM AES-256 VTT Count 20 | CCM | 256-bit | NIST CAVP | PASS |
+| 26 | CCM AES-256 VTT Count 21 | CCM | 256-bit | NIST CAVP | PASS |
+| 27 | GCM AES-256, 1 khối, không AAD | GCM | 256-bit | NIST CAVP | PASS |
+| 28 | GCM AES-256, 1 khối, AAD 16 byte | GCM | 256-bit | NIST CAVP | PASS |
+| 29 | GCM AES-256, 2 khối, AAD 20 byte | GCM | 256-bit | NIST CAVP | PASS |
 
-Log chạy trên Ubuntu GCC (`build/ubuntu-gcc`, 20/20):
+Hai vector CCM AES-256 lấy từ cùng một nhóm CAVP nên dùng chung key/nonce; đây
+là KAT thuật toán, không phải kiểm thử nonce của CLI.
+
+Log chạy trên Windows MSVC (`build/windows-msvc`, 29/29):
 
 ```text
 PASS NIST SP 800-38A AES-128 ECB
@@ -451,13 +466,23 @@ PASS NIST SP 800-38A AES-256 CFB128
 PASS NIST SP 800-38A AES-256 OFB
 PASS NIST SP 800-38A AES-256 CTR
 PASS IEEE P1619/D16 XTS-AES-128 vector 1
-20 passed, 0 failed
+PASS NIST CAVP XTSGenAES128 COUNT 1 (16 bytes)
+PASS NIST CAVP XTSGenAES128 COUNT 101 (32 bytes)
+PASS NIST CAVP XTSGenAES256 COUNT 1 (32 bytes)
+PASS NIST CAVP XTSGenAES256 COUNT 101 (48 bytes)
+PASS NIST CAVP CCM AES-256 VTT Count 20
+PASS NIST CAVP CCM AES-256 VTT Count 21
+PASS NIST CAVP GCM AES-256 Count 0 (PT 128, AAD 0)
+PASS NIST CAVP GCM AES-256 Count 0 (PT 128, AAD 128)
+PASS NIST CAVP GCM AES-256 Count 0 (PT 256, AAD 160)
+29 passed, 0 failed
 ```
 
-Nhật ký: `output/ubuntu/test_results/kat_gcc.txt` (20/20). Các log Windows
-`kat_msvc.txt` và `kat_mingw_*.txt` vẫn là bản 16 vector trước khi mở rộng; cần
-chạy lại `aestool --kat kat/vectors.json` trên Windows để cập nhật bằng chứng
-20/20.
+Nhật ký Windows: `output/windows/test_results/kat_msvc.txt`,
+`kat_mingw_gcc.txt` và `kat_mingw_clang.txt` (29/29). Log Ubuntu
+`output/ubuntu/test_results/kat_gcc.txt` và `kat_clang.txt` được tạo trước khi
+mở rộng bộ vector nên vẫn ghi 20/20; cần chạy lại `aestool --kat
+kat/vectors.json` trên Ubuntu để cập nhật bằng chứng 29/29.
 
 Mỗi vector được kiểm tra hai chiều:
 
@@ -470,10 +495,14 @@ một chiều nhưng sai ở chiều còn lại.
 **Nhận xét về độ phủ KAT:**
 
 - Vector NIST SP 800-38A cho AES-128 phủ đủ bốn khối; AES-192/256 CBC/CFB/OFB/CTR
-  cũng phủ bốn khối. AES-192/256 ECB và XTS vẫn chỉ có một khối.
+  cũng phủ bốn khối. AES-192/256 ECB vẫn chỉ có một khối; XTS đã có cả AES-128 và
+  AES-256 với hai độ dài dữ liệu mỗi loại.
 - Không có KAT cho ECB/CBC có padding PKCS #7 (KAT dùng `pkcs7=false`).
-- GCM chỉ có hai test case; CCM chỉ có hai vector RFC 3610.
-- Chưa có KAT cho AAD dài, tag rỗng, hoặc các độ dài biên (0, 1, 15, 17 byte).
+- GCM có năm vector (128/256-bit, có và không có AAD); CCM có bốn vector (hai RFC
+  3610 cho AES-128, hai CAVP cho AES-256 với nonce 13 byte và tag 8 byte).
+- Chưa có KAT cho AAD dài hơn 32 byte, tag rỗng, hoặc các độ dài biên (0, 1, 15,
+  17 byte) và XTS ciphertext stealing ở cấp KAT; các trường hợp biên này được phủ
+  bởi unit test (`tests/test_core.cpp`).
 
 Đây là các khoảng trống cần bổ sung nếu muốn tăng độ tin cậy lên mức production.
 
@@ -567,6 +596,18 @@ Ubuntu bổ sung CTR sai khoá và CTR sửa ciphertext — cả hai đều tr�
 exit 0, đúng tính chất non-AEAD. Các log Ubuntu cũ, rỗng hoặc thiếu lệnh, đã được
 thay thế.
 
+Từ lần sửa này, `ctest` chạy 19 trường hợp âm/edge trên cả Unix và Windows
+(`tests/cli_test.sh`, `tests/cli_test.cmake`), gồm CCM sai tag, GCM sai AAD, thiếu
+`--aead`, AAD trên mode không AEAD, mode không khớp header và ECB > 16 KiB với
+`--allow-ecb`. Vì vậy bằng chứng Ubuntu có thể tái tạo bằng `ctest`; các log rời
+trong `output/ubuntu/neg_results/` vẫn là bộ 12 trường hợp cũ và cần chạy lại trên
+Linux để khớp danh sách mới.
+
+Kiểm thử tranh chấp nonce (8 tiến trình, cùng key+nonce) nằm trong
+`tests/nonce_race_test.py`; trên Windows MSVC kết quả là 1 thành công, 7 bị từ chối
+và đúng 1 tệp output. Script không đăng ký với `ctest` vì cần Python và phụ thuộc
+lịch chạy của hệ điều hành.
+
 ### 4.4 Đối chiếu với yêu cầu kiểm thử của học phần
 
 | Yêu cầu | Bằng chứng |
@@ -580,13 +621,14 @@ thay thế.
 
 ### 4.5 Hạn chế của phần kiểm chứng
 
-- AES-192/256 mới có ECB một khối; XTS mới có một vector. Chưa có AES-256 GCM/CCM
-  KAT hoặc XTS nhiều sector.
+- AES-192/256 mới có ECB một khối; XTS đã có AES-128/256 nhưng chưa có KAT nhiều
+  sector. AES-256 GCM/CCM đã có KAT, nhưng chưa có AAD dài hơn 32 byte.
 - Chưa có fuzzing cho parser container/minijson.
 - Chưa có test với tệp lớn hơn 8 MB; `--threads` mới được smoke-test qua CLI test,
   chưa có benchmark nhiều luồng đầy đủ.
-- Chưa có test xác nhận registry nonce hoạt động đúng khi nhiều tiến trình chạy
-  đồng thời (hiện tại nó không được thiết kế cho trường hợp đó).
+- Registry nonce dùng khoá tệp trên cùng thư mục làm việc; tranh chấp giữa các tiến
+  trình cùng thư mục đã được kiểm tra thủ công bằng `tests/nonce_race_test.py`, nhưng
+  chưa có test tự động trong `ctest` và không hỗ trợ nhiều máy.
 
 ---
 
@@ -1225,8 +1267,7 @@ hoặc tệp cần xác thực.
    registry cục bộ.
 4. Xác thực cả header (mode, version, độ dài) bằng AAD hoặc định dạng có xác thực.
 5. Lưu khoá trong OS key store/HSM; zeroize bộ nhớ; hạn chế quyền đọc tệp khoá.
-6. Thêm KAT AES-256 GCM/CCM và XTS nhiều sector, thêm các độ dài biên; fuzz
-   parser.
+6. Bổ sung KAT cho các độ dài biên, AAD dài và XTS nhiều sector; fuzz parser.
 7. Đo lại trên cùng một host với CPU pinning, governor `performance`, power plan cố
    định, và baseline tắt AES-NI/PCLMUL.
 8. Đo end-to-end có file I/O để tách chi phí syscall.
@@ -1239,7 +1280,7 @@ hoặc tệp cần xác thực.
 
 | Thành phần | Điểm | Bằng chứng | Tự chấm |
 |---|---:|---|---:|
-| Correctness & KATs | 25 | 20/20 KAT trên Ubuntu; log Windows 16/16 cần chạy lại; unit + mutation test; negative test; container | 24 |
+| Correctness & KATs | 25 | 29/29 KAT trên Windows MSVC/MinGW; Ubuntu log 20/20 cần chạy lại; unit + mutation test; negative test; container | 24 |
 | Security hygiene | 15 | RNG, IV validation, nonce lock đa tiến trình + output header check, zeroize khoá, ECB policy, fail-closed | 15 |
 | UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, sidecar JSON, lỗi rõ, UTF-8 clean | 10 |
 | Performance methodology | 20 | 48 CSV/nền tảng có kiểm soát (CPU 2), 1.000 runs, mean/median/SD/CI95, block analysis, plots, syscall/I/O end-to-end | 20 |
@@ -1272,27 +1313,27 @@ Các điểm hoàn thiện chính:
 | README | Có; đã cập nhật |
 | Báo cáo | Có; tệp này |
 | Unit test Catch2 | Có; Windows MSVC 2/2 và Ubuntu GCC/Clang 2/2 (Catch2 + CLI) |
-| KAT | Có; 20/20 trên Ubuntu GCC/Clang; log Windows 16/16 cần chạy lại |
-| Negative tests | Có; 17 trên Windows, 12 trên Ubuntu |
+| KAT | Có; 29/29 trên Windows MSVC/MinGW; Ubuntu log 20/20 cần chạy lại |
+| Negative tests | Có; 17 trên Windows, 12 trên Ubuntu; 19 trường hợp trong `ctest` |
 | Benchmark CSV | Có; 96 tệp (48 Ubuntu GCC + 48 Windows MSVC) |
 | Đồ thị | Có; Ubuntu, Windows, cross-platform |
 | Windows binary | Có trên môi trường Windows; không commit binary |
 | GUI | Có (`gui/aestool_gui.py`; self-test Windows + Ubuntu) |
 | Linux binary | Đã build trên Ubuntu; không commit binary |
-| Sinh viên/MSSV/Lớp | Chưa điền |
+| Sinh viên/MSSV/Lớp | Chưa điền; `scripts/package_lab1.py` điền vào bản staged |
 | PDF/DOCX | Chưa xuất; cần export từ Markdown |
 | Self-grade | Có; mục 8.1 |
 | Academic integrity | Có; mục 11.4 |
-| `MSV.All6labs.rar` | Chưa đóng gói; cần gộp 6 lab |
+| Gói nộp | `scripts/package_lab1.py` tạo `output/package/lab01-submission.zip`; cần chạy với thông tin sinh viên và binary Linux |
 
 ### 8.3 Đối chiếu yêu cầu chung của học phần
 
 | Yêu cầu | Trạng thái |
 |---|---|
 | CMake, build ngoài source | Đạt |
-| Ubuntu LTS | Đạt; đã build GCC + Clang, KAT 20/20, ctest 2/2, GUI self-test |
-| Windows MSVC | Đạt; đã build, KAT 16/16 (20-vector rerun pending), ctest 2/2, GUI self-test |
-| Windows MinGW64 | Đạt; GCC 16.2.0 + Clang 22.1.8, KAT 16/16 (20-vector rerun pending), ctest 2/2 |
+| Ubuntu LTS | Đạt; đã build GCC + Clang, KAT 20/20 (cần chạy lại 29 vector), ctest 2/2, GUI self-test |
+| Windows MSVC | Đạt; đã build, KAT 29/29, ctest 2/2, GUI self-test |
+| Windows MinGW64 | Đạt; GCC 16.2.0 + Clang 22.1.8, KAT 29/29, ctest 2/2 |
 | README dependency/version | Đạt; đã cập nhật |
 | README cài đặt Windows/Linux | Đạt |
 | README build commands | Đạt |
@@ -1438,15 +1479,16 @@ bản Crypto++, cùng cờ build, CPU pinning và governor cố định.
 
 | Đường dẫn | Nội dung |
 |---|---|
-| `kat/vectors.json` | 20 vector KAT |
-| `output/windows/test_results/kat_msvc.txt` | KAT 16/16 trên Windows MSVC (bản trước khi mở rộng; cần chạy lại) |
+| `kat/vectors.json` | 29 vector KAT |
+| `output/windows/test_results/kat_msvc.txt` | KAT 29/29 trên Windows MSVC |
 | `output/windows/test_results/ctest_msvc.txt` | ctest 2/2 trên Windows MSVC |
 | `output/windows/test_results/gui_selftest.txt` | GUI self-test trên Windows |
 | `output/windows/test_results/non_ascii_path.txt` | Round-trip qua thư mục không ASCII |
-| `output/windows/test_results/kat_mingw_gcc.txt`, `kat_mingw_clang.txt` | KAT 16/16 trên MinGW GCC/Clang (bản cũ; cần chạy lại) |
+| `output/windows/test_results/nonce_race.txt` | 8 tiến trình tranh chấp nonce: 1 thành công, 7 từ chối |
+| `output/windows/test_results/kat_mingw_gcc.txt`, `kat_mingw_clang.txt` | KAT 29/29 trên MinGW GCC/Clang |
 | `output/windows/test_results/ctest_mingw_gcc.txt`, `ctest_mingw_clang.txt` | ctest 2/2 trên MinGW GCC/Clang |
 | `output/windows/test_results/environment.txt` | Môi trường Windows |
-| `output/ubuntu/test_results/kat_gcc.txt`, `kat_clang.txt` | KAT 20/20 trên Ubuntu |
+| `output/ubuntu/test_results/kat_gcc.txt`, `kat_clang.txt` | KAT 20/20 trên Ubuntu (log cũ; chạy lại để đạt 29/29) |
 | `output/ubuntu/test_results/ctest_gcc.txt`, `ctest_clang.txt` | ctest 2/2 trên Ubuntu |
 | `output/ubuntu/test_results/gui_selftest.txt` | GUI self-test trên Ubuntu |
 | `output/ubuntu/test_results/environment.txt` | Môi trường Ubuntu |

@@ -1,0 +1,4 @@
+platform,compiler,mode,size_bytes,size,runs,enc_median_us,dec_median_us,enc_trimmed_mean_us,dec_trimmed_mean_us,enc_median_MBps,dec_median_MBps,enc_outlier_pct,dec_outlier_pct,enc_cv,dec_cv,enc_stability,dec_stability
+windows,msvc,CTR,1048576,1MB,1000,146208.300,145860.650,147316.541,145928.121,6.840,6.860,0.00,0.00,0.0632,0.0624,ok,ok
+windows,msvc,CTR,104857600,100MB,100,14204528.500,14194372.900,14240446.304,14254797.997,7.040,7.045,0.00,0.00,0.0133,0.0137,ok,ok
+windows,msvc,CTR,1073741824,1GB,30,144153493.400,144385364.750,144517157.943,144553966.000,7.100,7.090,0.00,0.00,0.0069,0.0064,ok,ok

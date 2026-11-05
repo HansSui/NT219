@@ -327,15 +327,15 @@ lab02/
 ├── scripts/
 │   ├── build_linux.sh          # Linux GCC/Clang build & test script
 │   ├── build_windows.bat       # Windows MSVC/MinGW build & test script
-│   ├── run_benchmarks.sh       # Linux benchmark suite (1 MiB, 100 MiB)
-│   ├── run_benchmarks.bat      # Windows benchmark runner
+│   ├── run_benchmarks.sh       # Linux benchmark suite (1 MiB, 100 MiB, 1 GiB)
+│   ├── run_benchmarks.bat      # Windows benchmark runner (run 2026-11-05)
 │   ├── summarize_bench.py      # Statistical analysis (mean/median/SD/CI95)
 │   └── plot_bench.py           # Matplotlib visualization script
 └── output/
     ├── ubuntu/test_results/    # KAT, CTest & environment evidence logs
     ├── ubuntu/benchmarks/      # CSV benchmark data & generated graphs
     ├── windows/test_results/   # MSVC KAT, CTest & CLI logs
-    └── windows/benchmarks/     # Controlled Windows benchmark CSVs
+    └── windows/benchmarks/     # Windows benchmark CSVs, summary, plots, audit
 ```
 
 ### 4.1 Compiler & Linker Settings across OSes
@@ -344,7 +344,7 @@ lab02/
 |---|---|---|---|---|
 | **Ubuntu Linux** | GCC 15.2 (`g++`) | `-std=c++17 -Wall -Wextra -O3` | Dynamic (`glibc`) | Primary benchmark and Linux verification |
 | **Ubuntu Linux** | Clang 21.1 (`clang++`) | `-std=c++17 -Wall -Wextra -O3` | Dynamic (`glibc`) | Alternative code generation & CTest sanity |
-| **Windows** | MSVC 19.51 (VS 2026/2022) | `/std:c++17 /W4 /O2 /Ob2` | Static CRT (`/MT`) | Official Windows controlled benchmark runner |
+| **Windows** | MSVC 19.51 (VS 2026/2022) | `/std:c++17 /W4 /O2 /Ob2` | Static CRT (`/MT`) | Windows build/test and benchmark (run 2026-11-05, 1000/100/30) |
 | **Windows** | MinGW GCC 16.2 (`g++`) | `-std=c++17 -Wall -Wextra -O3` | Static/MSVCRT | Cross-compiler portability verification |
 
 ### 4.2 Cross-Validation Oracle Architecture
@@ -453,7 +453,7 @@ Per `Lab2.txt` Section 4, the test matrix comprises:
   * 1 MiB ($1,048,576$ bytes) — Fits in L3 cache; measures raw algorithm execution.
   * 100 MiB ($104,857,600$ bytes) — Exceeds CPU cache; reflects memory bandwidth limits.
   * 1 GiB ($1,073,741,824$ bytes) — Sustained streaming throughput; optional per `Lab2.txt` ("if feasible").
-* **Repetitions:** 1 MiB = 1000 runs, 100 MiB = 500 runs, 1 GiB = 50 runs. Override with `RUNS_1MB`, `RUNS_100MB`, `RUNS_1GB`.
+* **Repetitions:** chosen 1 MiB = 1000 runs, 100 MiB = 100, 1 GiB = 30 (N >= 30). The blueprint's nominal 500/50 is available with `RUNS_100MB=500 RUNS_1GB=50`; override with `RUNS_1MB`, `RUNS_100MB`, `RUNS_1GB`.
 * **Required analysis:** table-based vs computed S-box, memory footprint, cache-line behavior, branch-prediction impact, and throughput comparison against Crypto++.
 
 ### 7.2 Benchmark Command Examples
@@ -461,31 +461,40 @@ Per `Lab2.txt` Section 4, the test matrix comprises:
 The recommended entry point is `scripts/run_benchmarks.sh`, which writes a `===== BENCHMARK =====` system-tracking log (CPU model/governor/MHz, load, RAM, swap, process CPU/RSS, exact CLI) next to the CSVs:
 
 ```bash
-# Full matrix: 1 MiB/1000, 100 MiB/500, 1 GiB/50
-./lab02/scripts/run_benchmarks.sh gcc
+# Chosen matrix: 1 MiB/1000, 100 MiB/100, 1 GiB/30, 4 threads
+THREADS=4 PIN_CPU=0-3 ./lab02/scripts/run_benchmarks.sh gcc
 
 # Skip 1 GiB
-BENCH_1GB=0 ./lab02/scripts/run_benchmarks.sh gcc
+THREADS=4 PIN_CPU=0-3 BENCH_1GB=0 ./lab02/scripts/run_benchmarks.sh gcc
+
+# Optional nominal 1000/500/50
+THREADS=4 PIN_CPU=0-3 RUNS_100MB=500 RUNS_1GB=50 \
+  ./lab02/scripts/run_benchmarks.sh gcc
 ```
 
 Raw commands:
 
 ```bash
-# Ubuntu Linux benchmark
-./lab02/build/ubuntu-gcc/aestool bench --size 1048576 --runs 1000 \
-    --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1048576.csv
+# Ubuntu Linux benchmark (committed CSVs used the old 1000/100/30 counts)
+./lab02/build/ubuntu-gcc/aestool bench --mode ctr --size 1048576 --runs 1000 \
+    --warmup 1.0 --threads 4 --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1048576.csv
 
-./lab02/build/ubuntu-gcc/aestool bench --size 104857600 --runs 500 \
-    --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_104857600.csv
+./lab02/build/ubuntu-gcc/aestool bench --mode ctr --size 104857600 --runs 500 \
+    --warmup 1.0 --threads 4 --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_104857600.csv
 
-./lab02/build/ubuntu-gcc/aestool bench --size 1073741824 --runs 50 \
-    --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1073741824.csv
+./lab02/build/ubuntu-gcc/aestool bench --mode ctr --size 1073741824 --runs 50 \
+    --warmup 1.0 --threads 4 --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1073741824.csv
 ```
 
 ```bat
-rem Windows MSVC benchmark
-lab02\build\windows-msvc\Release\aestool.exe bench --size 1048576 --runs 1000 ^
-    --out lab02\output\windows\benchmarks\bench_msvc_ctr_1048576.csv
+rem Windows MSVC benchmark - already run on 2026-11-05 at 1000/100/30.
+rem The script defaults to the chosen 1000/100/30; add RUNS_100MB=500 RUNS_1GB=50 for the nominal 500/50.
+lab02\build\windows-msvc\Release\aestool.exe bench --mode ctr --size 1048576 --runs 1000 ^
+    --warmup 1.0 --threads 4 --out lab02\output\windows\benchmarks\bench_msvc_ctr_1048576.csv
+lab02\build\windows-msvc\Release\aestool.exe bench --mode ctr --size 104857600 --runs 500 ^
+    --warmup 1.0 --threads 4 --out lab02\output\windows\benchmarks\bench_msvc_ctr_104857600.csv
+lab02\build\windows-msvc\Release\aestool.exe bench --mode ctr --size 1073741824 --runs 50 ^
+    --warmup 1.0 --threads 4 --out lab02\output\windows\benchmarks\bench_msvc_ctr_1073741824.csv
 ```
 
 ---
@@ -506,24 +515,29 @@ Status is measured against the current tree, not aspirational.
   - [x] Counter-overflow fail-closed (wrap-around throws instead of reusing counter 0).
   - [x] Input validation (fail-closed on wrong key/IV length and file I/O errors).
 - [x] **Validation & Testing Harness**
-  - [x] KATs for FIPS-197 Appendix C.1/C.2/C.3 (4 vectors total with CTR).
-  - [x] NIST SP 800-38A CTR KAT vector.
-  - [x] Cross-validation (`test_crossval`) against Crypto++ for CTR and XTS (CTS included).
-  - [x] Negative testing (wrong key, wrong IV, tampered ciphertext bit-flipping).
-  - [x] Automated CTest integration (3/3 tests passing on GCC and Clang).
+  - [x] 9 KAT vectors: CTR AES-128/192/256, partial final block, FIPS-197 C.1/C.2/C.3, IEEE P1619 XTS, CAVP XTS.
+  - [x] Cross-validation (`test_crossval`) against Crypto++ for CTR-128/192/256, XTS and CTS.
+  - [x] Negative testing (wrong key, wrong IV, counter overflow, unsupported KAT mode, CLI conflicts).
+  - [x] Automated CTest integration: 4/4 tests on Windows MSVC, MinGW GCC and MinGW Clang; 3/3 on the older Ubuntu run.
+  - [x] KAT skips are failures: an unsupported mode makes `--kat` exit nonzero.
 - [x] **Infrastructure & Tooling**
-  - [x] CMake build system; Ubuntu GCC/Clang verified, Windows configured but unverified.
-  - [x] CLI `aestool` supporting `encrypt`, `decrypt`, `bench`, `--kat`, `--mode ctr|xts`.
-  - [x] Shell and Batch automation scripts (`build_linux.sh`, `build_windows.bat`, etc.).
-- [x] **Bonus A: AES-192 / AES-256** — full key schedule, FIPS-197 C.2/C.3 KAT.
+  - [x] CMake build system; Windows MSVC/MinGW verified, Ubuntu GCC/Clang previously verified.
+  - [x] CLI `aestool`: `encrypt`, `decrypt`, `bench`, `--kat`, `--mode ctr|xts`, `--encode`, `--decode`, `--nonce`, `--threads`, `--verbose`; `bench --verbose` prints progress/ETA.
+  - [x] UTF-8 Windows arguments and paths (`GetCommandLineW`, `WideCharToMultiByte`, `u8path`) with a Vietnamese CLI test.
+  - [x] Shell and Batch automation scripts (`build_linux.sh`, `build_windows.bat`, benchmark/summary/plot scripts).
+- [x] **Bonus A: AES-192 / AES-256** — full key schedule, FIPS-197 C.2/C.3 KAT, Crypto++ parity.
 - [x] **Bonus B: AES-XTS** — two-key construction, $GF(2^{128})$ tweak, IEEE P1619 CTS, Crypto++ parity.
 - [ ] **Bonus C: AES-NI or bit-sliced** — not implemented.
 - [ ] **Performance evidence**
-  - [x] Benchmark harness and 1 MiB CSV data (10 runs) on Ubuntu GCC.
-  - [ ] 100 MiB CSV is currently empty; rerun the benchmark.
-  - [ ] 1 GiB run (optional per `Lab2.txt`).
-  - [ ] Summary statistics (`summarize_bench.py`) and throughput plots (`plot_bench.py`).
+  - [x] Benchmark harness with time-based warm-up and `--threads`; scripts default to 4 threads (`THREADS=1` for baseline).
+  - [x] Ubuntu GCC CSVs: 1 MiB/1000, 100 MiB/100, 1 GiB/30 rows; summaries and 1 MiB/100 MiB plots.
+  - [x] Windows MSVC CSVs: 1 MiB/1000, 100 MiB/100, 1 GiB/30; summary, robust summary, 6 plots and audit.
+  - [ ] Windows run has no run-time environment log; the chosen 1000/100/30 counts are accepted.
+  - [ ] Rerun the Ubuntu 1000/100/30 matrix with 4 threads, CPU pinning and a `performance` governor.
+  - [ ] Ubuntu 1 GiB plot (Windows plot is present).
   - [ ] Throughput comparison against Crypto++ (cross-validation only covers correctness).
 - [ ] **Report & Evidence Finalization**
-  - [ ] Compile the mandatory security analysis (cache timing, CTR malleability, two-time pad).
-  - [ ] Export final report to `REPORT.pdf`.
+  - [x] Security analysis written in `lab02/REPORT.md` (cache timing, CTR malleability, two-time pad, key wiping, AES-NI).
+  - [x] Windows KAT/CTest evidence committed under `lab02/output/windows/test_results/`.
+  - [ ] Commit Ubuntu `--kat` and `ctest` logs.
+  - [ ] Export final report to `REPORT.pdf` with student identity.

@@ -2,16 +2,40 @@
 #include <stdexcept>
 #include <algorithm>
 
+namespace {
+
+// Best-effort wiping that the optimiser is not allowed to discard.
+void secure_zero(void* ptr, size_t size) {
+    volatile uint8_t* p = static_cast<volatile uint8_t*>(ptr);
+    while (size-- > 0) *p++ = 0;
+}
+
+} // namespace
+
 AES::AES(const std::vector<uint8_t>& key, KeyLength key_length)
     : key_(key), key_length_(key_length) {
     validate_key();
     round_keys_ = key_expansion(key_, key_length_);
+    // The expanded schedule is enough for every operation; drop the raw key.
+    secure_zero(key_.data(), key_.size());
+    key_.clear();
+    key_.shrink_to_fit();
 }
 
 AES::AES(const uint8_t* key, size_t key_size, KeyLength key_length)
     : key_(key, key + key_size), key_length_(key_length) {
     validate_key();
     round_keys_ = key_expansion(key_, key_length_);
+    secure_zero(key_.data(), key_.size());
+    key_.clear();
+    key_.shrink_to_fit();
+}
+
+AES::~AES() {
+    // The raw key and all expanded round keys are secret. Wipe both before the
+    // vectors release their storage.
+    if (!key_.empty()) secure_zero(key_.data(), key_.size());
+    for (auto& word : round_keys_) secure_zero(word.data(), word.size());
 }
 
 void AES::validate_key() const {
@@ -31,6 +55,26 @@ uint8_t AES::gmul(uint8_t a, uint8_t b) {
         b >>= 1;
     }
     return p;
+}
+
+uint8_t AES::sbox_computed(uint8_t value) {
+    // Multiplicative inverse as value^254 in GF(2^8); 0 maps to 0.
+    uint8_t inverse = 1;
+    uint8_t base = value;
+    unsigned exponent = 254;
+    while (exponent != 0) {
+        if (exponent & 1U) inverse = gmul(inverse, base);
+        base = gmul(base, base);
+        exponent >>= 1U;
+    }
+    // Affine transform: s ^ ROTL1(s) ^ ... ^ ROTL4(s) ^ 0x63.
+    auto rotl8 = [](uint8_t x, int n) -> uint8_t {
+        return static_cast<uint8_t>((x << n) | (x >> (8 - n)));
+    };
+    const uint8_t s = inverse;
+    const uint8_t rotated =
+        static_cast<uint8_t>(s ^ rotl8(s, 1) ^ rotl8(s, 2) ^ rotl8(s, 3) ^ rotl8(s, 4));
+    return static_cast<uint8_t>(rotated ^ 0x63);
 }
 
 AES::State AES::bytes_to_state(const std::array<uint8_t, BLOCK_SIZE>& block) {

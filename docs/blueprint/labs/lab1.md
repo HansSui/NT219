@@ -245,9 +245,11 @@ flags) with the data.
 
 ### Evidence already in the repo
 
-- Windows MSVC KAT and `ctest` logs, plus 17 negative cases.
-- MinGW GCC/Clang KAT 16/16 and `ctest` 2/2.
-- Ubuntu GCC benchmark matrix and test logs.
+- Windows MSVC KAT 29/29 and `ctest` 2/2, plus 19 negative/edge cases in
+  `cli_test.cmake` and per-case logs.
+- MinGW GCC/Clang KAT 29/29 and `ctest` 2/2.
+- Ubuntu GCC benchmark matrix and test logs (KAT log predates the 29-vector
+  expansion).
 - Tkinter GUI self-test on Windows and Linux.
 
 ### Risks / gaps

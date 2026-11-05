@@ -68,6 +68,59 @@ if "$tool" encrypt --mode cbc --key key.bin --text data --threads 2 \
     exit 1
 fi
 
+# AEAD flag and AAD policy failures.
+if "$tool" encrypt --mode gcm --key key.bin --text data --out no_aead.bin 2>/dev/null; then
+    echo "GCM was accepted without --aead" >&2
+    exit 1
+fi
+if "$tool" encrypt --mode cbc --key key.bin --aad-text header --text data \
+        --out aad_nonaead.bin 2>/dev/null; then
+    echo "AAD was accepted for a non-AEAD mode" >&2
+    exit 1
+fi
+
+# GCM with the wrong AAD must fail and leave no plaintext.
+aad_nonce=112233445566778899aabbcc
+"$tool" encrypt --mode gcm --aead --key key.bin --nonce "$aad_nonce" \
+    --aad-text right --text "aad payload" --out aad_ct.bin
+if "$tool" decrypt --mode gcm --aead --key key.bin --in aad_ct.bin \
+        --aad-text wrong --out aad_out.txt 2>/dev/null; then
+    echo "GCM accepted the wrong AAD" >&2
+    exit 1
+fi
+if [[ -e aad_out.txt ]]; then
+    echo "GCM wrong-AAD failure wrote an output file" >&2
+    exit 1
+fi
+
+# CCM with a modified ciphertext must fail tag verification and write nothing.
+ccm_nonce=ccddeeff0011223344556677
+"$tool" encrypt --mode ccm --aead --key key.bin --nonce "$ccm_nonce" \
+    --text "ccm payload" --out ccm_ct.bin
+cp ccm_ct.bin ccm_bad.bin
+printf 'X' >> ccm_bad.bin
+if "$tool" decrypt --mode ccm --aead --key key.bin --in ccm_bad.bin \
+        --out ccm_out.txt 2>/dev/null; then
+    echo "CCM accepted a bad tag" >&2
+    exit 1
+fi
+if [[ -e ccm_out.txt ]]; then
+    echo "CCM bad-tag failure wrote an output file" >&2
+    exit 1
+fi
+
+# The container header mode must match --mode.
+"$tool" encrypt --mode cbc --key key.bin --text mismatch --out cbc_mismatch.bin
+if "$tool" decrypt --mode gcm --aead --key key.bin --in cbc_mismatch.bin \
+        --out mismatch.out 2>/dev/null; then
+    echo "mode/header mismatch was not rejected" >&2
+    exit 1
+fi
+
+# --allow-ecb is the explicit override for the 16 KiB limit.
+"$tool" encrypt --mode ecb --key key.bin --allow-ecb --in large.bin \
+    --out ecb_allowed.bin
+
 gcm_nonce=00112233445566778899aabb
 "$tool" encrypt --mode gcm --aead --key key.bin --nonce "$gcm_nonce" \
     --text "sidecar test payload" --out sidecar_ct.bin --sidecar sidecar.json

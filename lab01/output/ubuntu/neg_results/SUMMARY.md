@@ -1,5 +1,12 @@
 # Ubuntu negative / edge-case test evidence
 
+> **Status (2026-11-02):** this directory is the older 12-case CLI run. The
+> shared `tests/cli_test.sh` now runs 19 negative/edge cases (adding CCM bad
+> tag, GCM wrong AAD, missing `--aead`, AAD on a non-AEAD mode, mode/header
+> mismatch, and ECB > 16 KiB with `--allow-ecb`). Re-run it on Ubuntu and
+> refresh these logs if per-case console evidence is required; `ctest` already
+> exercises all 19 cases.
+
 Generated from the Release GCC build (`build/ubuntu-gcc/aestool`) with a random
 32-byte AES-256 key (64-byte key for XTS). Each case has a captured command log
 in this directory: the command line, combined stdout/stderr and the exit code.

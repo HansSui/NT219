@@ -7,7 +7,8 @@ labs live in `../lab01/` and `../lab02/`; Labs 3-6 are specified only.
 |---|---|
 | `blueprint/BLUEPRINT.md` | Plan-only index for Labs 1-6: shared course core, repo model, grading policy, gaps |
 | `blueprint/labs/lab1.md` … `lab6.md` | Per-lab brief: what to do, requirements, expected outcomes, rubric, infrastructure |
-| `missing/lab1.md`, `missing/lab2.md` | Implementation audit against the briefs, with Ubuntu/Windows gaps and minimal fixes |
+| `missing/lab1.md`, `missing/lab2.md` | Implementation audit, fix log, remaining gaps and regrade |
+| `../lab02/REPORT.md` | Vietnamese Lab 2 report and self-grade |
 | `lab1.txt` | Lab 1 brief: Crypto++ symmetric modes, constraints, rubric |
 | `Lab2.txt` | Lab 2 brief: pure C++ AES-128 and CTR, rubric |
 | `Lab3.txt` | Lab 3 brief: RSA-OAEP and hybrid encryption, rubric |

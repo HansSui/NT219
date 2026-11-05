@@ -1,5 +1,6 @@
 @echo off
-rem Refresh the Windows evidence for lab01 (TODO steps 1-6 and 8).
+rem Refresh the Windows evidence for lab01 (build, KAT, ctest, GUI, paths,
+rem negative re-check, nonce race and the MinGW half).
 rem Usage:  scripts\verify_windows.bat
 rem Optional:  set SKIP_MINGW=1 before calling to skip the MinGW half of step 8.
 setlocal EnableExtensions EnableDelayedExpansion
@@ -27,7 +28,7 @@ echo ===== [2] KAT =====
 "%TOOL%" --kat kat\vectors.json > "%RES%\kat_msvc.txt" 2>&1
 if errorlevel 1 goto :fail
 type "%RES%\kat_msvc.txt"
-findstr /c:"20 passed, 0 failed" "%RES%\kat_msvc.txt" >nul || goto :fail
+findstr /c:"29 passed, 0 failed" "%RES%\kat_msvc.txt" >nul || goto :fail
 
 echo ===== [3] ctest =====
 pushd build\windows-msvc
@@ -108,6 +109,12 @@ findstr /c:"ecb.bin=absent" "%NEGLOG%" >nul || goto :fail
 findstr /c:"ctr_first_exit=0" "%NEGLOG%" >nul || goto :fail
 findstr /c:"ctr_second_exit=1" "%NEGLOG%" >nul || goto :fail
 findstr /c:"second.bin=absent" "%NEGLOG%" >nul || goto :fail
+
+echo ===== [7] nonce race, 8 processes =====
+python tests\nonce_race_test.py --tool "%TOOL%" --processes 8 > "%RES%\nonce_race.txt" 2>&1
+if errorlevel 1 goto :fail
+type "%RES%\nonce_race.txt"
+findstr /c:"PASS: nonce lock is exclusive" "%RES%\nonce_race.txt" >nul || goto :fail
 
 if defined SKIP_MINGW (
     echo ===== [8] MinGW skipped ^(SKIP_MINGW=1^) =====

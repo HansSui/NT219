@@ -1,7 +1,8 @@
 # NT219 - Cryptography Labs
 
-Course laboratory work for NT219. Each lab is self-contained, builds with
-CMake, and uses Crypto++ for the cryptographic primitives.
+Course laboratory work for NT219. Each lab is self-contained and builds with
+CMake. Lab 1 uses Crypto++ for its primitives; Lab 2 implements AES/CTR in pure
+C++ and uses Crypto++ only as a test oracle.
 
 ## Layout
 
@@ -80,13 +81,13 @@ gui\run_gui.bat
 Linux: `./gui/build_gui.sh` then `./gui/run_gui.sh` after
 `sudo apt install python3-tk libcryptopp-dev`.
 
-The build, KAT (20/20 on Ubuntu), `ctest` and benchmark matrix are verified with
-MSVC 19.51 x64 on Windows (logs in `lab01/output/windows/test_results/` and
+The build, KAT (29/29 on Windows), `ctest` and benchmark matrix are verified
+with MSVC 19.51 x64 on Windows (logs in `lab01/output/windows/test_results/` and
 `lab01/output/windows/neg_results/`). MinGW GCC 16.2.0 and MinGW Clang 22.1.8
-also build and pass the committed 16-vector KAT and `ctest` 2/2. The KAT file
-now has 20 vectors; rerun `--kat` on Windows to refresh that evidence. The
-Tkinter GUI bonus is built against the shared library and passes its eight-mode
-self-test on Windows and
+also build and pass the 29-vector KAT and `ctest` 2/2. The Ubuntu logs still show
+the pre-expansion 20/20; rerun `--kat` on Linux to refresh them. The Tkinter GUI
+bonus is built against the shared library and passes its eight-mode self-test on
+Windows and
 Linux. The Ubuntu benchmark data is the 48-row GCC 15.2 matrix from
 `lab01/output/ubuntu/benchmarks/`; Ubuntu Clang was built and tested but not
 benchmarked. The Windows benchmark matrix is the controlled 25/10 run, and
@@ -94,3 +95,34 @@ benchmarked. The Windows benchmark matrix is the controlled 25/10 run, and
 `lab01/README.md` for the CLI, `lab01/BENCHMARKS.md` for the benchmark method and
 the completed Vietnamese report in `lab01/REPORT.md` for results, statistics and
 analysis. The report is being refreshed separately for the new Windows run.
+
+## Quick start (Lab 2)
+
+Windows, from a "x64 Native Tools Command Prompt for VS 2026":
+
+```bat
+cd /d E:\NT219\lab02
+scripts\build_windows.bat msvc
+cd build\windows-msvc
+ctest -C Release --output-on-failure
+cd ..\..
+scripts\run_benchmarks.bat msvc
+```
+
+Linux:
+
+```bash
+cd lab02
+scripts/build_linux.sh gcc
+THREADS=4 PIN_CPU=0-3 scripts/run_benchmarks.sh gcc
+```
+
+Lab 2 implements AES-128/192/256 and CTR in pure C++17; Crypto++ is linked only
+into `test_crossval`. The current KAT has 9 vectors and CTest has 4 tests.
+Windows MSVC 19.51, MinGW GCC 16.2.0 and MinGW Clang 22.1.8 each pass 9/9 KAT and
+4/4 CTest (logs in `lab02/output/windows/test_results/`). Windows MSVC
+benchmark data now exists at the chosen 1000/100/30 rows with summary, six
+plots and an audit under `lab02/output/windows/benchmarks/`. The Ubuntu test
+logs, Ubuntu benchmark rerun and Crypto++ throughput comparison are still
+open; see `docs/missing/lab2.md`. The Vietnamese report is
+`lab02/REPORT.md`; benchmark details are in `lab02/BENCHMARKS.md`.

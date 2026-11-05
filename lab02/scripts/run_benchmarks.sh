@@ -6,6 +6,10 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 compiler="${1:-gcc}"
 shift || true
 bin="$root/build/ubuntu-$compiler/aestool"
+threads="${THREADS:-4}"
+if (( threads > 1 )) && [[ "${PIN_CPU:-0}" != *,* && "${PIN_CPU:-0}" != *-* ]]; then
+    echo "WARNING: taskset -c ${PIN_CPU:-0} pins all $threads threads to one CPU; use PIN_CPU=0-3 or PIN_CPU=2,3,4,5 for parallelism." >&2
+fi
 
 if [[ ! -x "$bin" ]]; then
     echo "Executable not found at $bin. Building first..."
@@ -24,8 +28,8 @@ if [[ $# -ge 1 ]]; then
 else
     # Per-size runs; RUNS overrides all three, RUNS_1MB/RUNS_100MB/RUNS_1GB override one.
     run_1mb="${RUNS_1MB:-${RUNS:-1000}}"
-    run_100mb="${RUNS_100MB:-${RUNS:-500}}"
-    run_1gb="${RUNS_1GB:-${RUNS:-50}}"
+    run_100mb="${RUNS_100MB:-${RUNS:-100}}"
+    run_1gb="${RUNS_1GB:-${RUNS:-30}}"
     sizes=(1048576 104857600)
     runs=("$run_1mb" "$run_100mb")
     if [[ "${BENCH_1GB:-1}" == "1" ]]; then
@@ -62,6 +66,14 @@ echo "git_commit=$(git -C "$root" rev-parse --short HEAD 2>/dev/null || echo n/a
 echo "binary=$bin"
 echo "log=$log"
 echo "sample_interval_s=${SAMPLE_INTERVAL:-2}"
+echo "warmup_s=${WARMUP:-1.0}"
+echo "threads=$threads"
+echo "pin_cpu=${PIN_CPU:-0}"
+echo "taskset=$(command -v taskset || echo n/a)"
+if [[ -r /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]]; then
+    governor="$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor)"
+    echo "governor_note=$([[ "$governor" == "performance" ]] && echo performance || echo "not-performance (record this limitation)")"
+fi
 echo "--- CLI ---"
 "$bin" --help || true
 echo "--- MATRIX ---"
@@ -115,9 +127,13 @@ sys_sample() {
 run_one() {
     local size="$1" n="$2"
     local csv="$out_dir/bench_ubuntu_${compiler}_ctr_${size}.csv"
+    local -a launcher=()
+    if command -v taskset >/dev/null 2>&1; then
+        launcher=(taskset -c "${PIN_CPU:-0}")
+    fi
     echo "===== BENCHMARK size=${size} runs=${n} ====="
-    echo "+ $bin bench --size $size --runs $n --out $csv"
-    "$bin" bench --size "$size" --runs "$n" --out "$csv" &
+    echo "+ ${launcher[*]:-} $bin bench --mode ctr --size $size --runs $n --warmup ${WARMUP:-1.0} --threads $threads --verbose --out $csv"
+    "${launcher[@]}" "$bin" bench --mode ctr --size "$size" --runs "$n" --warmup "${WARMUP:-1.0}" --threads "$threads" --verbose --out "$csv" &
     local pid=$!
     local status=0
     while kill -0 "$pid" 2>/dev/null && [[ "$(ps -o stat= -p "$pid" 2>/dev/null | cut -c1)" != "Z" ]]; do

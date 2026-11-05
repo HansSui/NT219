@@ -199,6 +199,96 @@
       "ciphertext": "917cf69ebd68b2ec9b9fe9a3eadda692cd43d2f59598ed858c02c2652fbf922e",
       "aad": "",
       "tag": ""
+    },
+    {
+      "name": "NIST CAVP XTSGenAES128 COUNT 1 (16 bytes)",
+      "mode": "xts",
+      "key": "a1b90cba3f06ac353b2c343876081762090923026e91771815f29dab01932f2f",
+      "iv": "4faef7117cda59c66e4b92013e768ad5",
+      "plaintext": "ebabce95b14d3c8d6fb350390790311c",
+      "ciphertext": "778ae8b43cb98d5a825081d5be471c63",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST CAVP XTSGenAES128 COUNT 101 (32 bytes)",
+      "mode": "xts",
+      "key": "b7b93f516aef295eff3a29d837cf1f135347e8a21dae616ff5062b2e8d78ce5e",
+      "iv": "873edea653b643bd8bcf51403197ed14",
+      "plaintext": "236f8a5b58dd55f6194ed70c4ac1a17f1fe60ec9a6c454d087ccb77d6b638c47",
+      "ciphertext": "22e6a3c6379dcf7599b052b5a749c7f78ad8a11b9f1aa9430cf3aef445682e19",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST CAVP XTSGenAES256 COUNT 1 (32 bytes)",
+      "mode": "xts",
+      "key": "1ea661c58d943a0e4801e42f4b0947149e7f9f8e3e68d0c7505210bd311a0e7cd6e13ffdf2418d8d1911c004cda58da3d619b7e2b9141e58318eea392cf41b08",
+      "iv": "adf8d92627464ad2f0428e84a9f87564",
+      "plaintext": "2eedea52cd8215e1acc647e810bbc3642e87287f8d2e57e36c0a24fbc12a202e",
+      "ciphertext": "cbaad0e2f6cea3f50b37f934d46a9b130b9d54f07e34f36af793e86f73c6d7db",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST CAVP XTSGenAES256 COUNT 101 (48 bytes)",
+      "mode": "xts",
+      "key": "266c336b3b01489f3267f52835fd92f674374b88b4e1ebd2d36a5f457581d9d042c3eef7b0b7e5137b086496b4d9e6ac658d7196a23f23f036172fdb8faee527",
+      "iv": "06b209a7a22f486ecbfadb0f3137ba42",
+      "plaintext": "ca7d65ef8d3dfad345b61ccddca1ad81de830b9e86c7b426d76cb7db766852d981c6b21409399d78f42cc0b33a7bbb06",
+      "ciphertext": "c73256870cc2f4dd57acc74b5456dbd776912a128bc1f77d72cdebbf270044b7a43ceed29025e1e8be211fa3c3ed002d",
+      "aad": "",
+      "tag": ""
+    },
+    {
+      "name": "NIST CAVP CCM AES-256 VTT Count 20",
+      "mode": "ccm",
+      "key": "bae73483de27b581a7c13f178a6d7bda168c1b4a1cb9180512a13e3ab914eb61",
+      "iv": "daf54faef6e4fc7867624b76f2",
+      "plaintext": "28ef408d57930086011b167ac04b866e5b58fe6690a0b9c3",
+      "ciphertext": "356367c6cee4453658418d9517f7c6faddcd7c65aef46013",
+      "aad": "7022eaa52c9da821da72d2edd98f6b91dfe474999b75b34699aeb38465f70c1c",
+      "tag": "8cf050f48c505151"
+    },
+    {
+      "name": "NIST CAVP CCM AES-256 VTT Count 21",
+      "mode": "ccm",
+      "key": "bae73483de27b581a7c13f178a6d7bda168c1b4a1cb9180512a13e3ab914eb61",
+      "iv": "daf54faef6e4fc7867624b76f2",
+      "plaintext": "1c5ad37d2a55afbc390b27cde0c42d6651fe191239bfaa27",
+      "ciphertext": "01d6f436b322ea0c6051bc2237786df2d76b9b1107eb73f7",
+      "aad": "a61b6c1f0293a7c35520abf158a995e5ae59b43ec5f38ff6fd6529970c9f83ac",
+      "tag": "6bca352f92f383e1"
+    },
+    {
+      "name": "NIST CAVP GCM AES-256 Count 0 (PT 128, AAD 0)",
+      "mode": "gcm",
+      "key": "31bdadd96698c204aa9ce1448ea94ae1fb4a9a0b3c9d773b51bb1822666b8f22",
+      "iv": "0d18e06c7c725ac9e362e1ce",
+      "plaintext": "2db5168e932556f8089a0622981d017d",
+      "ciphertext": "fa4362189661d163fcd6a56d8bf0405a",
+      "aad": "",
+      "tag": "d636ac1bbedd5cc3ee727dc2ab4a9489"
+    },
+    {
+      "name": "NIST CAVP GCM AES-256 Count 0 (PT 128, AAD 128)",
+      "mode": "gcm",
+      "key": "92e11dcdaa866f5ce790fd24501f92509aacf4cb8b1339d50c9c1240935dd08b",
+      "iv": "ac93a1a6145299bde902f21a",
+      "plaintext": "2d71bcfa914e4ac045b2aa60955fad24",
+      "ciphertext": "8995ae2e6df3dbf96fac7b7137bae67f",
+      "aad": "1e0889016f67601c8ebea4943bc23ad6",
+      "tag": "eca5aa77d51d4a0a14d9c51e1da474ab"
+    },
+    {
+      "name": "NIST CAVP GCM AES-256 Count 0 (PT 256, AAD 160)",
+      "mode": "gcm",
+      "key": "5853c020946b35f2c58ec427152b840420c40029636adcbb027471378cfdde0f",
+      "iv": "eec313dd07cc1b3e6b068a47",
+      "plaintext": "ce7458e56aef9061cb0c42ec2315565e6168f5a6249ffd31610b6d17ab64935e",
+      "ciphertext": "eadc3b8766a77ded1a58cb727eca2a9790496c298654cda78febf0da16b6903b",
+      "aad": "1389b522c24a774181700553f0246bbabdd38d6f",
+      "tag": "3d49a5b32fde7eafcce90079217ffb57"
     }
   ]
 }

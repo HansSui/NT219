@@ -5,7 +5,16 @@
 > still wins; the reference is an implementation guide)
 > **Course core:** `docs/lab requirement.md`, `docs/GradingSystem.txt`
 > **Existing implementation:** `lab02/`
+> **Report:** `lab02/REPORT.md`
+> **Audit / regrade:** `docs/missing/lab2.md`
 > **Tool:** `aestool`
+>
+> **Status (2026-11-05):** AES-128/CTR core and bonuses A/B are implemented.
+> Windows MSVC, MinGW GCC and MinGW Clang each pass 9/9 KAT and 4/4 CTest
+> (unit, KAT, CLI, cross-validation). Windows MSVC benchmark data now exists
+> for 1 MiB/100 MiB/1 GiB (chosen 1000/100/30, N >= 30) with summary and
+> plots. Ubuntu logs, a Windows run-time environment log and the Ubuntu
+> benchmark rerun are still open; see `docs/missing/lab2.md`.
 
 ## 1. What to do
 
@@ -61,8 +70,11 @@ aestool decrypt --mode ctr --key key.bin --iv iv.bin --in ct.bin --out msg.bin
 |---|---|
 | Key | Exactly 16 bytes for AES-128. |
 | IV | Exactly 16 bytes; document endianness and overflow behavior. |
-| Input/output | Raw binary; optional hex for debugging. |
+| Input/output | Raw binary by default; `--encode`/`--decode hex\|base64\|raw` and `--out-hex` for debugging. |
 | Modes | `ctr` required; `xts` only as Bonus B. |
+| Key sources | `--key` or `--key-hex`, never both. |
+| IV sources | `--iv`, `--iv-hex`, `--nonce` or `--nonce-hex`, only one. |
+| Bench | `--warmup`, `--threads`, `--out csv`, `--verbose` progress/ETA; unknown options fail closed. |
 | No padding | CTR requires no padding and no block alignment. |
 
 ### 2.3 Validation and negative tests
@@ -206,10 +218,10 @@ Linux:
 ```bash
 cd lab02
 scripts/build_linux.sh gcc          # or: scripts/build_linux.sh clang
-(cd build/ubuntu-gcc && ctest --output-on-failure)
-./build/ubuntu-gcc/aestool --kat kat/vectors.json
-scripts/run_benchmarks.sh gcc
-BENCH_1GB=0 ./lab02/scripts/run_benchmarks.sh gcc   # skip the 1 GiB run
+(cd build/ubuntu-gcc && ctest --output-on-failure)   # expected 4/4
+./build/ubuntu-gcc/aestool --kat kat/vectors.json     # expected 9/9
+THREADS=4 PIN_CPU=0-3 scripts/run_benchmarks.sh gcc
+THREADS=4 PIN_CPU=0-3 BENCH_1GB=0 scripts/run_benchmarks.sh gcc  # skip 1 GiB
 ```
 
 Windows (x64 Native Tools prompt):
@@ -218,35 +230,66 @@ Windows (x64 Native Tools prompt):
 cd lab02
 scripts\build_windows.bat msvc      rem or: gcc / clang
 cd build\windows-msvc && ctest -C Release --output-on-failure
+cd ..\..
+rem Windows benchmark already run on 2026-11-05 at the chosen 1000/100/30.
+rem Add RUNS_100MB=500 RUNS_1GB=50 only if the nominal 500/50 is required.
+scripts\run_benchmarks.bat msvc
 ```
 
-Direct benchmark examples:
+Direct benchmark examples (new time-based warm-up, optional threads):
 
 ```bash
-./lab02/build/ubuntu-gcc/aestool bench --size 1048576 --runs 1000 \
+./lab02/build/ubuntu-gcc/aestool bench --mode ctr --size 1048576 --runs 1000 \
+  --warmup 1.0 --threads 4 \
   --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1048576.csv
-./lab02/build/ubuntu-gcc/aestool bench --size 104857600 --runs 500 \
+./lab02/build/ubuntu-gcc/aestool bench --mode ctr --size 104857600 --runs 500 \
+  --warmup 1.0 --threads 4 \
   --out lab02/output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_104857600.csv
 ```
 
 ### Benchmark matrix
 
-AES-128 CTR, sizes 1 MiB / 100 MiB / 1 GiB, runs 1000 / 500 / 50. Keep the
-system-tracking log (CPU model, governor, MHz, load, RAM, swap, process CPU/RSS,
-exact command) next to the CSVs. Generate summary statistics and plots before
-writing the report.
+AES-128 CTR, sizes 1 MiB / 100 MiB / 1 GiB, nominal runs 1000 / 500 / 50.
+This submission uses the chosen 1000 / 100 / 30 (N >= 30); the nominal 500/50
+is available with `RUNS_100MB=500 RUNS_1GB=50`. Keep the system-tracking log
+(CPU model, governor, MHz, load, RAM, swap, process CPU/RSS, exact command)
+next to the CSVs. Generate summary statistics and plots before writing the
+report.
 
-### Risks / gaps (current tree)
+### Status / remaining gaps (2026-11-05)
 
-`docs/lab2_reference.md` §8 records the open items:
+Closed in the implementation pass:
 
-- 100 MiB CSV is empty; rerun it.
-- 1 GiB run is optional and not done.
-- Summary statistics and throughput plots are not generated yet.
-- Crypto++ **performance** comparison is not done (cross-validation only covers
-  correctness).
-- Windows build is configured but unverified.
+- Windows build/test/KAT/CLI evidence exists for MSVC, MinGW GCC and MinGW
+  Clang: 9/9 KAT and 4/4 CTest each.
+- Windows UTF-8 paths and `--text` are fixed and covered by `cli_test.cmake`.
+- KAT coverage expanded to 9 vectors: CTR AES-128/192/256, partial block,
+  FIPS-197 C.1/C.2/C.3, IEEE P1619 XTS and CAVP XTS.
+- Unsupported KAT modes are counted as skip failures.
+- Cross-validation is mandatory when `ENABLE_CROSSVAL=ON`.
+- CLI flags `--encode`, `--decode`, `--nonce`, `--threads`, `--verbose`;
+  `bench --verbose` reports progress/ETA; conflicting key/IV sources and
+  unknown bench options are rejected.
+- Key/round-key zeroization and a computed-S-box reference test.
+- Time-based warm-up, CPU pinning in the Linux script, High Performance /
+  `/high /affinity` in Windows, and `THREADS=4` (`--threads 4`) for both
+  scripts.
+- Windows MSVC benchmark for 1 MiB / 100 MiB / 1 GiB with summary, robust
+  summary and six plots; see `lab02/output/windows/benchmarks/AUDIT.md`.
+- `lab02/REPORT.md` and the audit/regrade in `docs/missing/lab2.md`.
+
+Still open:
+
+- Ubuntu `--kat`/`ctest` logs are not committed; no Linux host was available.
+- The committed Ubuntu benchmark CSVs used the old 5-iteration warm-up,
+  `powersave`, one thread, and no CPU pinning. Rerun with the new protocol
+  before citing them as final.
+- Windows uses the chosen 1000/100/30 (N >= 30); the nominal 1000/500/50 is
+  optional. It still has no run-time environment log.
+- Ubuntu has no 1 GiB plot; Windows has all six plots.
+- No Crypto++ **throughput** comparison (cross-validation is correctness only).
+- No PDF/DOCX; identity fields are blank.
 - Bonus C (AES-NI/bitsliced) is not implemented.
-- Report security analysis not yet compiled; no final PDF.
+- CTR/XTS are whole-file; streaming is future work.
 
 Treat those as work items, not as done.

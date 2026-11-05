@@ -6,7 +6,7 @@
 > `docs/Lab4.txt`, `docs/Lab5.txt`, `docs/Lab6.txt`.
 > **Course core:** `docs/lab requirement.md` and `docs/GradingSystem.txt`.
 > **Implemented-lab evidence:** `lab01/README.md`, `lab02/README.md`,
-> `docs/lab2_reference.md`.
+> `lab02/REPORT.md`, `docs/lab2_reference.md`.
 >
 > If a lab brief and this blueprint disagree, the lab brief wins. If the course
 > core and a lab brief disagree, the lab brief wins for that lab.
@@ -124,7 +124,7 @@ without a requirement.
 | Milestone | Scope | Exit gate | Status |
 |---|---|---|---|
 | M1 | Lab 1 `aestool` | KAT 8 modes, `ctest`, negative tests, benchmark CSVs, report section | Done in `lab01/`; report refresh noted in README |
-| M2 | Lab 2 `aestool` | FIPS-197/SP 800-38A KAT, Crypto++ parity, `ctest`, 1 MiB/100 MiB/1 GiB benchmarks | Core/tests done; benchmark/report gaps listed in `lab2_reference.md` §8 |
+| M2 | Lab 2 `aestool` | FIPS-197/SP 800-38A KAT, Crypto++ parity, `ctest`, 1 MiB/100 MiB/1 GiB benchmarks | Core/tests/report done; Windows 9/9 KAT + 4/4 CTest on MSVC/MinGW; Windows MSVC benchmark chosen 1000/100/30 with summary/plots/audit. Ubuntu logs, run-time env log and Crypto++ throughput still open (`lab02/REPORT.md`, `docs/missing/lab2.md`) |
 | M3 | Lab 3 `rsatool` | OAEP + hybrid KAT, negative tests, 3072/4096 benchmarks | Not started |
 | M4 | Lab 4 `hashtool` | Hash KAT, X.509 parse/verify, both attack demos, benchmarks | Not started |
 | M5 | Lab 5 `sigtool` | ECDSA/RSA-PSS vectors, negative tests, benchmarks | Not started |

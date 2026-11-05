@@ -11,6 +11,14 @@ set "root=%~dp0.."
 set "compiler=%~1"
 if "%compiler%"=="" set "compiler=msvc"
 
+rem Crypto++ is oracle-only, but CMake requires it when ENABLE_CROSSVAL=ON.
+rem Expected layout: %CRYPTOPP_ROOT%\include\cryptopp\*.h
+rem                  %CRYPTOPP_ROOT%\libs\cryptopp\{msvc,gcc,clang}\*
+if not defined CRYPTOPP_ROOT if exist "D:\cryptolibrary\include\cryptopp\aes.h" set "CRYPTOPP_ROOT=D:\cryptolibrary"
+
+set "crypto_args="
+if defined CRYPTOPP_ROOT set "crypto_args=-DCRYPTOPP_ROOT="%CRYPTOPP_ROOT%""
+
 set "cmake=cmake"
 if /i "%compiler%"=="msvc" goto msvc
 if /i "%compiler%"=="gcc" goto mingw
@@ -31,8 +39,12 @@ set "generators=%TEMP%\lab2_cmake_gen.txt"
 findstr /c:"Visual Studio 18 2026" "%generators%" >nul || set "generator=Visual Studio 17 2022"
 del "%generators%" >nul 2>nul
 
+if defined CRYPTOPP_ROOT if exist "%CRYPTOPP_ROOT%\include\cryptopp\aes.h" set "crypto_args=%crypto_args% -DCRYPTOPP_INCLUDE_DIR="%CRYPTOPP_ROOT%/include""
+if defined CRYPTOPP_ROOT if exist "%CRYPTOPP_ROOT%\libs\cryptopp\msvc\cryptlib.lib" set "crypto_args=%crypto_args% -DCRYPTOPP_LIBRARY="%CRYPTOPP_ROOT%/libs/cryptopp/msvc/cryptlib.lib""
+
 echo [msvc] Using generator: %generator%
-"%cmake%" -S "%root%" -B "%root%\build\windows-msvc" -G "%generator%" -A x64
+if defined CRYPTOPP_ROOT echo [msvc] Crypto++:     %CRYPTOPP_ROOT%
+"%cmake%" -S "%root%" -B "%root%\build\windows-msvc" -G "%generator%" -A x64 %crypto_args%
 if errorlevel 1 exit /b 1
 "%cmake%" --build "%root%\build\windows-msvc" --config Release --parallel
 if errorlevel 1 exit /b 1
@@ -46,7 +58,14 @@ exit /b %result%
 set "build=%root%\build\windows-%compiler%"
 if /i "%compiler%"=="gcc" set "cxx=g++"
 if /i "%compiler%"=="clang" set "cxx=clang++"
-"%cmake%" -S "%root%" -B "%build%" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=%cxx%
+rem The local clang/libcryptopp.a is not ABI-compatible with MinGW clang in
+rem this tree. The GCC-built archive links and passes, so use it for both
+rem MinGW compilers; override CRYPTOPP_LIBRARY if your install differs.
+set "mingw_lib_dir=gcc"
+set "mingw_crypto_args=%crypto_args%"
+if defined CRYPTOPP_ROOT if exist "%CRYPTOPP_ROOT%\libs\cryptopp\%mingw_lib_dir%\libcryptopp.a" set "mingw_crypto_args=%mingw_crypto_args% -DCRYPTOPP_LIBRARY="%CRYPTOPP_ROOT%/libs/cryptopp/%mingw_lib_dir%/libcryptopp.a""
+if defined CRYPTOPP_ROOT echo [%compiler%] Crypto++: %CRYPTOPP_ROOT%
+"%cmake%" -S "%root%" -B "%build%" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=%cxx% %mingw_crypto_args%
 if errorlevel 1 exit /b 1
 "%cmake%" --build "%build%" --parallel
 if errorlevel 1 exit /b 1
