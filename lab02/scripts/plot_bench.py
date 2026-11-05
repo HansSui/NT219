@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plot one aestool benchmark CSV file (throughput and latency)."""
+"""Plot one compact summary figure from one or more aestool benchmark CSVs."""
 import argparse
 import csv
 import sys
@@ -11,58 +11,89 @@ except ImportError:
     sys.exit("matplotlib is required: python3 -m pip install matplotlib")
 
 
-def column(rows, name):
-    return [float(row[name]) for row in rows]
+def mean_ci(values):
+    n = len(values)
+    if n == 0:
+        sys.exit("no rows to plot")
+    mean = sum(values) / n
+    ci = 0.0
+    if n > 1:
+        variance = sum((value - mean) ** 2 for value in values) / (n - 1)
+        ci = 1.96 * variance ** 0.5 / n ** 0.5
+    return mean, ci
+
+
+def load(path):
+    with open(path, newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    if not rows:
+        sys.exit(f"no rows in {path}")
+    return {
+        "size": int(rows[0]["size_bytes"]),
+        "mode": rows[0]["mode"],
+        "enc_mbps": mean_ci([float(row["throughput_encrypt_MBps"]) for row in rows]),
+        "dec_mbps": mean_ci([float(row["throughput_decrypt_MBps"]) for row in rows]),
+        "enc_ms": mean_ci([float(row["encrypt_us"]) / 1000 for row in rows]),
+        "dec_ms": mean_ci([float(row["decrypt_us"]) / 1000 for row in rows]),
+    }
+
+
+def size_label(size):
+    if size >= 1024 ** 3:
+        return f"{size // 1024 ** 3} GiB"
+    if size >= 1024 ** 2:
+        return f"{size // 1024 ** 2} MiB"
+    return f"{size // 1024} KiB"
+
+
+def series(ax, points, key, label, color):
+    means = [point[key][0] for point in points]
+    cis = [point[key][1] for point in points]
+    ax.errorbar([point["size"] for point in points], means, yerr=cis,
+                marker="o", capsize=4, label=label, color=color)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("csv_file")
+    parser.add_argument("csv_files", nargs="+")
     parser.add_argument("--out-dir", default="graph")
     parser.add_argument("--platform", default="")
     args = parser.parse_args()
 
-    with open(args.csv_file, newline="", encoding="utf-8") as handle:
-        rows = list(csv.DictReader(handle))
-    if not rows:
-        sys.exit(f"no rows in {args.csv_file}")
+    points = sorted((load(path) for path in args.csv_files), key=lambda p: p["size"])
+    mode = points[0]["mode"]
+    label = f"{args.platform} {mode}".strip()
 
-    mode = rows[0]["mode"]
-    size = int(rows[0]["size_bytes"])
-    runs = [int(row["run"]) for row in rows]
-    label = f"{args.platform} {mode} {size} B".strip()
+    fig, (ax_mbps, ax_ms) = plt.subplots(1, 2, figsize=(11, 4.2))
+    series(ax_mbps, points, "enc_mbps", "encrypt", "tab:blue")
+    series(ax_mbps, points, "dec_mbps", "decrypt", "tab:orange")
+    ax_mbps.set_title("Throughput (mean, 95% CI)")
+    ax_mbps.set_ylabel("MiB/s")
+
+    series(ax_ms, points, "enc_ms", "encrypt", "tab:blue")
+    series(ax_ms, points, "dec_ms", "decrypt", "tab:orange")
+    ax_ms.set_title("Latency (mean, 95% CI)")
+    ax_ms.set_ylabel("milliseconds (log)")
+    ax_ms.set_yscale("log")
+
+    for ax in (ax_mbps, ax_ms):
+        ax.set_xscale("log", base=2)
+        ax.set_xticks([point["size"] for point in points])
+        ax.set_xticklabels([size_label(point["size"]) for point in points])
+        ax.set_xlabel("input size")
+        ax.grid(True, alpha=0.3)
+        ax.legend()
+
+    fig.suptitle(f"{label}: AES-CTR benchmark summary")
+    fig.tight_layout()
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    stem = Path(args.csv_file).stem
-
-    fig, (ax_enc, ax_dec) = plt.subplots(2, 1, sharex=True, figsize=(10, 6))
-    ax_enc.bar(runs, column(rows, "throughput_encrypt_MBps"), width=1.0, color="tab:blue")
-    ax_enc.set_title(f"Throughput - {label}")
-    ax_enc.set_ylabel("encrypt MB/s")
-    ax_enc.grid(True, axis="y", alpha=0.3)
-    ax_dec.bar(runs, column(rows, "throughput_decrypt_MBps"), width=1.0, color="tab:orange")
-    ax_dec.set_xlabel("run")
-    ax_dec.set_ylabel("decrypt MB/s")
-    ax_dec.grid(True, axis="y", alpha=0.3)
-    fig.tight_layout()
-    fig.savefig(out_dir / f"{stem}_throughput.png", dpi=150)
+    platform = (args.platform or "all").replace(" ", "_").replace("-", "_")
+    out = out_dir / f"bench_{platform}_{mode}_summary.png"
+    fig.savefig(out, dpi=150)
     plt.close(fig)
-
-    fig, ax = plt.subplots()
-    ax.plot(runs, column(rows, "encrypt_us"), label="encrypt")
-    ax.plot(runs, column(rows, "decrypt_us"), label="decrypt")
-    ax.set_title(f"Latency - {label}")
-    ax.set_xlabel("run")
-    ax.set_ylabel("microseconds")
-    ax.grid(True, alpha=0.3)
-    ax.legend()
-    fig.tight_layout()
-    fig.savefig(out_dir / f"{stem}_latency.png", dpi=150)
-    plt.close(fig)
-
-    print(f"wrote {out_dir / (stem + '_throughput.png')}")
-    print(f"wrote {out_dir / (stem + '_latency.png')}")
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":

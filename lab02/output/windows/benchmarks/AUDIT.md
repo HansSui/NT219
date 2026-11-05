@@ -40,8 +40,9 @@ All three configurations are marked `ok` by `summary_robust.csv`
    file. Do not invent them retroactively.
 3. **Thread count is not in the CSV schema.** The ~7 MiB/s result is
    consistent with the 4-thread script, but the files alone cannot prove it.
-4. **No Crypto++ throughput comparison.** Cross-validation is correctness
-   only.
+4. **No Windows OpenSSL throughput comparison.** Cross-validation is
+   correctness only. The Ubuntu OpenSSL comparison is under
+   `output/ubuntu/benchmarks/openssl/`.
 5. A stale zero-byte `bench_msvc_ctr_1073741824.csv` from an earlier failed
    direct invocation was removed during this audit; it contained no data.
 6. Current host audit (not a run-time capture): Windows 11 Home

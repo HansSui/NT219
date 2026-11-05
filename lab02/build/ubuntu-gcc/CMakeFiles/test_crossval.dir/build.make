@@ -97,7 +97,7 @@ test_crossval: CMakeFiles/test_crossval.dir/tests/test_crossval.cpp.o
 test_crossval: CMakeFiles/test_crossval.dir/build.make
 test_crossval: CMakeFiles/test_crossval.dir/compiler_depend.ts
 test_crossval: libaes_core.a
-test_crossval: /usr/lib/x86_64-linux-gnu/libcryptopp.so
+test_crossval: /usr/lib/x86_64-linux-gnu/libcrypto.so
 test_crossval: CMakeFiles/test_crossval.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/han-sui/Downloads/NT219/lab02/build/ubuntu-gcc/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable test_crossval"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test_crossval.dir/link.txt --verbose=$(VERBOSE)

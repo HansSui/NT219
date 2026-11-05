@@ -2,7 +2,7 @@
 
 Course laboratory work for NT219. Each lab is self-contained and builds with
 CMake. Lab 1 uses Crypto++ for its primitives; Lab 2 implements AES/CTR in pure
-C++ and uses Crypto++ only as a test oracle.
+C++ and uses OpenSSL only as a test oracle.
 
 ## Layout
 
@@ -84,8 +84,8 @@ Linux: `./gui/build_gui.sh` then `./gui/run_gui.sh` after
 The build, KAT (29/29 on Windows), `ctest` and benchmark matrix are verified
 with MSVC 19.51 x64 on Windows (logs in `lab01/output/windows/test_results/` and
 `lab01/output/windows/neg_results/`). MinGW GCC 16.2.0 and MinGW Clang 22.1.8
-also build and pass the 29-vector KAT and `ctest` 2/2. The Ubuntu logs still show
-the pre-expansion 20/20; rerun `--kat` on Linux to refresh them. The Tkinter GUI
+also build and pass the 29-vector KAT and `ctest` 2/2. Ubuntu GCC 15.2 and
+Clang 21.1.8 also pass 29/29 and `ctest` 2/2 (logs refreshed 2026-11-05). The Tkinter GUI
 bonus is built against the shared library and passes its eight-mode self-test on
 Windows and
 Linux. The Ubuntu benchmark data is the 48-row GCC 15.2 matrix from
@@ -117,12 +117,14 @@ scripts/build_linux.sh gcc
 THREADS=4 PIN_CPU=0-3 scripts/run_benchmarks.sh gcc
 ```
 
-Lab 2 implements AES-128/192/256 and CTR in pure C++17; Crypto++ is linked only
-into `test_crossval`. The current KAT has 9 vectors and CTest has 4 tests.
-Windows MSVC 19.51, MinGW GCC 16.2.0 and MinGW Clang 22.1.8 each pass 9/9 KAT and
-4/4 CTest (logs in `lab02/output/windows/test_results/`). Windows MSVC
-benchmark data now exists at the chosen 1000/100/30 rows with summary, six
-plots and an audit under `lab02/output/windows/benchmarks/`. The Ubuntu test
-logs, Ubuntu benchmark rerun and Crypto++ throughput comparison are still
-open; see `docs/missing/lab2.md`. The Vietnamese report is
-`lab02/REPORT.md`; benchmark details are in `lab02/BENCHMARKS.md`.
+Lab 2 implements AES-128/192/256 and CTR in pure C++17; OpenSSL is linked only
+into `test_crossval` and `bench_openssl`. The current KAT has 9 vectors and
+CTest has 4 tests. Windows MSVC 19.51, MinGW GCC 16.2.0 and MinGW Clang 22.1.8
+each passed 9/9 KAT and 4/4 CTest before the oracle switch; rerun Windows with
+OpenSSL. Windows MSVC benchmark data exists at the chosen 1000/100/30 rows with
+summary, six plots and an audit under `lab02/output/windows/benchmarks/`.
+Ubuntu GCC 15.2 logs show 9/9 KAT, 4/4 CTest with OpenSSL, and the new
+1000/100/30 benchmark; OpenSSL throughput comparison is in
+`lab02/output/ubuntu/benchmarks/openssl/`; see `docs/missing/lab2.md`. The
+Vietnamese report is `lab02/REPORT.md`; benchmark details are in
+`lab02/BENCHMARKS.md`.

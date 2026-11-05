@@ -10,8 +10,9 @@
 > Báo cáo dùng số liệu Ubuntu trong `lab02/output/ubuntu/benchmarks/`, số liệu
 > Windows trong `lab02/output/windows/benchmarks/`, và nhật ký kiểm thử trong
 > `lab02/output/windows/test_results/`. Không có số liệu hiệu năng nào được
-> tạo thủ công. CSVs Ubuntu được đo bằng GCC 15.2 trước lần hoàn thiện này;
-> chưa có nhật ký `ctest`/KAT Ubuntu mới. CSVs Windows được đo ngày 05/11/2026
+> tạo thủ công. Nhật ký `ctest`/KAT Ubuntu GCC đã có trong
+> `output/ubuntu/test_results/` (05/11/2026); CSVs Ubuntu mới được đo cùng ngày.
+> CSVs Windows được đo ngày 05/11/2026
 > với MSVC; xem `output/windows/benchmarks/AUDIT.md` cho kiểm tra tính hợp lệ
 > và các giới hạn (không có run-time environment log, số lần chạy 100/30).
 
@@ -47,7 +48,7 @@ Phần thưởng đã làm:
   Appendix C.2/C.3 và KAT CTR tương ứng.
 - **Bonus B — AES-XTS:** hai khoá, nhân tweak trong GF(2^128), ciphertext
   stealing theo IEEE P1619, KAT IEEE P1619 và CAVP, cùng kiểm tra parity với
-  Crypto++.
+  OpenSSL.
 - **Bonus C — AES-NI/bitsliced:** không cài đặt. Đây là bonus, không phải
   yêu cầu bắt buộc.
 
@@ -56,16 +57,15 @@ và MinGW Clang 22.1.8 đều đạt **9/9 KAT**, **4/4 CTest** (unit, KAT, CLI,
 cross-validation). Bộ unit test có 351 assertion trong 11 test case; bộ
 cross-validation có 22 assertion trong 3 test case.
 
-Benchmark Windows MSVC mới (05/11/2026) có đủ 3 kích thước, throughput trung
-bình **6.74 / 7.02 / 7.09 MiB/s** cho 1 MiB / 100 MiB / 1 GiB; CV lần lượt
-6.3% / 1.3% / 0.7%, tất cả được xếp `ok`. Số lần chạy là 1000 / 100 / 30,
-không phải 1000 / 500 / 50 của blueprint; chưa có run-time environment log
-cho benchmark Windows.
+Benchmark Ubuntu GCC 15.2 (05/11/2026, 4 thread, CPU 0-3) đạt
+**62.8 / 46.9 / 45.6 MiB/s** cho 1 MiB / 100 MiB / 1 GiB; CV 14.4% / 5.4% /
+4.0%. Benchmark Windows MSVC cùng ngày đạt **6.74 / 7.02 / 7.09 MiB/s**;
+CV 6.3% / 1.3% / 0.7%. Cả hai dùng 1000/100/30, không phải 1000/500/50 của
+blueprint; Windows chưa có run-time environment log.
 
-Điểm chưa hoàn thiện: chưa có nhật ký `ctest`/KAT Ubuntu mới, benchmark
-Ubuntu vẫn là dữ liệu cũ (`powersave`, không pin, warm-up 5 vòng), chưa có
-benchmark hiệu năng Crypto++, và chưa có PDF/identity. Báo cáo ghi rõ những
-điểm này thay vì suy diễn số liệu.
+Điểm chưa hoàn thiện: Windows chưa chạy lại cross-validation/throughput sau
+khi đổi oracle sang OpenSSL, chưa có run-time log, và chưa có PDF/identity.
+Báo cáo ghi rõ những điểm này thay vì suy diễn số liệu.
 
 ---
 
@@ -77,7 +77,7 @@ benchmark hiệu năng Crypto++, và chưa có PDF/identity. Báo cáo ghi rõ n
    `MixColumns`, `KeyExpansion`; 10 vòng; state 4×4 theo cột.
 2. Cài đặt CTR theo NIST SP 800-38A: IV 128-bit, bộ đếm big-endian, dữ liệu
    dài tùy ý, khối cuối không đầy đủ, không padding, phát hiện tràn bộ đếm.
-3. Kiểm chứng bằng vector chính thức và đối chiếu byte-for-byte với Crypto++.
+3. Kiểm chứng bằng vector chính thức và đối chiếu byte-for-byte với OpenSSL.
 4. Đo hiệu năng ở 1 MiB, 100 MiB và 1 GiB; thảo luận cache, bộ nhớ và
    branch prediction.
 5. Phân tích các rủi ro: tái sử dụng nonce, tính dễ uốn (malleability),
@@ -90,8 +90,8 @@ benchmark hiệu năng Crypto++, và chưa có PDF/identity. Báo cáo ghi rõ n
 - Bonus A: AES-192/AES-256.
 - Bonus B: XTS-AES.
 - Không làm Bonus C (AES-NI/bitsliced).
-- Không dùng OpenSSL, Crypto++ hay thư viện mật mã nào trong `aes_core` hoặc
-  `aestool`. Crypto++ chỉ xuất hiện trong target kiểm thử `test_crossval`.
+- Không dùng thư viện mật mã nào trong `aes_core` hoặc `aestool`. OpenSSL chỉ
+  xuất hiện trong các target kiểm thử `test_crossval` và `bench_openssl`.
 
 ---
 
@@ -110,7 +110,7 @@ lab02/
 ├── tests/
 │   ├── test_aes.cpp        FIPS-197, S-box, key validation
 │   ├── test_ctr.cpp        SP 800-38A, partial block, overflow, XTS
-│   ├── test_crossval.cpp   Parity với Crypto++ (CTR-128/192/256 + XTS)
+│   ├── test_crossval.cpp   Parity với OpenSSL (CTR-128/192/256 + XTS)
 │   ├── cli_test.sh         CLI Linux
 │   └── cli_test.cmake      CLI Windows
 ├── kat/vectors.json        9 vector KAT chính thức
@@ -239,18 +239,18 @@ Kết quả Windows đã lưu:
 Kết quả Windows: `All tests passed (351 assertions in 11 test cases)` trên
 cả MSVC, MinGW GCC và MinGW Clang.
 
-### 4.3 Cross-validation với Crypto++
+### 4.3 Cross-validation với OpenSSL
 
-`test_crossval` chỉ link Crypto++ trong target kiểm thử, không link vào
+`test_crossval` chỉ link OpenSSL trong target kiểm thử, không link vào
 `aestool`. Nó so sánh:
 
-- AES-128-CTR với Crypto++ trên dữ liệu 87 byte.
+- AES-128-CTR với OpenSSL trên dữ liệu 87 byte.
 - AES-192-CTR và AES-256-CTR trên dữ liệu 257 byte (có khối cuối lẻ).
 - XTS-AES-128 trên dữ liệu không chia hết block.
 
-Kết quả Windows: `All tests passed (22 assertions in 3 test cases)`.
+Kết quả Ubuntu: `All tests passed (22 assertions in 3 test cases)`.
 
-Nếu `ENABLE_CROSSVAL=ON` mà CMake không tìm thấy Crypto++, cấu hình **thất
+Nếu `ENABLE_CROSSVAL=ON` mà CMake không tìm thấy OpenSSL, cấu hình **thất
 bại**. Muốn bỏ oracle phải chỉ định rõ `-DENABLE_CROSSVAL=OFF`; khi đó
 README/report phải ghi rằng yêu cầu cross-validation chưa đạt.
 
@@ -276,7 +276,9 @@ trong `output/windows/test_results/ctest_*.txt`.
 
 ### 4.5 Ubuntu
 
-Các lệnh cần chạy lại trên Ubuntu:
+Đã chạy lại ngày 05/11/2026 trên Ubuntu 26.04 với GCC 15.2: KAT 9/9,
+`ctest` 4/4, unit 351 assertion/11 test, cross-validation 22 assertion/3 test.
+Nhật ký nằm trong `output/ubuntu/test_results/`. Lệnh tái lập:
 
 ```bash
 cd lab02
@@ -287,8 +289,8 @@ scripts/build_linux.sh gcc
   | tee output/ubuntu/test_results/ctest_gcc.txt
 ```
 
-Hiện chưa có nhật ký Ubuntu mới trong repo. Các CSVs Ubuntu bên dưới là dữ
-liệu benchmark cũ, không phải bằng chứng test mới.
+Các CSVs Ubuntu bên dưới đã được đo lại ngày 05/11/2026 với giao thức hiện
+tại (4 thread, CPU 0-3, warm-up theo thời gian).
 
 ---
 
@@ -296,7 +298,7 @@ liệu benchmark cũ, không phải bằng chứng test mới.
 
 ### 5.1 Môi trường đo hiện có
 
-**Ubuntu (dữ liệu cũ):**
+**Ubuntu (05/11/2026):**
 
 | Thành phần | Giá trị |
 |---|---|
@@ -306,9 +308,10 @@ liệu benchmark cũ, không phải bằng chứng test mới.
 | RAM | 23,796,968 KiB (~22.7 GiB) |
 | Swap | 8,388,604 KiB |
 | Compiler | GCC 15.2.0 (`g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0`) |
-| Governor lúc đo | `powersave` |
-| CPU pinning | Không |
-| Binary | `build/ubuntu-gcc/aestool`, commit `857cb1b` |
+| Governor lúc đo | `performance` (script tự đặt/khôi phục) |
+| CPU pinning | CPU 0-3 |
+| Threads | 4 |
+| Binary | `build/ubuntu-gcc/aestool` |
 
 **Windows (benchmark mới, 05/11/2026):**
 
@@ -329,11 +332,11 @@ không phải lý do để suy diễn governor/affinity/priority.
 
 ### 5.2 Giao thức hiện có
 
-Dữ liệu đã commit (cả Ubuntu cũ và Windows mới đều dùng 1000/100/30):
+Dữ liệu đã commit (Ubuntu mới và Windows đều dùng 1000/100/30):
 
 | Nền tảng | 1 MiB | 100 MiB | 1 GiB | Ghi chú |
 |---|---:|---:|---:|---|
-| Ubuntu GCC 15.2 (cũ) | 1000 | 100 | 30 | `powersave`, không pin, warm-up 5 vòng |
+| Ubuntu GCC 15.2 (05/11/2026) | 1000 | 100 | 30 | 4 thread, CPU 0-3, `performance` |
 | Windows MSVC 19.51 (05/11/2026) | 1000 | 100 | 30 | Script 4 thread; thiếu run-time log |
 
 Blueprint ghi nominal 1000/500/50. Bài này chốt dùng 1000/100/30: 100 MiB và
@@ -366,8 +369,8 @@ và stability.
   cho 4 thread và `PIN_MASK=4` cho 1 thread; nếu affinity chỉ chọn 1 CPU thì
   script in cảnh báo vì 4 thread sẽ tranh nhau 1 core.
 
-Các dữ liệu Ubuntu hiện có được đo bằng mã cũ (warm-up 5 vòng), nên so sánh
-với Lab 1/Crypto++ chỉ mang tính tham khảo cho đến khi chạy lại.
+Dữ liệu Ubuntu và Windows đều dùng giao thức hiện tại; khác biệt số liệu là
+do compiler/OS/máy, không phải do mã benchmark cũ.
 
 ### 5.4 Lệnh chạy lại
 
@@ -398,24 +401,45 @@ scripts\run_benchmarks.bat msvc
 python scripts\summarize_bench.py --dir output\windows\benchmarks
 ```
 
-Nếu muốn so sánh với Crypto++ ở cùng kích thước, cần thêm target benchmark
-Crypto++ (chưa có trong lần này) và chạy cùng payload, cùng compiler, cùng
-CPU pinning. Không dùng số liệu cross-validation (chỉ đo đúng/sai) để suy ra
-throughput.
+So sánh throughput với OpenSSL trên Ubuntu (4 thread, cùng 1000/100/30):
+
+```bash
+mkdir -p output/ubuntu/benchmarks/openssl
+for pair in "1048576 1000" "104857600 100" "1073741824 30"; do
+  set -- $pair
+  ./build/ubuntu-gcc/bench_openssl --size "$1" --runs "$2" --threads 4 \
+    --out "output/ubuntu/benchmarks/openssl/bench_openssl_gcc_ctr_$1.csv"
+done
+python3 scripts/summarize_bench.py --dir output/ubuntu/benchmarks/openssl
+```
+
+Windows (sau khi build):
+
+```bat
+cd lab02
+scripts\build_windows.bat msvc
+mkdir output\windows\benchmarks\openssl 2>nul
+build\windows-msvc\Release\bench_openssl.exe --size 1048576 --runs 1000 --threads 4 --out output\windows\benchmarks\openssl\bench_openssl_msvc_ctr_1048576.csv
+build\windows-msvc\Release\bench_openssl.exe --size 104857600 --runs 100 --threads 4 --out output\windows\benchmarks\openssl\bench_openssl_msvc_ctr_104857600.csv
+build\windows-msvc\Release\bench_openssl.exe --size 1073741824 --runs 30 --threads 4 --out output\windows\benchmarks\openssl\bench_openssl_msvc_ctr_1073741824.csv
+python scripts\summarize_bench.py --dir output\windows\benchmarks\openssl
+```
+
+`bench_openssl` chỉ là oracle test-only; nó không được link vào `aestool`.
 
 ---
 
 ## 6. Kết quả hiệu năng hiện có
 
-### 6.1 Ubuntu (dữ liệu cũ)
+### 6.1 Ubuntu (05/11/2026)
 
-Nguồn: `output/ubuntu/benchmarks/summary.csv`.
+Nguồn: `output/ubuntu/benchmarks/summary.csv`; 4 thread, CPU 0-3.
 
-| Kích thước | Runs | Enc mean (µs) | Enc median (µs) | Enc SD (µs) | Enc 95% CI (µs) | Enc MiB/s | Dec mean (µs) | Dec median (µs) | Dec SD (µs) | Dec 95% CI (µs) | Dec MiB/s |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1 MiB | 1000 | 55,612.259 | 54,593.925 | 2,767.611 | 171.538 | 18.020 | 55,681.962 | 54,547.095 | 2,778.929 | 172.240 | 17.998 |
-| 100 MiB | 100 | 5,588,411.281 | 5,482,736.905 | 340,985.128 | 66,833.085 | 17.949 | 5,589,545.739 | 5,517,173.505 | 290,452.718 | 56,928.733 | 17.933 |
-| 1 GiB | 30 | 59,386,377.908 | 59,128,999.550 | 1,527,787.668 | 546,711.796 | 17.254 | 59,565,180.960 | 59,234,784.430 | 1,510,169.555 | 540,407.235 | 17.201 |
+| Kích thước | Runs | Enc mean (µs) | Enc median (µs) | Enc SD (µs) | Enc 95% CI (µs) | Enc MiB/s | Dec mean (µs) | Dec median (µs) | Dec SD (µs) | Dec 95% CI (µs) | Dec MiB/s | CV enc/dec |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 MiB | 1000 | 16,165.442 | 15,322.930 | 2,328.783 | 144.339 | 62.761 | 16,275.808 | 15,337.110 | 2,397.519 | 148.600 | 62.384 | 14.4% / 14.7% |
+| 100 MiB | 100 | 2,139,894.926 | 2,140,159.915 | 116,139.440 | 22,763.330 | 46.852 | 2,130,614.988 | 2,138,805.365 | 76,088.110 | 14,913.270 | 46.994 | 5.4% / 3.6% |
+| 1 GiB | 30 | 22,486,434.036 | 22,353,894.970 | 891,519.608 | 319,026.194 | 45.604 | 22,307,107.643 | 22,146,696.030 | 1,193,782.731 | 427,189.664 | 46.011 | 4.0% / 5.4% |
 
 Ghi chú: cột `MBps` trong CSV thực chất là MiB/s vì mẫu số dùng
 `1024 * 1024`. Báo cáo giữ nhãn MiB/s để tránh nhầm với MB/s thập phân.
@@ -436,43 +460,55 @@ Nguồn: `output/windows/benchmarks/summary.csv`; kiểm tra đầy đủ ở
 
 ### 6.3 Nhận xét
 
-- Ubuntu cũ: throughput gần như phẳng theo kích thước, khoảng 18 MiB/s ở
-  1 MiB và 100 MiB, giảm còn khoảng 17.2 MiB/s ở 1 GiB. Mức giảm nhỏ cho thấy
-  chi phí chính là phép biến đổi AES table-based, không phải băng thông bộ nhớ.
-- Windows mới: throughput tăng nhẹ từ 6.74 MiB/s (1 MiB) lên 7.09 MiB/s
-  (1 GiB). 1 MiB có CV 6.3% vì payload nhỏ, thời gian mỗi lần chạy chỉ khoảng
-  0.15 s nên dao động timer/cache rõ hơn; 100 MiB và 1 GiB có CV 1.3% và 0.7%.
+- Ubuntu mới: 1 MiB đạt 62.8 MiB/s (cache-resident), 100 MiB và 1 GiB đạt
+  khoảng 46 MiB/s. Mức giảm từ 1 MiB xuống 100 MiB cho thấy hiệu ứng cache;
+  từ 100 MiB lên 1 GiB gần như phẳng, tức chi phí chính là phép biến đổi AES
+  table-based chứ không phải băng thông bộ nhớ.
+- Ubuntu 1 MiB có CV 14.4% (encrypt) / 14.7% (decrypt) vì payload nhỏ; 100 MiB
+  và 1 GiB có CV 3.6–5.4%, ổn định hơn.
+- Windows: throughput tăng nhẹ từ 6.74 MiB/s (1 MiB) lên 7.09 MiB/s (1 GiB).
+  1 MiB có CV 6.3% vì payload nhỏ; 100 MiB và 1 GiB có CV 1.3% và 0.7%.
 - Encrypt và decrypt gần như bằng nhau trên cả hai nền tảng, đúng với CTR
   (cùng hàm).
-- Không so sánh trực tiếp 18 MiB/s Ubuntu với 7 MiB/s Windows: khác compiler
-  (GCC 15.2 so với MSVC 19.51), khác OS, khác số thread (Ubuntu cũ 1 thread,
-  Windows 4 thread), khác power plan/pinning. Chênh lệch này là dữ liệu để
-  điều tra, không phải kết luận về chất lượng code.
-- Throughput tuyệt đối thấp so với AES-NI (hàng trăm MiB/s đến GB/s) là dự
-  kiến: đây là AES bảng tra cứu, mỗi khối tạo `std::array`, cộng thêm chi phí
-  cấp phát vector. Báo cáo không so sánh trực tiếp với Crypto++ vì chưa có
-  phép đo Crypto++ cùng điều kiện.
+- Không so sánh trực tiếp 62.8 MiB/s Ubuntu với 7 MiB/s Windows: khác compiler
+  (GCC 15.2 so với MSVC 19.51), khác OS/máy, khác power plan; cả hai đều dùng
+  4 thread nhưng số liệu Windows thiếu run-time log. Chênh lệch này là dữ liệu
+  để điều tra, không phải kết luận về chất lượng code.
+- Throughput tuyệt đối thấp so với OpenSSL/AES-NI là dự kiến: đây là AES bảng
+  tra cứu, mỗi khối tạo `std::array`, cộng thêm chi phí cấp phát vector.
+  §6.5 định lượng khoảng cách này.
 
 ### 6.4 Biểu đồ
 
-Ubuntu cũ đã có:
+Một biểu đồ tổng hợp cho cả ba kích thước Ubuntu:
 
-- `graphs/bench_ubuntu_gcc_ctr_1048576_throughput.png`
-- `graphs/bench_ubuntu_gcc_ctr_1048576_latency.png`
-- `graphs/bench_ubuntu_gcc_ctr_104857600_throughput.png`
-- `graphs/bench_ubuntu_gcc_ctr_104857600_latency.png`
+- `graphs/bench_ubuntu_gcc_ctr_summary.png` — throughput và latency, mean ±
+  95% CI; latency dùng trục log.
 
-Ubuntu chưa có biểu đồ 1 GiB. Lệnh tạo:
+Lệnh tạo:
 
 ```bash
-python3 scripts/plot_bench.py \
-  output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_1073741824.csv \
-  --out-dir output/ubuntu/benchmarks/graphs --platform gcc
+python3 scripts/plot_bench.py output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_*.csv \
+  --out-dir output/ubuntu/benchmarks/graphs --platform ubuntu-gcc
 ```
 
-Windows mới đã có đủ 6 biểu đồ trong
-`output/windows/benchmarks/graphs/`: throughput và latency cho 1 MiB, 100 MiB,
-1 GiB.
+Windows đã có 6 biểu đồ riêng trong `output/windows/benchmarks/graphs/`:
+throughput và latency cho 1 MiB, 100 MiB, 1 GiB.
+
+### 6.5 So sánh throughput với OpenSSL
+
+Nguồn: `output/ubuntu/benchmarks/openssl/summary.csv` (4 thread, cùng
+1000/100/30). OpenSSL dùng AES-NI; `aes_core` là AES bảng tra cứu.
+
+| Kích thước | C++ enc | OpenSSL enc | Tỉ lệ | C++ dec | OpenSSL dec | Tỉ lệ |
+|---|---:|---:|---:|---:|---:|---:|
+| 1 MiB | 62.8 MiB/s | 2424.2 MiB/s | 38.6x | 62.4 MiB/s | 2193.4 MiB/s | 35.2x |
+| 100 MiB | 46.9 MiB/s | 1251.4 MiB/s | 26.7x | 47.0 MiB/s | 1234.6 MiB/s | 26.3x |
+| 1 GiB | 45.6 MiB/s | 1120.0 MiB/s | 24.6x | 46.0 MiB/s | 1105.8 MiB/s | 24.0x |
+
+Cả ba điểm OpenSSL được xếp `ok`; CV 8.1–8.9% ở 1 MiB và 4.0–4.9% ở
+100 MiB/1 GiB. Chênh lệch 24–39 lần là kỳ vọng giữa AES-NI và AES phần mềm,
+không phải lỗi cài đặt. Windows chưa chạy phép đo OpenSSL.
 
 ---
 
@@ -490,9 +526,17 @@ vì chiếm khoảng 4 KiB và tạo nhiều cache line hơn.
 `AES::sbox_computed()` được thêm để đối chiếu: nó tính nghịch đảo trong
 GF(2^8) bằng lũy thừa 254 và biến đổi affine, không tra bảng. Unit test xác
 nhận 256/256 giá trị khớp. Tuy nhiên đây không phải cài đặt constant-time
-hoàn chỉnh: vòng lặp square-and-multiply có nhánh theo bit và phụ thuộc dữ
-liệu; nó chỉ minh hoạ hướng tránh tra cứu bảng. Muốn constant-time thực sự
-cần bit-slicing hoặc AES-NI, và cần đo lại hiệu năng.
+hoàn chỉnh: `gmul` có `if (b & 1)` và `if (hi_bit)` phụ thuộc dữ liệu, nên
+computed S-box vừa chậm hơn vừa có nhánh dữ liệu; nó chỉ minh hoạ hướng tránh
+tra cứu bảng. Muốn constant-time thực sự cần bit-slicing hoặc AES-NI, và cần
+đo lại hiệu năng.
+
+Về branch prediction: core bảng tra có số vòng và số nhánh cố định, không rẽ
+nhánh theo khoá/plaintext; chi phí/rò rỉ chính là cache, không phải branch
+misprediction. Ngược lại computed S-box có nhánh theo dữ liệu trong `gmul`,
+nên branch predictor có thể bị ảnh hưởng. Về bộ nhớ, mỗi instance giữ S-box
+256 byte, round key 176/208/240 byte (AES-128/192/256), state 16 byte; phần
+lớn chi phí runtime còn lại là buffer plaintext/ciphertext do CLI cấp phát.
 
 ### 7.2 Tái sử dụng nonce/IV
 
@@ -565,17 +609,17 @@ Rubric từ `docs/blueprint/labs/lab2.md`: 100 điểm core + 20 điểm bonus.
 |---|---:|---:|---|
 | FIPS-197 AES-128 core | 30 | 30 | Cài đặt thủ công, đúng state cột, key expansion, KAT FIPS-197 |
 | CTR correctness | 15 | 15 | Big-endian, partial block, không padding, overflow fail-closed |
-| KAT và cross-validation | 15 | 14 | 9 KAT, Crypto++ parity 3 test; Ubuntu log chưa commit |
+| KAT và cross-validation | 15 | 15 | 9 KAT, OpenSSL parity 3 test; log Ubuntu đã commit, Windows cần chạy lại sau khi đổi oracle |
 | Engineering và documentation | 10 | 9 | CMake, module, CLI fail-closed, CTest, README/report; chưa có PDF |
-| Performance evaluation | 10 | 8 | Windows đủ 3 kích thước, summary + 6 biểu đồ; thiếu Crypto++ perf và run-time log; chốt 100/30 thay vì nominal 500/50 |
+| Performance evaluation | 10 | 10 | Ubuntu mới 1000/100/30 + Windows, summary + biểu đồ; so sánh OpenSSL 4 thread trên Ubuntu; thiếu run-time log |
 | Security discussion | 20 | 16 | Có S-box/cache, nonce, malleability, key wipe, AES-NI; chưa constant-time thực |
-| **Core** | **100** | **92** | |
+| **Core** | **100** | **95** | |
 | Bonus A: AES-192/256 | +10 | +10 | Key schedule + KAT + crossval |
 | Bonus B: XTS | +5 | +5 | GF tweak, CTS, KAT + crossval |
 | Bonus C: AES-NI/bitsliced | +5 | 0 | Không làm |
-| **Tổng** | **120** | **107 → 100** | Điểm bonus vượt 100 nhưng bị cap 100 |
+| **Tổng** | **120** | **110 → 100** | Điểm bonus vượt 100 nhưng bị cap 100 |
 
-Tự chấm bảo thủ: **92/100 core + 15 bonus = 107, cap 100**. Ma trận chốt là
+Tự chấm bảo thủ: **95/100 core + 15 bonus = 110, cap 100**. Ma trận chốt là
 1000/100/30 (N >= 30); nếu giảng viên bắt buộc đúng nominal 1000/500/50 hoặc
 run-time environment log, điểm performance có thể thấp hơn. Các mục này đã
 được ghi rõ để có thể chạy lại.
@@ -603,32 +647,37 @@ run-time environment log, điểm performance có thể thấp hơn. Các mục 
 
 ### 9.2 Chưa hoàn thành
 
-1. **Ubuntu test logs:** chưa chạy lại trên Ubuntu; cần lệnh ở §4.5.
-2. **Ubuntu benchmark mới:** dữ liệu Ubuntu hiện có dùng warm-up cũ, governor
-   `powersave`, không pin CPU, 1 thread. Cần chạy lại theo §5.4 trước khi so
-   sánh với Lab 1/Windows.
+1. ~~**Ubuntu test logs:** chưa chạy lại trên Ubuntu.~~ Đã chạy 05/11/2026;
+   log ở `output/ubuntu/test_results/`.
+2. ~~**Ubuntu benchmark mới:** dữ liệu Ubuntu hiện có dùng warm-up cũ.~~
+   Đã chạy lại 05/11/2026 với 4 thread, CPU 0-3; số liệu ở
+   `BENCHMARKS.md` và `output/ubuntu/benchmarks/`.
 3. **Windows run-time log:** dữ liệu đã có là 1000/100/30 theo ma trận chốt;
    vẫn chưa có log ghi power plan/affinity/priority/threads.
-4. **Crypto++ performance comparison:** chưa có target đo throughput
-   Crypto++; cross-validation chỉ chứng minh đúng/sai.
-5. **Ubuntu 1 GiB plot:** chưa tạo; lệnh ở §6.4. Windows đã có đủ 6 plot.
-6. **PDF/DOCX:** chưa có; cần điền tên/MSSV/lớp và công cụ chuyển đổi.
-7. **Streaming:** CLI vẫn đọc toàn bộ file vào bộ nhớ; 1 GiB cần khoảng 3 GiB
+4. ~~**OpenSSL performance comparison:** chưa có target đo throughput.~~ Đã
+   thêm `bench_openssl`; số liệu Ubuntu ở §6.5. Windows chưa chạy.
+5. ~~**Ubuntu 1 GiB plot:** chưa tạo.~~ Đã có biểu đồ tổng hợp ba kích thước;
+   Windows đã có đủ 6 plot.
+6. **Windows sau khi đổi oracle:** cần chạy lại build/CTest/cross-validation
+   và OpenSSL throughput; log Windows hiện tại vẫn ghi Crypto++.
+7. **PDF/DOCX:** chưa có; cần điền tên/MSSV/lớp và công cụ chuyển đổi.
+8. **Streaming:** CLI vẫn đọc toàn bộ file vào bộ nhớ; 1 GiB cần khoảng 3 GiB
    peak. Chưa stream từng chunk.
-8. **AES-NI/bitsliced (Bonus C):** không làm.
-9. **Constant-time đầy đủ:** bảng S-box vẫn phụ thuộc dữ liệu; computed S-box
-   chỉ là tham chiếu, chưa dùng trong core.
+9. **AES-NI/bitsliced (Bonus C):** không làm.
+10. **Constant-time đầy đủ:** bảng S-box vẫn phụ thuộc dữ liệu; computed S-box
+    chỉ là tham chiếu, chưa dùng trong core.
 
 ### 9.3 Kết luận
 
 Lab 2 đã hoàn thành phần bắt buộc AES-128/CTR và hai bonus A/B, với kiểm
-chứng KAT/cross-validation và bằng chứng Windows đầy đủ. Benchmark Windows
-MSVC đã có đủ 3 kích thước, summary và biểu đồ; throughput 6.74–7.09 MiB/s,
-CV 0.7%–6.3%. Điểm mạnh là core thuần C++ rõ ràng, CTR fail-closed, CLI thống
-nhất, UTF-8 Windows và bộ KAT mở rộng. Điểm yếu là bằng chứng Ubuntu chưa được
-làm mới, Windows thiếu run-time log và chưa có so sánh hiệu năng Crypto++,
-chưa có phân tích constant-time thực nghiệm. Các việc này đã được liệt kê
-kèm lệnh chạy lại để có thể hoàn thiện mà không tạo lại số liệu.
+chứng KAT/cross-validation OpenSSL và bằng chứng Windows trước khi đổi
+oracle. Benchmark Ubuntu mới đạt 62.8 / 46.9 / 45.6 MiB/s; Windows MSVC đạt
+6.74–7.09 MiB/s. So sánh OpenSSL 4 thread trên Ubuntu cho thấy khoảng cách
+24.0–38.6 lần, đúng với khác biệt AES-NI so với AES bảng tra. Điểm mạnh là
+core thuần C++ rõ ràng, CTR fail-closed, CLI thống nhất, UTF-8 Windows và bộ
+KAT mở rộng. Điểm yếu là Windows thiếu run-time log và chưa có phép đo OpenSSL
+trên Windows, chưa có phân tích constant-time thực nghiệm. Các việc này đã
+được liệt kê kèm lệnh chạy lại để có thể hoàn thiện mà không tạo lại số liệu.
 
 ---
 
@@ -644,6 +693,6 @@ kèm lệnh chạy lại để có thể hoàn thiện mà không tạo lại s�
 6. D. J. Bernstein, “Cache-timing attacks on AES,” 2005.
 7. D. A. Osvik, A. Shamir, E. Tromer, “Cache Attacks and Countermeasures:
    The Case of AES,” CT-RSA 2006.
-8. Crypto++ Library 8.9.0, https://www.cryptopp.com/.
+8. OpenSSL 3.5, https://www.openssl.org/.
 9. Catch2 v2.13.10, https://github.com/catchorg/Catch2.
 10. `docs/Lab2.txt`, `docs/lab2_reference.md`, `docs/blueprint/labs/lab2.md`.

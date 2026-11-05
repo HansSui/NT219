@@ -178,6 +178,19 @@ test_crossval/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_crossval.dir/build.make CMakeFiles/test_crossval.dir/build
 .PHONY : test_crossval/fast
 
+#=============================================================================
+# Target rules for targets named bench_openssl
+
+# Build rule for target.
+bench_openssl: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 bench_openssl
+.PHONY : bench_openssl
+
+# fast build rule for target.
+bench_openssl/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_openssl.dir/build.make CMakeFiles/bench_openssl.dir/build
+.PHONY : bench_openssl/fast
+
 src/AES.o: src/AES.cpp.o
 .PHONY : src/AES.o
 
@@ -249,6 +262,30 @@ src/modes.s: src/modes.cpp.s
 src/modes.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/aes_core.dir/build.make CMakeFiles/aes_core.dir/src/modes.cpp.s
 .PHONY : src/modes.cpp.s
+
+tests/bench_openssl.o: tests/bench_openssl.cpp.o
+.PHONY : tests/bench_openssl.o
+
+# target to build an object file
+tests/bench_openssl.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_openssl.dir/build.make CMakeFiles/bench_openssl.dir/tests/bench_openssl.cpp.o
+.PHONY : tests/bench_openssl.cpp.o
+
+tests/bench_openssl.i: tests/bench_openssl.cpp.i
+.PHONY : tests/bench_openssl.i
+
+# target to preprocess a source file
+tests/bench_openssl.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_openssl.dir/build.make CMakeFiles/bench_openssl.dir/tests/bench_openssl.cpp.i
+.PHONY : tests/bench_openssl.cpp.i
+
+tests/bench_openssl.s: tests/bench_openssl.cpp.s
+.PHONY : tests/bench_openssl.s
+
+# target to generate assembly for a file
+tests/bench_openssl.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/bench_openssl.dir/build.make CMakeFiles/bench_openssl.dir/tests/bench_openssl.cpp.s
+.PHONY : tests/bench_openssl.cpp.s
 
 tests/test_aes.o: tests/test_aes.cpp.o
 .PHONY : tests/test_aes.o
@@ -333,6 +370,7 @@ help:
 	@echo "... test"
 	@echo "... aes_core"
 	@echo "... aestool"
+	@echo "... bench_openssl"
 	@echo "... test_core"
 	@echo "... test_crossval"
 	@echo "... src/AES.o"
@@ -344,6 +382,9 @@ help:
 	@echo "... src/modes.o"
 	@echo "... src/modes.i"
 	@echo "... src/modes.s"
+	@echo "... tests/bench_openssl.o"
+	@echo "... tests/bench_openssl.i"
+	@echo "... tests/bench_openssl.s"
 	@echo "... tests/test_aes.o"
 	@echo "... tests/test_aes.i"
 	@echo "... tests/test_aes.s"

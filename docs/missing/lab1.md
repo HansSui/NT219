@@ -1,8 +1,9 @@
 # Lab 1 - Missing / Lacking
 
-**Audit date:** 2026-11-02
+**Audit date:** 2026-11-02 (Ubuntu rerun 2026-11-05)
 **Fixes applied:** 2026-11-02 (L1-03, L1-04, L1-05, L1-07, L1-08, L1-09,
-L1-10; packaging helper for L1-01/L1-02)
+L1-10; packaging helper for L1-01/L1-02); 2026-11-05 Ubuntu KAT/ctest/nonce
+logs refreshed
 **Sources:** `docs/lab1.txt`, `docs/lab requirement.md`, `docs/GradingSystem.txt`,
 `docs/blueprint/labs/lab1.md`, `lab01/`
 **Method:** rebuilt and ran Lab 1 on Windows with MSVC 19.51, MinGW GCC 16.2.0
@@ -15,23 +16,22 @@ incomplete, **Missing** = not present, **Not verified** = no evidence here.
 
 ## Verdict
 
-The Lab 1 implementation is complete on the code, KAT and Windows-evidence
-side. The remaining gaps are submission identity/PDF packaging and an Ubuntu
-rerun of the expanded KAT and negative suite; neither indicates a broken AES
-implementation.
+The Lab 1 implementation is complete on the code, KAT and evidence side, on
+Ubuntu and Windows. The only remaining gaps are submission identity/PDF
+packaging (L1-01, L1-02); neither indicates a broken AES implementation.
 
 Sidecar nonce reuse, automatic XTS tweaks, broken documentation links, thin
 AES-256/XTS KAT coverage, the untested nonce lock, and the unsupported Clang
 benchmark claims are fixed. The 19-case negative suite is now in `ctest` on both
-platforms, and the Windows KAT logs show 29/29 vectors.
+platforms, and the Ubuntu and Windows KAT logs show 29/29 vectors.
 
 ## Verified state after fixes
 
 | Check | Ubuntu | Windows |
 |---|---|---|
 | Build and `ctest` | Pass, 2/2 (GCC and Clang logs) | Pass, 2/2 (MSVC and MinGW logs) |
-| CLI KAT | 20/20 committed (pre-expansion; rerun pending) | 29/29 (MSVC, MinGW GCC, MinGW Clang) |
-| Negative tests | 12 committed cases; 19 cases now in `ctest` | 17 committed cases; 19 cases now in `ctest` |
+| CLI KAT | 29/29 (GCC 15.2, Clang 21.1.8; refreshed 2026-11-05) | 29/29 (MSVC, MinGW GCC, MinGW Clang) |
+| Negative tests | 19 cases in `ctest` (ctest log refreshed); legacy per-case logs | 17 committed cases; 19 cases now in `ctest` |
 | Benchmark matrix | GCC 48 CSVs; Clang tests/KAT only | MSVC 48 CSVs |
 | GUI self-test | Pass | Pass |
 | Non-ASCII path | CLI/unit coverage exists | Dedicated log exists |
@@ -54,8 +54,8 @@ scripts/build_linux.sh gcc
 | L1-02 | Windows/Linux binaries not packaged | C-13 | Missing | Missing | Medium (ambiguous) |
 | L1-03 | Sidecar header was not checked for nonce reuse | C-06 | Fixed | Fixed; rerun done | Closed |
 | L1-04 | XTS auto-generated an IV when omitted | C-06 | Fixed | Fixed; rerun done | Closed |
-| L1-05 | AES-192/256 and XTS KAT coverage is thin | C-08 | Partial (20-vector log) | 29/29 | Closed |
-| L1-06 | Ubuntu negative-test evidence is thinner than Windows | C-09 | Partial (19 cases in ctest) | OK | Medium |
+| L1-05 | AES-192/256 and XTS KAT coverage is thin | C-08 | 29/29 (GCC, Clang) | 29/29 | Closed |
+| L1-06 | Ubuntu negative-test evidence is thinner than Windows | C-09 | OK (19 cases in ctest, log refreshed) | OK | Closed |
 | L1-07 | Nonce registry is per-directory and concurrency is untested | C-06 | Partial | Fixed (repeatable race test) | Closed |
 | L1-08 | Uniform CLI is only partially implemented | C-03, C-04 | Fixed | Fixed; rerun done | Closed |
 | L1-09 | Deleted checklist files leave broken links | C-02 | Fixed | Fixed | Closed |
@@ -131,8 +131,8 @@ first-block smoke test. The expansion adds:
   payload and 20-byte AAD.
 
 Windows MSVC, MinGW GCC and MinGW Clang pass 29/29 and the refreshed logs are
-committed. The Ubuntu logs still show the pre-expansion 20/20 and need a Linux
-rerun; the local environment for this pass was Windows-only.
+committed. Ubuntu GCC 15.2 and Clang 21.1.8 were rerun on 2026-11-05 and pass
+29/29; the refreshed logs are committed.
 
 The two CAVP CCM vectors share a key/nonce because they belong to one CAVP test
 group. They are algorithm KATs, not CLI nonce-reuse tests, so that does not
@@ -155,9 +155,10 @@ coverage for:
 - nonce-lock contention
 
 `ctest` runs these on Linux and Windows, so a plain Linux `ctest` now covers the
-missing paths. The per-case logs in `lab01/output/ubuntu/neg_results/` are still
-the older 12-case set; regenerate them on Ubuntu if the submission needs
-per-case console evidence. Requirement: C-09 and Lab 1 section 2.3.
+missing paths; the Ubuntu GCC/Clang `ctest` logs were refreshed on 2026-11-05.
+The per-case logs in `lab01/output/ubuntu/neg_results/` are still the older
+12-case set; regenerate them only if the submission needs per-case console
+evidence. Requirement: C-09 and Lab 1 section 2.3.
 
 ### L1-07 - Nonce registry scope and concurrency are not fully evidenced
 
@@ -337,16 +338,17 @@ The commands below were run from `E:\NT219\lab01`; output is in
 
 Not run in this pass:
 
-- Ubuntu KAT/`ctest`: this host is Windows-only and `wsl -l -v` shows no
-  installed distributions. The committed Ubuntu logs remain the 20-vector
-  pre-expansion logs; the commands to refresh them are in the Ubuntu section.
+- Ubuntu KAT/`ctest`: rerun on 2026-11-05 on Ubuntu 26.04 with GCC 15.2 and
+  Clang 21.1.8; both pass 29/29 KAT and `ctest` 2/2. The nonce-race log was
+  also refreshed (`1 success, 7 rejections`).
 - PDF/DOCX export and the final named archive: both need the student's name,
   MSSV and class, and a PDF converter is not installed here.
 
 Regrade after this log: unchanged at **98/100 core plus +5 bonus** (capped at
-100). L1-01 and L1-02 remain **Partial** because the final identity-filled
-archive has not been produced, and L1-06 remains **Partial** for Ubuntu
-per-case evidence. The AES/KAT/security/UX/performance items are closed.
+100); the 2026-11-05 Ubuntu rerun closes the KAT/ctest evidence gap but does not
+change the score. L1-01 and L1-02 remain **Partial** because the final
+identity-filled archive has not been produced. The AES/KAT/security/UX/
+performance items are closed.
 
 ## Grade
 
@@ -365,10 +367,29 @@ Rubric from `docs/blueprint/labs/lab1.md`: 100 core points + 5 bonus.
 | **Total** | **105** | **88** | **103** | 100/100 after the bonus cap |
 
 Baseline **88/100**, post-fix **98/100** core plus **+5 bonus** (capped at 100).
-The remaining gap is submission work (identity fields, optional PDF export,
-archive) and the Ubuntu rerun of the 29-vector KAT and 19-case CLI suite, not
-the AES implementation. Do not claim a final PDF or Ubuntu 29/29 until those
-artifacts exist.
+The Ubuntu 29/29 KAT and 19-case `ctest` logs now exist. The remaining gap is
+submission work (identity fields, optional PDF export, archive), not the AES
+implementation. Do not claim a final PDF until it exists.
+
+## Regrade 2026-11-05 (report excluded)
+
+Ubuntu KAT/`ctest`/nonce logs were refreshed on 2026-11-05. Report quality is
+excluded from this regrade, so the core is out of 80.
+
+| Criterion | Max | Score | Reason |
+|---|---:|---:|---|
+| Correctness and KATs | 25 | 25 | 29/29 on Windows MSVC/MinGW and Ubuntu GCC/Clang; unit + mutation + 19-case CLI |
+| Security hygiene | 15 | 15 | IV/nonce validation, sidecar reuse check, ECB guard, atomic per-directory nonce lock, fail-closed AEAD |
+| UX and I/O design | 10 | 10 | uniform CLI, hex/base64/raw, optional sidecar, UTF-8, useful errors |
+| Performance methodology | 20 | 20 | 96 CSVs, controlled Windows/Linux runs, mean/median/SD/CI95, plots and interpretation |
+| Cross-platform build | 10 | 10 | MSVC, MinGW GCC/Clang, Linux GCC/Clang verified |
+| Report quality | 20 | excluded | — |
+| **Core (report excluded)** | **80** | **80** | |
+| Bonus: library + GUI | +5 | +5 | shared library + Tkinter GUI |
+| **Total** | **85** | **85** | report excluded |
+
+With the report counted at 19/20, the previously reported 98/100 core is
+unchanged; the exclusion only removes the 20-point report row.
 
 ## Applied fixes
 

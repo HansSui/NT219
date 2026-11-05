@@ -1,0 +1,4 @@
+platform,compiler,mode,size_bytes,size,runs,enc_median_us,dec_median_us,enc_trimmed_mean_us,dec_trimmed_mean_us,enc_median_MBps,dec_median_MBps,enc_outlier_pct,dec_outlier_pct,enc_cv,dec_cv,enc_stability,dec_stability
+openssl,gcc,CTR,1048576,1MB,1000,405.598,445.478,409.942,452.379,2465.495,2244.782,0.00,0.00,0.0813,0.0897,ok,ok
+openssl,gcc,CTR,104857600,100MB,100,78982.125,79976.542,79606.139,80688.247,1266.111,1250.367,0.00,0.00,0.0488,0.0420,ok,ok
+openssl,gcc,CTR,1073741824,1GB,30,892077.303,914279.099,914183.465,926514.629,1147.883,1120.016,0.00,0.00,0.0427,0.0402,ok,ok

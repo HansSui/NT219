@@ -49,8 +49,7 @@ Kết quả chính:
   `aesgui_*`, không gọi CLI. Self-test trên Windows và Ubuntu đều chạy đủ tám mode,
   round-trip và từ chối sai khoá.
 - **Tính đúng đắn:** 29/29 vector KAT đạt trên Windows MSVC, MinGW GCC và MinGW
-  Clang; log Ubuntu GCC/Clang hiện là bản 20 vector trước khi mở rộng và cần chạy
-  lại. Bộ vector gồm NIST SP 800-38A cho ECB/CBC/CFB/OFB/CTR, bổ sung AES-192/256
+  Clang; log Ubuntu GCC/Clang đã chạy lại ngày 05/11/2026 và đạt 29/29. Bộ vector gồm NIST SP 800-38A cho ECB/CBC/CFB/OFB/CTR, bổ sung AES-192/256
   CBC/CFB/OFB/CTR, IEEE P1619/D16 XTS, NIST GCM test case 3 và 4, RFC 3610 CCM
   vector 1 và 2, NIST CAVP XTSGen AES-128/256, NIST CAVP GCM AES-256 và NIST CAVP
   CCM AES-256. `ctest` đạt 2/2 trên cả hai nền tảng (Catch2 + CLI).
@@ -480,9 +479,8 @@ PASS NIST CAVP GCM AES-256 Count 0 (PT 256, AAD 160)
 
 Nhật ký Windows: `output/windows/test_results/kat_msvc.txt`,
 `kat_mingw_gcc.txt` và `kat_mingw_clang.txt` (29/29). Log Ubuntu
-`output/ubuntu/test_results/kat_gcc.txt` và `kat_clang.txt` được tạo trước khi
-mở rộng bộ vector nên vẫn ghi 20/20; cần chạy lại `aestool --kat
-kat/vectors.json` trên Ubuntu để cập nhật bằng chứng 29/29.
+`output/ubuntu/test_results/kat_gcc.txt` và `kat_clang.txt` đã được chạy lại
+ngày 05/11/2026 và ghi 29/29.
 
 Mỗi vector được kiểm tra hai chiều:
 
@@ -1280,7 +1278,7 @@ hoặc tệp cần xác thực.
 
 | Thành phần | Điểm | Bằng chứng | Tự chấm |
 |---|---:|---|---:|
-| Correctness & KATs | 25 | 29/29 KAT trên Windows MSVC/MinGW; Ubuntu log 20/20 cần chạy lại; unit + mutation test; negative test; container | 24 |
+| Correctness & KATs | 25 | 29/29 KAT trên Windows MSVC/MinGW và Ubuntu GCC/Clang; per-case negative log Ubuntu vẫn là bản cũ; unit + mutation test; container | 24 |
 | Security hygiene | 15 | RNG, IV validation, nonce lock đa tiến trình + output header check, zeroize khoá, ECB policy, fail-closed | 15 |
 | UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, sidecar JSON, lỗi rõ, UTF-8 clean | 10 |
 | Performance methodology | 20 | 48 CSV/nền tảng có kiểm soát (CPU 2), 1.000 runs, mean/median/SD/CI95, block analysis, plots, syscall/I/O end-to-end | 20 |
@@ -1313,7 +1311,7 @@ Các điểm hoàn thiện chính:
 | README | Có; đã cập nhật |
 | Báo cáo | Có; tệp này |
 | Unit test Catch2 | Có; Windows MSVC 2/2 và Ubuntu GCC/Clang 2/2 (Catch2 + CLI) |
-| KAT | Có; 29/29 trên Windows MSVC/MinGW; Ubuntu log 20/20 cần chạy lại |
+| KAT | Có; 29/29 trên Windows MSVC/MinGW và Ubuntu GCC/Clang |
 | Negative tests | Có; 17 trên Windows, 12 trên Ubuntu; 19 trường hợp trong `ctest` |
 | Benchmark CSV | Có; 96 tệp (48 Ubuntu GCC + 48 Windows MSVC) |
 | Đồ thị | Có; Ubuntu, Windows, cross-platform |
@@ -1331,7 +1329,7 @@ Các điểm hoàn thiện chính:
 | Yêu cầu | Trạng thái |
 |---|---|
 | CMake, build ngoài source | Đạt |
-| Ubuntu LTS | Đạt; đã build GCC + Clang, KAT 20/20 (cần chạy lại 29 vector), ctest 2/2, GUI self-test |
+| Ubuntu LTS | Đạt; đã build GCC + Clang, KAT 29/29, ctest 2/2, GUI self-test |
 | Windows MSVC | Đạt; đã build, KAT 29/29, ctest 2/2, GUI self-test |
 | Windows MinGW64 | Đạt; GCC 16.2.0 + Clang 22.1.8, KAT 29/29, ctest 2/2 |
 | README dependency/version | Đạt; đã cập nhật |
@@ -1488,7 +1486,7 @@ bản Crypto++, cùng cờ build, CPU pinning và governor cố định.
 | `output/windows/test_results/kat_mingw_gcc.txt`, `kat_mingw_clang.txt` | KAT 29/29 trên MinGW GCC/Clang |
 | `output/windows/test_results/ctest_mingw_gcc.txt`, `ctest_mingw_clang.txt` | ctest 2/2 trên MinGW GCC/Clang |
 | `output/windows/test_results/environment.txt` | Môi trường Windows |
-| `output/ubuntu/test_results/kat_gcc.txt`, `kat_clang.txt` | KAT 20/20 trên Ubuntu (log cũ; chạy lại để đạt 29/29) |
+| `output/ubuntu/test_results/kat_gcc.txt`, `kat_clang.txt` | KAT 29/29 trên Ubuntu (05/11/2026) |
 | `output/ubuntu/test_results/ctest_gcc.txt`, `ctest_clang.txt` | ctest 2/2 trên Ubuntu |
 | `output/ubuntu/test_results/gui_selftest.txt` | GUI self-test trên Ubuntu |
 | `output/ubuntu/test_results/environment.txt` | Môi trường Ubuntu |

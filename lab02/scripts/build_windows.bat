@@ -11,13 +11,14 @@ set "root=%~dp0.."
 set "compiler=%~1"
 if "%compiler%"=="" set "compiler=msvc"
 
-rem Crypto++ is oracle-only, but CMake requires it when ENABLE_CROSSVAL=ON.
-rem Expected layout: %CRYPTOPP_ROOT%\include\cryptopp\*.h
-rem                  %CRYPTOPP_ROOT%\libs\cryptopp\{msvc,gcc,clang}\*
-if not defined CRYPTOPP_ROOT if exist "D:\cryptolibrary\include\cryptopp\aes.h" set "CRYPTOPP_ROOT=D:\cryptolibrary"
+rem OpenSSL is oracle-only, but CMake requires it when ENABLE_CROSSVAL=ON.
+rem Expected layout: %OPENSSL_ROOT_DIR%\include\openssl\*.h
+rem                  %OPENSSL_ROOT_DIR%\lib\ or \libs\openssl\* (libcrypto)
+if not defined OPENSSL_ROOT_DIR if exist "D:\cryptolibrary\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary"
 
 set "crypto_args="
-if defined CRYPTOPP_ROOT set "crypto_args=-DCRYPTOPP_ROOT="%CRYPTOPP_ROOT%""
+if defined OPENSSL_ROOT_DIR set "crypto_args=-DOPENSSL_ROOT_DIR="%OPENSSL_ROOT_DIR%""
+if defined OPENSSL_ROOT_DIR if exist "%OPENSSL_ROOT_DIR%\bin" set "PATH=%OPENSSL_ROOT_DIR%\bin;%PATH%"
 
 set "cmake=cmake"
 if /i "%compiler%"=="msvc" goto msvc
@@ -39,11 +40,8 @@ set "generators=%TEMP%\lab2_cmake_gen.txt"
 findstr /c:"Visual Studio 18 2026" "%generators%" >nul || set "generator=Visual Studio 17 2022"
 del "%generators%" >nul 2>nul
 
-if defined CRYPTOPP_ROOT if exist "%CRYPTOPP_ROOT%\include\cryptopp\aes.h" set "crypto_args=%crypto_args% -DCRYPTOPP_INCLUDE_DIR="%CRYPTOPP_ROOT%/include""
-if defined CRYPTOPP_ROOT if exist "%CRYPTOPP_ROOT%\libs\cryptopp\msvc\cryptlib.lib" set "crypto_args=%crypto_args% -DCRYPTOPP_LIBRARY="%CRYPTOPP_ROOT%/libs/cryptopp/msvc/cryptlib.lib""
-
 echo [msvc] Using generator: %generator%
-if defined CRYPTOPP_ROOT echo [msvc] Crypto++:     %CRYPTOPP_ROOT%
+if defined OPENSSL_ROOT_DIR echo [msvc] OpenSSL:     %OPENSSL_ROOT_DIR%
 "%cmake%" -S "%root%" -B "%root%\build\windows-msvc" -G "%generator%" -A x64 %crypto_args%
 if errorlevel 1 exit /b 1
 "%cmake%" --build "%root%\build\windows-msvc" --config Release --parallel
@@ -58,14 +56,8 @@ exit /b %result%
 set "build=%root%\build\windows-%compiler%"
 if /i "%compiler%"=="gcc" set "cxx=g++"
 if /i "%compiler%"=="clang" set "cxx=clang++"
-rem The local clang/libcryptopp.a is not ABI-compatible with MinGW clang in
-rem this tree. The GCC-built archive links and passes, so use it for both
-rem MinGW compilers; override CRYPTOPP_LIBRARY if your install differs.
-set "mingw_lib_dir=gcc"
-set "mingw_crypto_args=%crypto_args%"
-if defined CRYPTOPP_ROOT if exist "%CRYPTOPP_ROOT%\libs\cryptopp\%mingw_lib_dir%\libcryptopp.a" set "mingw_crypto_args=%mingw_crypto_args% -DCRYPTOPP_LIBRARY="%CRYPTOPP_ROOT%/libs/cryptopp/%mingw_lib_dir%/libcryptopp.a""
-if defined CRYPTOPP_ROOT echo [%compiler%] Crypto++: %CRYPTOPP_ROOT%
-"%cmake%" -S "%root%" -B "%build%" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=%cxx% %mingw_crypto_args%
+if defined OPENSSL_ROOT_DIR echo [%compiler%] OpenSSL: %OPENSSL_ROOT_DIR%
+"%cmake%" -S "%root%" -B "%build%" -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=%cxx% %crypto_args%
 if errorlevel 1 exit /b 1
 "%cmake%" --build "%build%" --parallel
 if errorlevel 1 exit /b 1

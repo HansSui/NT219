@@ -3,12 +3,13 @@
 `aestool` is a pure C++17 implementation of AES (128/192/256) and the NIST
 SP 800-38A CTR mode. CTR is the required Lab 2 mode; XTS is implemented as
 Bonus B. No external cryptographic library is linked into `aes_core` or
-`aestool`; Crypto++ is used only by the optional `test_crossval` oracle.
+`aestool`; OpenSSL is used only by the test-only `test_crossval` and
+`bench_openssl` targets.
 
-> **Status:** the code, KATs, Windows test evidence and Windows benchmark are
-> current. The Ubuntu test logs and benchmark data in this tree predate the
-> final changes; see `docs/missing/lab2.md` and `REPORT.md` section 9 for the
-> exact rerun commands. No benchmark numbers are fabricated.
+> **Status:** the code, KATs, test evidence and benchmarks are current.
+> Ubuntu GCC 15.2 KAT/CTest logs and the 1000/100/30 benchmark (4 threads,
+> CPUs 0-3) were refreshed on 2026-11-05. The script is console-only, so the
+> Ubuntu run has no environment log. No benchmark numbers are fabricated.
 
 ---
 
@@ -29,13 +30,14 @@ lab02/
 │   ├── catch.hpp               Catch2 v2.13.10 single header
 │   ├── test_aes.cpp            FIPS-197, S-box, key validation
 │   ├── test_ctr.cpp            SP 800-38A CTR, overflow, XTS
-│   ├── test_crossval.cpp       Crypto++ oracle parity
+│   ├── test_crossval.cpp       OpenSSL oracle parity
+│   ├── bench_openssl.cpp       OpenSSL throughput oracle (test-only)
 │   ├── cli_test.sh             Linux CLI tests
 │   └── cli_test.cmake          Windows CLI tests
 ├── kat/vectors.json            9 official/derived KAT vectors
 ├── scripts/                    build, benchmark, summarise, plot
 └── output/
-    ├── ubuntu/benchmarks/      committed Ubuntu GCC benchmark data (old protocol)
+    ├── ubuntu/benchmarks/      Ubuntu GCC benchmark data, summary and combined plot
     ├── windows/test_results/   MSVC / MinGW GCC / MinGW Clang evidence
     └── windows/benchmarks/     Windows MSVC benchmark, summary, plots, audit
 ```
@@ -48,11 +50,11 @@ lab02/
 |---|---|---|
 | C++ standard | C++17 | GCC 15.2, Clang 21.1, MSVC 19.51, MinGW GCC 16.2 |
 | CMake | ≥ 3.16 | verified with 3.29 on Windows and 4.x on Ubuntu |
-| Crypto++ | 8.9.0 | **oracle only**, linked to `test_crossval` |
+| OpenSSL | 3.5.5+ | **oracle only**, linked to `test_crossval` and `bench_openssl` |
 | Catch2 | 2.13.10 | vendored, offline |
 | Python | 3.8+ | optional statistics/plots |
 
-`ENABLE_CROSSVAL=ON` (default) makes CMake **fail** if Crypto++ is missing.
+`ENABLE_CROSSVAL=ON` (default) makes CMake **fail** if OpenSSL is missing.
 Use `-DENABLE_CROSSVAL=OFF` only for a correctness-only build; that build
 does not satisfy the cross-validation requirement.
 
@@ -82,13 +84,14 @@ cd build\windows-msvc
 ctest -C Release --output-on-failure
 ```
 
-`build_windows.bat` auto-detects `D:\cryptolibrary` when present and selects
-the MSVC `cryptlib.lib` or the MinGW `libcryptopp.a`. The local MinGW Clang
-build links the GCC-built Crypto++ archive because the clang archive in this
-tree is not ABI-compatible with MinGW clang.
+`build_windows.bat` auto-detects `D:\cryptolibrary` when present and passes
+`-DOPENSSL_ROOT_DIR`. Headers live under `include\openssl`; the `libcrypto`
+import library and DLL are found by CMake, and `bin` is added to `PATH` for
+CTest. Override `OPENSSL_ROOT_DIR` if your install differs.
 
-Current Windows evidence: MSVC, MinGW GCC and MinGW Clang each pass `9/9`
-KAT and `4/4` CTest. See `output/windows/test_results/`.
+Windows evidence: MSVC, MinGW GCC and MinGW Clang each passed `9/9` KAT and
+`4/4` CTest in the pre-OpenSSL run. Rebuild and rerun after the oracle switch;
+see `output/windows/test_results/`.
 
 ---
 
@@ -190,13 +193,12 @@ security analysis and self-grade.
 |---|---|
 | Windows MSVC / MinGW GCC / MinGW Clang KAT + CTest | current, logged |
 | Windows MSVC benchmark | 1000/100/30 rows, summary + 6 plots, `AUDIT.md`; no run-time env log |
-| Ubuntu test/KAT logs | not committed; rerun commands in `docs/missing/lab2.md` |
-| Ubuntu benchmark CSV | committed from GCC 15.2, old warm-up, `powersave`, 1 thread |
-| Crypto++ performance comparison | not measured |
-| 1 GiB plots | Windows done; Ubuntu not generated |
+| Ubuntu test/KAT logs | committed, 9/9 KAT and 4/4 CTest on GCC 15.2 (2026-11-05) |
+| Ubuntu benchmark CSV | 1000/100/30 on GCC 15.2 with 4 threads and CPUs 0-3; no environment log; 1 MiB CV 14.4% |
+| OpenSSL throughput comparison | Ubuntu 4-thread data under `output/ubuntu/benchmarks/openssl/`; Windows not run |
+| Plots | Windows per-size plots; Ubuntu one combined summary plot (all sizes) |
 | PDF/DOCX report | not generated; identity fields blank |
 
-Do not cite the committed Ubuntu benchmark numbers as final protocol data
-until `scripts/run_benchmarks.sh` is run again with CPU pinning, 4 threads and
-the new time-based warm-up. The Windows matrix uses the chosen 1000/100/30
-counts; the blueprint's nominal 500/50 is optional.
+The Ubuntu run uses CPU pinning, 4 threads and the new time-based warm-up;
+cite the 1 MiB point with its 14.4% CV caveat. The Windows matrix uses the
+chosen 1000/100/30 counts; the blueprint's nominal 500/50 is optional.

@@ -424,10 +424,10 @@ KAT JSON shape (all crypto fields are hex, `aad` and `tag` may be empty):
 | Check | Ubuntu (GCC/Clang) | Windows (MSVC 19.51 x64) | Evidence |
 |---|---|---|---|
 | Build, Release | Passed | Passed | — |
-| KAT, 29 vectors | 20/20 logged (rerun pending) | 29/29 passed (MSVC and MinGW) | `output/*/test_results/kat_*` |
+| KAT, 29 vectors | 29/29 passed (GCC 15.2, Clang 21.1.8) | 29/29 passed (MSVC and MinGW) | `output/*/test_results/kat_*` |
 | `ctest` | 2/2 passed (Catch2 + CLI) | 2/2 passed (Catch2 + CLI) | `output/*/test_results/ctest_*` |
 | CLI negative/edge cases | 12 legacy logs; 19 cases in ctest | 17 legacy logs; 19 cases in ctest | `output/*/neg_results/` |
-| Nonce race, 8 processes | script added, run pending | 1 success / 7 rejections | `tests/nonce_race_test.py` |
+| Nonce race, 8 processes | 1 success / 7 rejections | 1 success / 7 rejections | `output/*/test_results/nonce_race.txt` |
 | Benchmark | 48 CSVs (GCC 15.2) | 48 CSVs (MSVC 19.51) | `output/ubuntu/benchmarks/`, `output/windows/benchmarks/` |
 | GUI `--self-test` | 8/8 modes, negative cases | 8/8 modes, negative cases | `output/*/test_results/gui_selftest.txt` |
 
@@ -440,10 +440,9 @@ and trimmed means rather than presenting the matrix as perfectly noise-free.
 
 The Windows KAT, `ctest`, GUI, non-ASCII-path and nonce-race logs were rerun on
 2026-11-02 against the 29-vector KAT with MSVC 19.51, MinGW GCC 16.2.0 and
-MinGW Clang 22.1.8; see `output/windows/test_results/`. The committed Ubuntu
-logs were produced before the KAT expansion and still show 20/20, so rerun
-`aestool --kat kat/vectors.json` and `ctest` on Ubuntu to refresh them to
-29/29. Use the committed logs and `scripts/bench_windows_controlled.bat` for the
+MinGW Clang 22.1.8; see `output/windows/test_results/`. The Ubuntu GCC and
+Clang logs were refreshed on 2026-11-05 and now show 29/29 KAT and `ctest`
+2/2. Use the committed logs and `scripts/bench_windows_controlled.bat` for the
 Windows benchmark run; no separate checklist is needed.
 
 The Ubuntu negative-case evidence can be regenerated after a Linux build with

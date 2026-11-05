@@ -6,18 +6,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_TESTING "Build unit tests" ON)
-option(ENABLE_CROSSVAL "Enable cross-validation against Crypto++" ON)
-option(CRYPTOPP_STATIC_CRT "Link the MSVC static runtime (/MT) to match a static-CRT Crypto++" ON)
+option(ENABLE_CROSSVAL "Enable cross-validation against OpenSSL" ON)
 
 message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION} (${CMAKE_CXX_COMPILER})")
 
 if(MSVC)
     add_compile_options(/W4 /O2 /Ob2)
-    # The Windows cryptlib.lib used by this course is normally built with /MT.
-    # Pass -DCRYPTOPP_STATIC_CRT=OFF for a /MD Crypto++ build such as vcpkg.
-    if(CRYPTOPP_STATIC_CRT AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
-        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif()
 else()
     add_compile_options(-Wall -Wextra -O3)
 endif()
@@ -69,40 +63,27 @@ if(BUILD_TESTING)
                  $<TARGET_FILE:aestool> "${CMAKE_CURRENT_SOURCE_DIR}/kat/vectors.json")
     endif()
 
-    # Cross-validation with Crypto++ (oracle only; never linked into aestool).
+    # Cross-validation with OpenSSL (oracle only; never linked into aestool).
     # The brief requires byte-for-byte parity, so a missing oracle is a
     # configuration failure unless the caller explicitly disables the target.
     if(ENABLE_CROSSVAL)
-        find_path(CRYPTOPP_INCLUDE_DIR NAMES cryptopp/aes.h
-            HINTS "${CRYPTOPP_ROOT}/include" "${CRYPTOPP_ROOT}" "/usr/include" "D:/cryptolibrary/include")
-        find_library(CRYPTOPP_LIBRARY NAMES cryptopp cryptopp-static cryptlib
-            HINTS "${CRYPTOPP_ROOT}/lib" "${CRYPTOPP_ROOT}/lib64"
-                  "${CRYPTOPP_ROOT}/libs/cryptopp/msvc"
-                  "${CRYPTOPP_ROOT}/libs/cryptopp/gcc"
-                  "/usr/lib/x86_64-linux-gnu" "/usr/local/lib"
-                  "D:/cryptolibrary/libs/cryptopp/msvc")
+        find_package(OpenSSL REQUIRED)
 
-        if(CRYPTOPP_INCLUDE_DIR AND CRYPTOPP_LIBRARY)
-            message(STATUS "Cross-validation enabled: Crypto++ include ${CRYPTOPP_INCLUDE_DIR}, library ${CRYPTOPP_LIBRARY}")
-            add_executable(test_crossval tests/test_crossval.cpp)
-            target_include_directories(test_crossval PRIVATE
-                "${CMAKE_CURRENT_SOURCE_DIR}/src"
-                "${CMAKE_CURRENT_SOURCE_DIR}/tests"
-                "${CRYPTOPP_INCLUDE_DIR}"
-            )
-            target_link_libraries(test_crossval PRIVATE aes_core "${CRYPTOPP_LIBRARY}")
-            add_test(NAME cross_validation COMMAND test_crossval)
-        else()
-            message(FATAL_ERROR
-                "Crypto++ was not found, but ENABLE_CROSSVAL=ON. Lab 2 requires "
-                "byte-for-byte parity against Crypto++/OpenSSL. Install "
-                "libcryptopp-dev or pass -DCRYPTOPP_ROOT=/path/to/cryptopp. "
-                "Use -DENABLE_CROSSVAL=OFF only to build a correctness-only "
-                "binary that cannot claim the cross-validation requirement.")
-        endif()
+        message(STATUS "Cross-validation enabled: OpenSSL ${OPENSSL_VERSION}")
+        add_executable(test_crossval tests/test_crossval.cpp)
+        target_include_directories(test_crossval PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/src"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests"
+        )
+        target_link_libraries(test_crossval PRIVATE aes_core OpenSSL::Crypto)
+        add_test(NAME cross_validation COMMAND test_crossval)
+
+        # Throughput oracle for the performance comparison; test-only.
+        add_executable(bench_openssl tests/bench_openssl.cpp)
+        target_link_libraries(bench_openssl PRIVATE OpenSSL::Crypto Threads::Threads)
     else()
         message(WARNING
-            "ENABLE_CROSSVAL=OFF: the build has no Crypto++ oracle and cannot "
+            "ENABLE_CROSSVAL=OFF: the build has no OpenSSL oracle and cannot "
             "claim the Lab 2 cross-validation requirement.")
     endif()
 endif()
