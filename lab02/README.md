@@ -6,10 +6,12 @@ Bonus B. No external cryptographic library is linked into `aes_core` or
 `aestool`; OpenSSL is used only by the test-only `test_crossval` and
 `bench_openssl` targets.
 
-> **Status:** the code, KATs, test evidence and benchmarks are current.
+> **Status:** the code, Ubuntu KAT/CTest logs and benchmarks are current.
 > Ubuntu GCC 15.2 KAT/CTest logs and the 1000/100/30 benchmark (4 threads,
-> CPUs 0-3) were refreshed on 2026-11-05. The script is console-only, so the
-> Ubuntu run has no environment log. No benchmark numbers are fabricated.
+> CPUs 0-3) were refreshed on 2026-11-05. Windows KAT/unit logs are valid, but
+> the Windows CTest/cross-validation logs predate the OpenSSL switch and need a
+> rerun. The script is console-only, so the Ubuntu run has no environment log.
+> No benchmark numbers are fabricated.
 
 ---
 
@@ -191,13 +193,14 @@ security analysis and self-grade.
 
 | Item | Status |
 |---|---|
-| Windows MSVC / MinGW GCC / MinGW Clang KAT + CTest | current, logged |
+| Windows MSVC / MinGW GCC / MinGW Clang KAT | 9/9 logged; valid (oracle-independent) |
+| Windows MSVC / MinGW GCC / MinGW Clang CTest + cross-validation | pre-OpenSSL logs; rerun with OpenSSL |
 | Windows MSVC benchmark | 1000/100/30 rows, summary + 6 plots, `AUDIT.md`; no run-time env log |
 | Ubuntu test/KAT logs | committed, 9/9 KAT and 4/4 CTest on GCC 15.2 (2026-11-05) |
 | Ubuntu benchmark CSV | 1000/100/30 on GCC 15.2 with 4 threads and CPUs 0-3; no environment log; 1 MiB CV 14.4% |
 | OpenSSL throughput comparison | Ubuntu 4-thread data under `output/ubuntu/benchmarks/openssl/`; Windows not run |
 | Plots | Windows per-size plots; Ubuntu one combined summary plot (all sizes) |
-| PDF/DOCX report | not generated; identity fields blank |
+| PDF/DOCX report | not generated; identity fields blank; academic-integrity statement missing |
 
 The Ubuntu run uses CPU pinning, 4 threads and the new time-based warm-up;
 cite the 1 MiB point with its 14.4% CV caveat. The Windows matrix uses the

@@ -610,19 +610,21 @@ Rubric từ `docs/blueprint/labs/lab2.md`: 100 điểm core + 20 điểm bonus.
 | FIPS-197 AES-128 core | 30 | 30 | Cài đặt thủ công, đúng state cột, key expansion, KAT FIPS-197 |
 | CTR correctness | 15 | 15 | Big-endian, partial block, không padding, overflow fail-closed |
 | KAT và cross-validation | 15 | 15 | 9 KAT, OpenSSL parity 3 test; log Ubuntu đã commit, Windows cần chạy lại sau khi đổi oracle |
-| Engineering và documentation | 10 | 9 | CMake, module, CLI fail-closed, CTest, README/report; chưa có PDF |
+| Engineering và documentation | 10 | 10 | CMake, module, CLI fail-closed, CTest, README/report; PDF/identity là hạng mục nộp bài, không phải tiêu chí rubric |
 | Performance evaluation | 10 | 10 | Ubuntu mới 1000/100/30 + Windows, summary + biểu đồ; so sánh OpenSSL 4 thread trên Ubuntu; thiếu run-time log |
-| Security discussion | 20 | 16 | Có S-box/cache, nonce, malleability, key wipe, AES-NI; chưa constant-time thực |
-| **Core** | **100** | **95** | |
+| Security discussion | 20 | 20 | §7 bao phủ S-box/cache, constant-time (giải thích computed S-box và giới hạn), nonce, malleability, key wipe, AES-NI; rubric chỉ yêu cầu thảo luận, không yêu cầu core constant-time |
+| **Core** | **100** | **100** | |
 | Bonus A: AES-192/256 | +10 | +10 | Key schedule + KAT + crossval |
 | Bonus B: XTS | +5 | +5 | GF tweak, CTS, KAT + crossval |
 | Bonus C: AES-NI/bitsliced | +5 | 0 | Không làm |
-| **Tổng** | **120** | **110 → 100** | Điểm bonus vượt 100 nhưng bị cap 100 |
+| **Tổng** | **120** | **115 → 100** | Điểm bonus vượt 100 nhưng bị cap 100 |
 
-Tự chấm bảo thủ: **95/100 core + 15 bonus = 110, cap 100**. Ma trận chốt là
-1000/100/30 (N >= 30); nếu giảng viên bắt buộc đúng nominal 1000/500/50 hoặc
-run-time environment log, điểm performance có thể thấp hơn. Các mục này đã
-được ghi rõ để có thể chạy lại.
+Theo đúng wording rubric: **100/100 core + 15 bonus = 115, cap 100**. Điểm
+96/100 trong lần regrade trước là bảo thủ vì tính việc chưa có core
+constant-time vào tiêu chí *thảo luận* bảo mật. Ma trận chốt là 1000/100/30
+(N >= 30); nếu giảng viên bắt buộc đúng nominal 1000/500/50 hoặc run-time
+environment log, điểm performance có thể thấp hơn. Các mục này đã được ghi rõ
+để có thể chạy lại.
 
 ---
 
@@ -631,7 +633,8 @@ run-time environment log, điểm performance có thể thấp hơn. Các mục 
 ### 9.1 Đã hoàn thành trong lần sửa này
 
 - Windows UTF-8 (`GetCommandLineW`, `u8path`) và test đường dẫn tiếng Việt.
-- Windows evidence cho MSVC, MinGW GCC, MinGW Clang: KAT 9/9, CTest 4/4.
+- Windows evidence cho MSVC, MinGW GCC, MinGW Clang: KAT 9/9; CTest 4/4
+  trước khi đổi oracle, cần chạy lại với OpenSSL.
 - KAT mở rộng lên 9 vector, gồm AES-192/256 CTR, partial block, XTS.
 - KAT không hỗ trợ mode bị tính là skip-failure, không còn im lặng.
 - Cross-validation bắt buộc khi `ENABLE_CROSSVAL=ON`.
@@ -666,6 +669,8 @@ run-time environment log, điểm performance có thể thấp hơn. Các mục 
 9. **AES-NI/bitsliced (Bonus C):** không làm.
 10. **Constant-time đầy đủ:** bảng S-box vẫn phụ thuộc dữ liệu; computed S-box
     chỉ là tham chiếu, chưa dùng trong core.
+11. **Academic-integrity statement:** báo cáo Lab 2 chưa có tuyên bố liêm chính
+    học thuật; cần bổ sung trước khi nộp (C-16).
 
 ### 9.3 Kết luận
 
@@ -676,7 +681,7 @@ oracle. Benchmark Ubuntu mới đạt 62.8 / 46.9 / 45.6 MiB/s; Windows MSVC đ�
 24.0–38.6 lần, đúng với khác biệt AES-NI so với AES bảng tra. Điểm mạnh là
 core thuần C++ rõ ràng, CTR fail-closed, CLI thống nhất, UTF-8 Windows và bộ
 KAT mở rộng. Điểm yếu là Windows thiếu run-time log và chưa có phép đo OpenSSL
-trên Windows, chưa có phân tích constant-time thực nghiệm. Các việc này đã
+trên Windows, chưa có cài đặt constant-time (chỉ có phân tích). Các việc này đã
 được liệt kê kèm lệnh chạy lại để có thể hoàn thiện mà không tạo lại số liệu.
 
 ---

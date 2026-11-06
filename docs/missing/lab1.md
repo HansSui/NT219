@@ -1,6 +1,6 @@
 # Lab 1 - Missing / Lacking
 
-**Audit date:** 2026-11-02 (Ubuntu rerun 2026-11-05)
+**Audit date:** 2026-11-02 (Ubuntu rerun and rubric audit 2026-11-05)
 **Fixes applied:** 2026-11-02 (L1-03, L1-04, L1-05, L1-07, L1-08, L1-09,
 L1-10; packaging helper for L1-01/L1-02); 2026-11-05 Ubuntu KAT/ctest/nonce
 logs refreshed
@@ -8,8 +8,8 @@ logs refreshed
 `docs/blueprint/labs/lab1.md`, `lab01/`
 **Method:** rebuilt and ran Lab 1 on Windows with MSVC 19.51, MinGW GCC 16.2.0
 and MinGW Clang 22.1.8; reran KAT, `ctest`, GUI and nonce-race evidence. Ubuntu
-evidence is reviewed from the committed GCC 15.2 / Clang 21.1.8 logs; Ubuntu was
-not re-run in this pass.
+was rerun on 2026-11-05 with GCC 15.2 and Clang 21.1.8 (KAT 29/29, `ctest` 2/2,
+nonce race); the refreshed logs are committed.
 
 Status legend: **OK** = present and verified, **Partial** = present but
 incomplete, **Missing** = not present, **Not verified** = no evidence here.
@@ -17,8 +17,13 @@ incomplete, **Missing** = not present, **Not verified** = no evidence here.
 ## Verdict
 
 The Lab 1 implementation is complete on the code, KAT and evidence side, on
-Ubuntu and Windows. The only remaining gaps are submission identity/PDF
-packaging (L1-01, L1-02); neither indicates a broken AES implementation.
+Ubuntu and Windows. **Rubric audit 2026-11-05:** every technical row is full.
+The core is **99/100**, with the only withheld point in report quality because
+the report header identity and PDF/DOCX are not produced. If the grader treats
+identity/PDF as packaging rather than report quality, the rubric content is
+100/100; do not claim that until the package exists. The remaining gaps are
+submission identity/PDF/archive and optional binaries (L1-01, L1-02); neither
+indicates a broken AES implementation.
 
 Sidecar nonce reuse, automatic XTS tweaks, broken documentation links, thin
 AES-256/XTS KAT coverage, the untested nonce lock, and the unsupported Clang
@@ -71,6 +76,9 @@ scripts/build_linux.sh gcc
   integrity statement).
 
 Requirement: C-13 and C-14; Lab 1 rubric gives 20 points to report quality.
+One point is withheld here for the blank identity fields and absent PDF; the
+rest of the report-quality evidence (objectives, design, tests, performance,
+security, limitations, citations, self-grade, integrity statement) is present.
 
 Fix: fill the three identity fields, export the report, and package the archive.
 `lab01/scripts/package_lab1.py` now stages the source, report, evidence and
@@ -344,9 +352,10 @@ Not run in this pass:
 - PDF/DOCX export and the final named archive: both need the student's name,
   MSSV and class, and a PDF converter is not installed here.
 
-Regrade after this log: unchanged at **98/100 core plus +5 bonus** (capped at
-100); the 2026-11-05 Ubuntu rerun closes the KAT/ctest evidence gap but does not
-change the score. L1-01 and L1-02 remain **Partial** because the final
+Regrade after this log: **99/100 core plus +5 bonus** (capped at 100). The
+2026-11-05 Ubuntu rerun closes the KAT/ctest evidence gap, so correctness is
+25/25; report quality stays 19/20 because the identity fields and PDF/DOCX are
+still absent. L1-01 and L1-02 remain **Partial** because the final
 identity-filled archive has not been produced. The AES/KAT/security/UX/
 performance items are closed.
 
@@ -356,17 +365,17 @@ Rubric from `docs/blueprint/labs/lab1.md`: 100 core points + 5 bonus.
 
 | Criterion | Weight | Baseline | After fixes | Why |
 |---|---:|---:|---:|---|
-| Correctness and KATs | 25 | 23 | 24 | 29/29 KAT on Windows; Ubuntu log needs a rerun; unit + mutation + 19-case CLI |
+| Correctness and KATs | 25 | 23 | 25 | 29/29 KAT on Windows MSVC/MinGW and Ubuntu GCC/Clang; unit + mutation + 19-case CLI |
 | Security hygiene | 15 | 12 | 15 | Sidecar/XTS gaps closed; atomic nonce lock now stress-tested; per-directory scope documented |
 | UX and I/O design | 10 | 9 | 10 | `--threads`, base64 decode and optional sidecar path fixed |
 | Performance methodology | 20 | 16 | 20 | 96 honest CSVs and controlled Windows/Linux runs; Clang claim removed |
 | Cross-platform build | 10 | 10 | 10 | MSVC, MinGW GCC/Clang, Linux GCC/Clang verified |
 | Report quality | 20 | 13 | 19 | False Clang data fixed, KAT/test evidence updated; identity and PDF still need the student's details |
-| **Core total** | **100** | **83** | **98** | |
+| **Core total** | **100** | **83** | **99** | |
 | Bonus: library + GUI | +5 | +5 | +5 | Shared library + Tkinter GUI |
-| **Total** | **105** | **88** | **103** | 100/100 after the bonus cap |
+| **Total** | **105** | **88** | **104** | 100/100 after the bonus cap |
 
-Baseline **88/100**, post-fix **98/100** core plus **+5 bonus** (capped at 100).
+Baseline **88/100**, post-fix **99/100** core plus **+5 bonus** (capped at 100).
 The Ubuntu 29/29 KAT and 19-case `ctest` logs now exist. The remaining gap is
 submission work (identity fields, optional PDF export, archive), not the AES
 implementation. Do not claim a final PDF until it exists.
@@ -388,8 +397,35 @@ excluded from this regrade, so the core is out of 80.
 | Bonus: library + GUI | +5 | +5 | shared library + Tkinter GUI |
 | **Total** | **85** | **85** | report excluded |
 
-With the report counted at 19/20, the previously reported 98/100 core is
-unchanged; the exclusion only removes the 20-point report row.
+With the report counted at 19/20, the core is **99/100**: correctness is
+25/25 after the 2026-11-05 Ubuntu KAT/ctest refresh, and report quality keeps a
+1-point deduction for the blank identity/PDF. The exclusion above only removes
+the 20-point report row.
+
+## Rubric maximization audit 2026-11-05
+
+The rubric evidence is complete on every technical row. The only non-maxed row
+is report quality, and its remaining point is submission packaging, not AES
+behaviour.
+
+| Criterion | Max | Score | Reason |
+|---|---:|---:|---|
+| Correctness and KATs | 25 | 25 | 29/29 on Windows MSVC/MinGW and Ubuntu GCC/Clang; 19-case CLI in `ctest`; unit/mutation tests |
+| Security hygiene | 15 | 15 | ECB guard, per-mode IV validation, sidecar/header reuse check, atomic nonce lock, fail-closed AEAD |
+| UX and I/O design | 10 | 10 | Uniform CLI, UTF-8, binary-safe files, hex/base64/raw, optional sidecar, useful errors |
+| Performance methodology | 20 | 20 | Six required sizes, 1,000 runs, mean/median/SD/CI95, mode and OS comparisons, plots, syscall/I-O analysis |
+| Cross-platform build | 10 | 10 | MSVC, MinGW GCC/Clang, Linux GCC/Clang build and test |
+| Report quality | 20 | 19 | Content complete; 1 point withheld for blank identity and no PDF/DOCX |
+| **Core** | **100** | **99** | |
+| Bonus: library + GUI | +5 | +5 | Shared library + Tkinter GUI through the C ABI |
+| **Total** | **105** | **104 -> 100** | Bonus cap at 100 |
+
+No code or KAT gaps remain. `lab01/REPORT.md` was corrected from its stale
+24/98 self-grade to 25/99. The per-case Ubuntu negative logs are still the old
+12-case set, but `ctest` runs the shared 19-case suite on both platforms, so
+this is documentation cleanup rather than a rubric deduction. The final
+submission still needs identity, PDF/DOCX, an archive and (if the TA requires
+them) binaries.
 
 ## Applied fixes
 

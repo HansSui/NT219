@@ -10,11 +10,12 @@
 > **Tool:** `aestool`
 >
 > **Status (2026-11-05):** AES-128/CTR core and bonuses A/B are implemented.
-> Windows MSVC, MinGW GCC and MinGW Clang each pass 9/9 KAT and 4/4 CTest
-> (unit, KAT, CLI, cross-validation). Windows MSVC benchmark data now exists
-> for 1 MiB/100 MiB/1 GiB (chosen 1000/100/30, N >= 30) with summary and
-> plots. Ubuntu logs, a Windows run-time environment log and the Ubuntu
-> benchmark rerun are still open; see `docs/missing/lab2.md`.
+> Ubuntu KAT/CTest/cross-validation logs and the 1000/100/30 benchmark are
+> current; the OpenSSL comparison is measured on Ubuntu. Windows KAT and unit
+> logs are valid, but the Windows CTest/cross-validation logs predate the
+> OpenSSL switch and need a rerun. The Windows run-time environment log, the
+> Windows OpenSSL throughput, and the identity-filled PDF/archive remain open.
+> See `docs/missing/lab2.md`.
 
 ## 1. What to do
 

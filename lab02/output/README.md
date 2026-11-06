@@ -3,11 +3,11 @@
 | Path | Contents | Status |
 |---|---|---|
 | `windows/test_results/kat_msvc.txt` | MSVC KAT | 9/9 pass, 2026-11-02 |
-| `windows/test_results/ctest_msvc.txt` | MSVC CTest | 4/4 pass |
+| `windows/test_results/ctest_msvc.txt` | MSVC CTest | 4/4 pass, pre-OpenSSL; rerun |
 | `windows/test_results/kat_mingw_gcc.txt` | MinGW GCC KAT | 9/9 pass |
-| `windows/test_results/ctest_mingw_gcc.txt` | MinGW GCC CTest | 4/4 pass |
+| `windows/test_results/ctest_mingw_gcc.txt` | MinGW GCC CTest | 4/4 pass, pre-OpenSSL; rerun |
 | `windows/test_results/kat_mingw_clang.txt` | MinGW Clang KAT | 9/9 pass |
-| `windows/test_results/ctest_mingw_clang.txt` | MinGW Clang CTest | 4/4 pass |
+| `windows/test_results/ctest_mingw_clang.txt` | MinGW Clang CTest | 4/4 pass, pre-OpenSSL; rerun |
 | `windows/test_results/unit_*.txt` | Catch2 unit tests | 351 assertions / 11 cases |
 | `windows/test_results/crossval_*.txt` | prior Crypto++ parity tests | stale; rerun with OpenSSL |
 | `windows/test_results/environment.txt` | prior Windows host/oracle versions | stale Crypto++ note; update after rerun |
@@ -18,6 +18,10 @@
 | `ubuntu/benchmarks/graphs/` | one combined throughput + latency summary plot | all three sizes, 2026-11-05 |
 | `ubuntu/benchmarks/openssl/` | OpenSSL throughput oracle CSVs + summary | 4 threads, 2026-11-05 |
 | `ubuntu/test_results/` | Ubuntu GCC KAT/CTest/unit/crossval/environment logs | 9/9 KAT, 4/4 CTest, OpenSSL oracle, 2026-11-05 |
+
+The Windows KAT and unit logs are oracle-independent and remain valid. The
+Windows `ctest_*` and `crossval_*` logs include the pre-OpenSSL
+cross-validation target, so rerun them before citing that evidence.
 
 ## Rerun commands
 

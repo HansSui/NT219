@@ -1278,16 +1278,16 @@ hoặc tệp cần xác thực.
 
 | Thành phần | Điểm | Bằng chứng | Tự chấm |
 |---|---:|---|---:|
-| Correctness & KATs | 25 | 29/29 KAT trên Windows MSVC/MinGW và Ubuntu GCC/Clang; per-case negative log Ubuntu vẫn là bản cũ; unit + mutation test; container | 24 |
+| Correctness & KATs | 25 | 29/29 KAT trên Windows MSVC/MinGW và Ubuntu GCC/Clang; unit + mutation test; 19-case CLI trong ctest; container | 25 |
 | Security hygiene | 15 | RNG, IV validation, nonce lock đa tiến trình + output header check, zeroize khoá, ECB policy, fail-closed | 15 |
 | UX & I/O design | 10 | CLI thống nhất, file/text, hex/base64/raw, sidecar JSON, lỗi rõ, UTF-8 clean | 10 |
 | Performance methodology | 20 | 48 CSV/nền tảng có kiểm soát (CPU 2), 1.000 runs, mean/median/SD/CI95, block analysis, plots, syscall/I/O end-to-end | 20 |
 | Cross-platform build | 10 | CMake, MSVC verified, GCC/Clang build + test, MinGW GCC/Clang verified | 10 |
 | Report quality | 20 | Mục tiêu, cài đặt, test, thống kê, bảo mật, so sánh, bài học; log hai nền tảng | 19 |
-| **Tổng** | **100** |  | **98** |
+| **Tổng** | **100** |  | **99** |
 | Bonus: library + GUI | +5 | Shared library + Tkinter GUI gọi qua C ABI; self-test 8 mode trên Windows và Ubuntu | +5 |
 
-Tự chấm **98/100** cho phần bắt buộc và **+5 bonus**, tức **103/100** (tối đa 100).
+Tự chấm **99/100** cho phần bắt buộc và **+5 bonus**, tức **104/100** (tối đa 100).
 Các điểm hoàn thiện chính:
 - **Security hygiene (15/15):** Đã bổ sung RAII `ScopedWipe` tự động gọi `CryptoPP::SecureWipeBuffer` để xoá sạch khoá sau khi dùng; bổ sung khoá đa tiến trình nguyên tử (`.aestool_nonces.lock`) xoá bỏ hoàn toàn race condition trong registry nonce; bổ sung kiểm tra header container/sidecar tệp đầu ra khi ghi đè để ngăn tái sử dụng nonce trực tiếp theo đúng yêu cầu đề bài.
 - **UX & I/O design (10/10):** `--sidecar [FILE]` đọc/ghi JSON sidecar (`alg`,

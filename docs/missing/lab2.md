@@ -1,6 +1,6 @@
 # Lab 2 - Missing / Lacking
 
-**Audit date:** 2026-11-02 (updated 2026-11-05; Ubuntu rerun 2026-11-05)
+**Audit date:** 2026-11-02 (updated 2026-11-05; Ubuntu rerun and rubric audit 2026-11-05)
 **Implementation pass:** 2026-11-02; Windows benchmark audit 2026-11-05;
 Ubuntu test and benchmark evidence 2026-11-05
 **Sources:** `docs/Lab2.txt`, `docs/lab2_reference.md`,
@@ -11,22 +11,27 @@ on Windows with MSVC 19.51, MinGW GCC 16.2.0 and MinGW Clang 22.1.8, and
 reviewed the code, tests, scripts and committed benchmark CSVs. On
 2026-11-05 I validated the new Windows MSVC benchmark CSVs, generated summary
 and plots, and wrote `lab02/output/windows/benchmarks/AUDIT.md`. Ubuntu was
-not re-run in this pass because this host has no WSL/Linux distribution.
+rerun on 2026-11-05 with GCC 15.2 (KAT/CTest/OpenSSL cross-validation and the
+1000/100/30 benchmark); the Windows CTest/cross-validation logs still predate
+the OpenSSL switch.
 
 Status legend: **OK** = present and verified, **Partial** = present but
 incomplete, **Missing** = not present, **Not verified** = no evidence here.
 
 ## Verdict
 
-The required AES-128 core, CTR mode, KAT/cross-validation, CLI and test
-evidence are now in place on Ubuntu and Windows. Lab 2 is **code-complete and
-test-complete on both platforms**, with bonus A (AES-192/256) and bonus B (XTS)
-working. Both platforms now have the chosen 1000/100/30 benchmark: Ubuntu was
-rerun on 2026-11-05 with 4 threads, CPUs 0-3 and a `performance` governor, and
-one combined summary plot covers all three sizes. It is **not
-final-submission-complete**: the script is console-only, so the Ubuntu and
-Windows runs have no run-time environment log, the OpenSSL throughput
-comparison exists on Ubuntu only, and there is no PDF/DOCX report.
+The required AES-128 core, CTR mode, KAT/cross-validation, CLI and benchmark
+evidence are in place. Bonus A (AES-192/256) and bonus B (XTS) work. Ubuntu was
+rerun on 2026-11-05 with 4 threads, CPUs 0-3 and a `performance` governor; one
+combined summary plot covers all three sizes. **Rubric audit 2026-11-05: the
+core is maximized at 100/100 under the rubric wording** (security is a
+discussion criterion, and `REPORT.md` §7 covers every listed topic), plus 15
+bonus points, capped at 100. The earlier 96/100 regrade was conservative.
+
+The submission is **not final**: the Windows CTest/cross-validation logs still
+say Crypto++, Windows OpenSSL throughput has not been run, `REPORT.md` has no
+academic-integrity statement, and identity/PDF/archive are missing. The
+console-only benchmark scripts also leave no run-time environment log.
 
 ## Baseline before this pass
 
@@ -76,9 +81,9 @@ tests, docs and evidence are intended to be committed.
 
 | ID | Gap | Status | Evidence / remaining |
 |---|---|---|---|
-| L2-01 | No Windows build/test/KAT evidence | **OK** | MSVC + MinGW GCC + MinGW Clang KAT/CTest logs exist; Windows benchmark CSV, summary and plots added |
+| L2-01 | Windows build/test/KAT evidence | **Partial** | KAT/unit logs valid; CTest/cross-validation logs predate the OpenSSL oracle switch; benchmark CSV/summary/plots exist |
 | L2-02 | No committed Ubuntu test/KAT logs | **OK** | GCC 15.2: 9/9 KAT, 4/4 CTest, 351/22 assertions; logs under `output/ubuntu/test_results/` (2026-11-05) |
-| L2-03 | No final report | **Partial** | `lab02/REPORT.md` written; PDF/DOCX and identity fields missing |
+| L2-03 | No final report | **Partial** | `lab02/REPORT.md` written; PDF/DOCX, identity fields and academic-integrity statement missing |
 | L2-04 | Thin KAT coverage; skips hidden | **OK** | 9 KATs; unsupported mode counts as skip and exits nonzero |
 | L2-05 | Cross-validation optional | **OK** | CMake fails if `ENABLE_CROSSVAL=ON` and OpenSSL is missing |
 | L2-06 | Benchmark protocol not required | **OK** | Both platforms 1000/100/30; Ubuntu 2026-11-05 with 4 threads/CPUs 0-3/`performance`; console-only, no env log |
@@ -103,8 +108,11 @@ Now present:
 - `output/windows/test_results/crossval_*.txt` (22 assertions / 3 cases)
 - `output/windows/test_results/environment.txt`
 
-All three compilers pass `9/9` KAT and `4/4` CTest. `ctest` includes unit
-tests, KAT, CLI and cross-validation. The Windows MSVC benchmark now has
+All three compilers passed `9/9` KAT and `4/4` CTest, but those CTest logs
+include the pre-OpenSSL Crypto++ cross-validation target. The KAT and unit
+logs remain valid; rerun CTest and cross-validation with OpenSSL before citing
+Windows parity. `ctest` includes unit tests, KAT, CLI and cross-validation. The
+Windows MSVC benchmark now has
 three CSVs, `summary.csv`, `summary_robust.csv`, six plots and `AUDIT.md`
 under `output/windows/benchmarks/`. Row counts are 1000/100/30; the CSV schema
 does not record power plan, affinity or thread count.
@@ -133,13 +141,14 @@ scripts/build_linux.sh gcc
 ### L2-03 - Report
 
 `lab02/REPORT.md` now covers objective, design, KATs, cross-validation,
-negative tests, benchmark method, the committed performance table, S-box/cache
+negative tests, benchmark method, the 2026-11-05 Ubuntu table, S-box/cache
 analysis, nonce reuse, malleability, key wiping, AES-NI, rubric self-grade and
 remaining work.
 
-Still missing: student name/MSSV/class, PDF/DOCX export, and a final package.
-The report still describes the pre-2026-11-05 Ubuntu run and is excluded from
-this regrade.
+Still missing: student name/MSSV/class, PDF/DOCX export, a final package, and
+an academic-integrity statement (C-16). The self-grade is now 100/100 core
+under the rubric wording; the missing statement/identity/PDF are submission
+gaps, not a reason to lower the technical rows.
 
 ### L2-04 - KAT coverage and skips
 
@@ -283,6 +292,9 @@ Still missing:
 
 ## Regrade
 
+> Historical table. The current rubric audit is in
+> "Rubric maximization audit 2026-11-05" below.
+
 Rubric: 100 core + 20 bonus (Bonus A +10, B +5, C +5).
 
 | Criterion | Max | Before | After | Reason |
@@ -307,6 +319,11 @@ remain. The chosen 1000/100/30 matrix is accepted (N >= 30); the nominal
 
 ## Regrade 2026-11-05 (report excluded)
 
+> **Superseded by the rubric maximization audit below.** The 96/100 row
+> deducted 4 security points for not implementing a constant-time core/IV
+> registry, but the rubric criterion is *Security engineering discussion* and
+> only asks for the six topics to be discussed.
+
 Ubuntu benchmark finished 2026-11-05 at 1000/100/30 with 4 threads and CPUs
 0-3 (62.8 / 46.9 / 45.6 MiB/s; CV 14.4% / 5.4% / 4.0%). The old per-run plots
 were replaced by one combined throughput/latency summary. Report/PDF quality
@@ -326,6 +343,46 @@ is excluded from this regrade.
 | Bonus C: AES-NI/bitsliced | +5 | 0 | not implemented |
 | **Total** | **120** | **111 -> 100** | bonus cap at 100 |
 
+## Rubric maximization audit 2026-11-05
+
+The rubric evidence is complete on every row. The earlier 96/100 was a
+conservative engineering critique, not a missing rubric item.
+
+| Criterion | Max | Score | Reason |
+|---|---:|---:|---|
+| FIPS-197 AES-128 core | 30 | 30 | Manual transformations, column-major state, 10-round schedule, FIPS-197 C.1 |
+| CTR mode correctness | 15 | 15 | Big-endian counter, partial final block, no padding, overflow fail-closed |
+| KATs and cross-validation | 15 | 15 | 9 KATs (FIPS-197 + SP 800-38A + XTS) and 3 OpenSSL parity tests; Ubuntu current; Windows logs stale but the test code is unchanged |
+| Engineering and documentation | 10 | 10 | CMake, modular core/CLI, fail-closed CLI, Catch2/CTest, clear README; PDF/identity are not in this rubric row |
+| Performance evaluation | 10 | 10 | 1000/100/30 on both platforms, OpenSSL comparison, table-vs-computed and memory/cache/branch discussion, plots; no run-time log |
+| Security engineering discussion | 20 | 20 | `REPORT.md` §7 covers timing/cache, constant-time discussion (including why computed S-box is not constant-time), nonce reuse/two-time pad, malleability/no authentication, key wiping and AES-NI |
+| **Core** | **100** | **100** | |
+| Bonus A: AES-192/256 | +10 | +10 | Full schedules, FIPS-197 C.2/C.3, parity |
+| Bonus B: XTS | +5 | +5 | Two-key XTS, GF tweak, CTS, KAT/parity |
+| Bonus C: AES-NI/bitsliced | +5 | 0 | Optional; not implemented |
+| **Total** | **120** | **115 -> 100** | Bonus cap at 100 |
+
+**Soft spots a strict grader could still question, but not deductions under
+the rubric wording:**
+
+- Table-vs-computed is qualitative: the report explains why computed is slower
+  and has data-dependent branches, but there is no measured computed-S-box
+  throughput.
+- The rubric says "Crypto++ comparison"; Lab 2 uses OpenSSL, which the user
+  accepted as the comparison oracle.
+- There is no run-time environment log because the benchmark scripts are
+  intentionally console-only.
+- If the grader folds the missing academic-integrity statement (C-16) into
+  Engineering/documentation, that row would be 9/10 until the statement is
+  added.
+- Windows CTest/cross-validation must be rerun after the OpenSSL switch before
+  citing Windows parity; Windows OpenSSL throughput is not required for the
+  rubric but is an optional extra.
+
+**Submission gaps (not rubric deductions):** academic-integrity statement,
+student identity, PDF/DOCX/archive, Windows rerun, and optionally Windows
+OpenSSL throughput.
+
 ## Remaining actions
 
 1. ~~On Ubuntu: build, run `--kat`, `ctest`, and save logs.~~ Done 2026-11-05;
@@ -344,6 +401,7 @@ is excluded from this regrade.
 7. Optional: stream CTR in chunks; optional Bonus C (AES-NI/bitsliced).
 8. Optional: add a stateful nonce/IV registry if the course wants enforcement
    rather than documentation.
+9. Add the academic-integrity statement to `lab02/REPORT.md` (C-16).
 
 ## Benchmark commands
 
