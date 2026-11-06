@@ -8,6 +8,7 @@ labs live in `../lab01/` and `../lab02/`; Labs 3-6 are specified only.
 | `blueprint/BLUEPRINT.md` | Plan-only index for Labs 1-6: shared course core, repo model, grading policy, gaps |
 | `blueprint/labs/lab1.md` … `lab6.md` | Per-lab brief: what to do, requirements, expected outcomes, rubric, infrastructure |
 | `missing/lab1.md`, `missing/lab2.md` | Implementation audit, fix log, remaining gaps and regrade |
+| `../lab01/REPORT.md` | Vietnamese Lab 1 report and self-grade |
 | `../lab02/REPORT.md` | Vietnamese Lab 2 report and self-grade |
 | `lab1.txt` | Lab 1 brief: Crypto++ symmetric modes, constraints, rubric |
 | `Lab2.txt` | Lab 2 brief: pure C++ AES-128 and CTR, rubric |
@@ -16,9 +17,9 @@ labs live in `../lab01/` and `../lab02/`; Labs 3-6 are specified only.
 | `Lab5.txt` | Lab 5 brief: ECDSA and RSA-PSS signatures, rubric |
 | `Lab6.txt` | Lab 6 brief: ML-DSA, ML-KEM, and PQ certificates, rubric |
 | `lab2_reference.md` | Deep implementation guide for Lab 2; the brief still wins on conflicts |
-| `course-objectives.txt` | Course-wide learning outcomes for Labs 1-6 |
+| `course-objectives.txt` | Common engineering requirements, randomness/key rules, testing, performance, deliverables, report rules, ethics |
 | `GradingSystem.txt` | Report template, performance protocol, submission checklist, rubric bands |
-| `lab requirement.md` | Course/toolchain core: compilers, Crypto++, OpenSSL, CMake, Catch2, Python |
+| `lab requirement.md` | Toolchain/dependency matrix: compilers, Crypto++, OpenSSL, CMake, Catch2, Python, setup commands |
 
 For the implemented labs use:
 

@@ -1,7 +1,7 @@
 # Lab Requirements & Toolchain Dependencies: Ubuntu & Windows
 
 > **Course:** NT219 — Information Security / Cryptography Laboratory  
-> **Scope:** Comprehensive dependency specification for Compilers (**GCC, G++, Clang, Clang++, MSVC**), Cryptographic Libraries (**Crypto++, OpenSSL**), and Supporting Toolchains across **Ubuntu Linux** and **Microsoft Windows**, extracted from all project Markdown documents, specifications, and reports (`docs/lab01-brief.txt`, `docs/course-objectives.txt`, `lab01/README.md`, `lab01/REPORT.md`, `LAB1_LINUX_TODO.md`, `LAB1_WINDOWS_TODO.md`, etc.).
+> **Scope:** Comprehensive dependency specification for Compilers (**GCC, G++, Clang, Clang++, MSVC**), Cryptographic Libraries (**Crypto++, OpenSSL**), and Supporting Toolchains across **Ubuntu Linux** and **Microsoft Windows**, extracted from the project briefs and reports (`docs/lab1.txt`, `docs/course-objectives.txt`, `docs/GradingSystem.txt`, `lab01/README.md`, `lab01/REPORT.md`).
 
 ---
 
@@ -190,12 +190,12 @@
 
 #### Policy & Role in Course vs Lab 1
 * **Lab 1 Constraint:** **STRICTLY PROHIBITED FOR CIPHER PRIMITIVES.**
-  * *From `docs/lab01-brief.txt` & `lab01/README.md`:*
+  * *From `docs/lab1.txt` & `lab01/README.md`:*
     > "⚠ Constraint: Crypto++ library must be used for cryptographic primitives. No use of OpenSSL, libsodium, or other crypto libraries."
   * Implementing AES or AEAD modes in Lab 1 using OpenSSL `EVP_*` will violate the core assignment rubric.
 * **Course-wide Scope (Labs 1–6):**
   * Mentioned in `docs/course-objectives.txt` as an approved cryptographic RNG provider (`OpenSSL RAND_bytes`) and for future labs involving RSA, ECDSA, digital signatures, X.509 certificates, and TLS handshakes.
-  * Included in early setup guides (`docs/guides/report-guide-vi.txt` and `docs/guides/ubuntu-run-guide.txt`) for complete course environment preparation.
+  * Included in the Lab 1 build/setup instructions for course-wide readiness.
 
 #### Ubuntu Linux Setup (For Course-wide Readiness)
 * **Package Management (APT):**

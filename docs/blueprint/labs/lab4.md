@@ -1,7 +1,7 @@
 # Lab 4 — Hashing, PKI, and Practical Attacks
 
 > **Normative source:** `docs/Lab4.txt`
-> **Course core:** `docs/lab requirement.md`, `docs/GradingSystem.txt`
+> **Course core:** `docs/course-objectives.txt`, `docs/GradingSystem.txt`; toolchain: `docs/lab requirement.md`
 > **Existing implementation:** none (`lab04/` does not exist yet)
 > **Tool:** `hashtool` plus offline demo material
 >

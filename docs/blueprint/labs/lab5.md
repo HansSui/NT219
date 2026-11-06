@@ -1,7 +1,7 @@
 # Lab 5 — Digital Signatures: ECDSA and RSA-PSS
 
 > **Normative source:** `docs/Lab5.txt`
-> **Course core:** `docs/lab requirement.md`, `docs/GradingSystem.txt`
+> **Course core:** `docs/course-objectives.txt`, `docs/GradingSystem.txt`; toolchain: `docs/lab requirement.md`
 > **Existing implementation:** none (`lab05/` does not exist yet)
 > **Tool:** `sigtool`
 
@@ -133,8 +133,9 @@ Required analysis:
 | Formula-level implementation | +15 | Implement elliptic-curve point arithmetic, modular inversion, RSA modular exponentiation, and PSS padding from primitives; explain constant-time considerations. |
 | Security engineering | +15 | Timing attack surface, fault injection, side-channel risks in modular exponentiation, deterministic nonce protection; basic timing-variance measurement and constant-time library discussion. No exploit required. |
 
-The lab rubric awards a single +15 bonus block; choose one path or clearly split
-the credit.
+P-384 is a separate +5 in §2.1 but is absent from the source rubric table, which
+shows only the +15 advanced block. Record the claimed total and do not count the
+advanced block twice.
 
 ## 3. What to expect
 

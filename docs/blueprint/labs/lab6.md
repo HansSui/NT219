@@ -1,7 +1,7 @@
 # Lab 6 — Post-Quantum Signatures and Certificates
 
 > **Normative source:** `docs/Lab6.txt`
-> **Course core:** `docs/lab requirement.md`, `docs/GradingSystem.txt`
+> **Course core:** `docs/course-objectives.txt`, `docs/GradingSystem.txt`; toolchain: `docs/lab requirement.md`
 > **Existing implementation:** none (`lab06/` does not exist yet)
 > **Tool:** `pqtool`
 

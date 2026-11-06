@@ -1,5 +1,0 @@
-aes_unit_tests 5 0.000716633
-cli 5 0.0110714
-cross_validation 5 0.00093608
-kat 2 0.000902012
----

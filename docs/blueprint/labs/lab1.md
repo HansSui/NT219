@@ -1,7 +1,7 @@
 # Lab 1 — Symmetric Encryption with Crypto++
 
 > **Normative source:** `docs/lab1.txt`
-> **Course core:** `docs/lab requirement.md`, `docs/GradingSystem.txt`
+> **Course core:** `docs/course-objectives.txt`, `docs/GradingSystem.txt`; toolchain: `docs/lab requirement.md`
 > **Existing implementation:** `lab01/`
 > **Tool:** `aestool`
 
@@ -185,6 +185,7 @@ lab01/
     catch.hpp             vendored Catch2 2.13.10
     test_core.cpp
     cli_test.sh / cli_test.cmake
+    nonce_race_test.py
   kat/vectors.json
   gui/                    Tkinter GUI + build/run helpers
   scripts/                build, benchmark, summarize, plot
@@ -248,8 +249,8 @@ flags) with the data.
 - Windows MSVC KAT 29/29 and `ctest` 2/2, plus 19 negative/edge cases in
   `cli_test.cmake` and per-case logs.
 - MinGW GCC/Clang KAT 29/29 and `ctest` 2/2.
-- Ubuntu GCC benchmark matrix and test logs (KAT log predates the 29-vector
-  expansion).
+- Ubuntu GCC benchmark matrix and refreshed KAT/`ctest` logs (29/29, 2/2,
+  2026-11-05).
 - Tkinter GUI self-test on Windows and Linux.
 
 ### Risks / gaps

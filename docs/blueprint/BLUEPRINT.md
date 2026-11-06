@@ -4,9 +4,10 @@
 >
 > **Normative sources:** `docs/lab1.txt`, `docs/Lab2.txt`, `docs/Lab3.txt`,
 > `docs/Lab4.txt`, `docs/Lab5.txt`, `docs/Lab6.txt`.
-> **Course core:** `docs/lab requirement.md` and `docs/GradingSystem.txt`.
-> **Implemented-lab evidence:** `lab01/README.md`, `lab02/README.md`,
-> `lab02/REPORT.md`, `docs/lab2_reference.md`.
+> **Course core:** `docs/course-objectives.txt` and `docs/GradingSystem.txt`;
+> toolchain: `docs/lab requirement.md`.
+> **Implemented-lab evidence:** `lab01/README.md`, `lab01/REPORT.md`,
+> `lab02/README.md`, `lab02/REPORT.md`, `docs/lab2_reference.md`.
 >
 > If a lab brief and this blueprint disagree, the lab brief wins. If the course
 > core and a lab brief disagree, the lab brief wins for that lab.
@@ -44,26 +45,27 @@ all six, so they are not repeated six times.
 
 ## Common core (applies to every lab)
 
-Extracted from `docs/lab requirement.md` and `docs/GradingSystem.txt`.
+Extracted from `docs/course-objectives.txt` and `docs/GradingSystem.txt`;
+toolchain versions and setup come from `docs/lab requirement.md`.
 
 | ID | Requirement | Source |
 |---|---|---|
-| C-01 | CMake >= 3.16, out-of-source build; compiles on Ubuntu LTS, Windows MSVC, and MinGW64. | `lab requirement.md` §1, §4.1 |
-| C-02 | Top-level and per-lab `README.md`: dependency versions, install steps for both OSes, build commands, CLI examples, known limitations. | `lab requirement.md` §1A |
-| C-03 | Uniform CLI shape: `tool <command> [--in\|--text] [--out] [--key\|--key-hex] [--iv] [--nonce] [--mode] [--aead] [--encode hex\|base64\|raw] [--threads N] [--kat FILE] [--verbose]`. | `lab requirement.md` §1A |
-| C-04 | UTF-8 input/output; binary-safe `--in`/`--out`; console defaults to hex for ciphertext/digest/signature; file output defaults to raw; `--encode` overrides. | `lab requirement.md` §1B |
-| C-05 | Secure randomness only: Crypto++ `AutoSeededRandomPool` or OpenSSL `RAND_bytes`. `rand()` and `std::random` are forbidden for keys, IVs, nonces, salts. | `lab requirement.md` §2 |
-| C-06 | Enforce IV/nonce length per mode; auto-generate securely when allowed; persist IV/nonce in a header or sidecar; prevent nonce reuse where prohibited. | `lab requirement.md` §2 |
-| C-07 | Minimum key sizes: AES 128/192/256 (prefer 256 in reports), RSA >= 3072 bits, ECDSA >= P-256. | `lab requirement.md` §2 |
-| C-08 | KAT runner with JSON vectors, PASS/FAIL per case, and summary. Use official NIST/FIPS/RFC vectors where applicable. | `lab requirement.md` §3 |
-| C-09 | Negative tests: wrong key, wrong IV/nonce, tampered ciphertext, tampered tag, malformed input, corrupted PEM/key where applicable. Fail closed. | `lab requirement.md` §3 |
-| C-10 | Unit tests with Catch2 or GoogleTest; `ctest` passes on Windows and Linux. | `lab requirement.md` §3 |
-| C-11 | Performance protocol: 1-2 s warm-up, ~1000 operations per block, 30-100 repeats, mean/median/stddev/95% CI, comparison tables, plots, and interpretation. | `lab requirement.md` §4; `GradingSystem.txt` |
-| C-12 | Security section: threat model, misuse scenarios, relevant attacks, secure defaults, fail-closed behavior, limitations. | `lab requirement.md` §5 |
-| C-13 | Final archive: source, CMake, README, tests, Windows and Linux binaries, report PDF/DOCX, self-grade checklist, academic-integrity statement. | `lab requirement.md` §6 |
-| C-14 | One report for all labs: objectives, implementation, tests, performance method, statistics/plots, security, cross-platform comparison, lessons; ~60 pages typical. | `lab requirement.md` §7 |
-| C-15 | GUI bonus is optional: export the core as `.dll`/`.so`/`.a`/`.lib`; Python or C# GUI must call the same compiled library, never duplicate crypto logic. | `lab requirement.md` §8 |
-| C-16 | Ethics: own work, cite libraries/vectors/references, offline test artifacts only, test keys only, disclose AI/tool assistance. | `lab requirement.md` §9 |
+| C-01 | CMake >= 3.16, out-of-source build; compiles on Ubuntu LTS, Windows MSVC, and MinGW64. | `lab requirement.md` §1; `course-objectives.txt` §1A |
+| C-02 | Top-level and per-lab `README.md`: dependency versions, install steps for both OSes, build commands, CLI examples, known limitations. | `course-objectives.txt` §1A |
+| C-03 | Uniform CLI shape: `tool <command> [--in\|--text] [--out] [--key\|--key-hex] [--iv] [--nonce] [--mode] [--aead] [--encode hex\|base64\|raw] [--threads N] [--kat FILE] [--verbose]`. | `course-objectives.txt` §1A |
+| C-04 | UTF-8 input/output; binary-safe `--in`/`--out`; console defaults to hex for ciphertext/digest/signature; file output defaults to raw; `--encode` overrides. | `course-objectives.txt` §1B |
+| C-05 | Secure randomness only: Crypto++ `AutoSeededRandomPool` or OpenSSL `RAND_bytes`. `rand()` and `std::random` are forbidden for keys, IVs, nonces, salts. | `course-objectives.txt` §2 |
+| C-06 | Enforce IV/nonce length per mode; auto-generate securely when allowed; persist IV/nonce in a header or sidecar; prevent nonce reuse where prohibited. | `course-objectives.txt` §2 |
+| C-07 | Minimum key sizes: AES 128/192/256 (prefer 256 in reports), RSA >= 3072 bits, ECDSA >= P-256. | `course-objectives.txt` §2 |
+| C-08 | KAT runner with JSON vectors, PASS/FAIL per case, and summary. Use official NIST/FIPS/RFC vectors where applicable. | `course-objectives.txt` §3 |
+| C-09 | Negative tests: wrong key, wrong IV/nonce, tampered ciphertext, tampered tag, malformed input, corrupted PEM/key where applicable. Fail closed. | `course-objectives.txt` §3 |
+| C-10 | Unit tests with Catch2 or GoogleTest; `ctest` passes on Windows and Linux. | `course-objectives.txt` §3 |
+| C-11 | Performance protocol: 1-2 s warm-up, ~1000 operations per block, 30-100 repeats, mean/median/stddev/95% CI, comparison tables, plots, and interpretation. | `course-objectives.txt` §4; `GradingSystem.txt` |
+| C-12 | Security section: threat model, misuse scenarios, relevant attacks, secure defaults, fail-closed behavior, limitations. | `course-objectives.txt` §5 |
+| C-13 | Final archive: source, CMake, README, tests, Windows and Linux binaries, report PDF/DOCX, self-grade checklist, academic-integrity statement. | `course-objectives.txt` §6 |
+| C-14 | One report for all labs: objectives, implementation, tests, performance method, statistics/plots, security, cross-platform comparison, lessons; ~60 pages typical. | `course-objectives.txt` §7 |
+| C-15 | GUI bonus is optional: export the core as `.dll`/`.so`/`.a`/`.lib`; Python or C# GUI must call the same compiled library, never duplicate crypto logic. | `course-objectives.txt` §8 |
+| C-16 | Ethics: own work, cite libraries/vectors/references, offline test artifacts only, test keys only, disclose AI/tool assistance. | `course-objectives.txt` §9 |
 
 ### Course-wide grading bands
 
@@ -124,7 +126,7 @@ without a requirement.
 | Milestone | Scope | Exit gate | Status |
 |---|---|---|---|
 | M1 | Lab 1 `aestool` | KAT 8 modes, `ctest`, negative tests, benchmark CSVs, report section | Done in `lab01/`; report refresh noted in README |
-| M2 | Lab 2 `aestool` | FIPS-197/SP 800-38A KAT, Crypto++ parity, `ctest`, 1 MiB/100 MiB/1 GiB benchmarks | Core/tests/report done; Windows 9/9 KAT + 4/4 CTest on MSVC/MinGW; Windows MSVC benchmark chosen 1000/100/30 with summary/plots/audit. Ubuntu logs, run-time env log and Crypto++ throughput still open (`lab02/REPORT.md`, `docs/missing/lab2.md`) |
+| M2 | Lab 2 `aestool` | FIPS-197/SP 800-38A KAT, oracle parity, `ctest`, 1 MiB/100 MiB/1 GiB benchmarks | Core/tests/report done; Ubuntu KAT 9/9, CTest 4/4, OpenSSL cross-validation and 1000/100/30 benchmark committed. Windows KAT/unit logs valid; Windows CTest/cross-validation need a rerun after the OpenSSL switch. Open: Windows run-time environment log, Windows OpenSSL throughput, PDF/identity (`lab02/REPORT.md`, `docs/missing/lab2.md`) |
 | M3 | Lab 3 `rsatool` | OAEP + hybrid KAT, negative tests, 3072/4096 benchmarks | Not started |
 | M4 | Lab 4 `hashtool` | Hash KAT, X.509 parse/verify, both attack demos, benchmarks | Not started |
 | M5 | Lab 5 `sigtool` | ECDSA/RSA-PSS vectors, negative tests, benchmarks | Not started |

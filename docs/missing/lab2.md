@@ -23,10 +23,15 @@ incomplete, **Missing** = not present, **Not verified** = no evidence here.
 The required AES-128 core, CTR mode, KAT/cross-validation, CLI and benchmark
 evidence are in place. Bonus A (AES-192/256) and bonus B (XTS) work. Ubuntu was
 rerun on 2026-11-05 with 4 threads, CPUs 0-3 and a `performance` governor; one
-combined summary plot covers all three sizes. **Rubric audit 2026-11-05: the
-core is maximized at 100/100 under the rubric wording** (security is a
-discussion criterion, and `REPORT.md` §7 covers every listed topic), plus 15
-bonus points, capped at 100. The earlier 96/100 regrade was conservative.
+combined summary plot covers all three sizes. The 2026-11-05 audit scored the
+core at 100/100 (security is a discussion criterion, and `REPORT.md` §7 covers
+every listed topic) and assumed a 100 cap.
+
+**Superseded 2026-11-06 by the strict regrade at the end of this file:** core
+99/100, bonus +15, total 114 additive (100 if the course caps the final score).
+OpenSSL is an accepted oracle and a benchmark run-time log is not required, so
+neither is a deduction. The old "capped at 100" assumption is not stated in the
+source rubric.
 
 The submission is **not final**: the Windows CTest/cross-validation logs still
 say Crypto++, Windows OpenSSL throughput has not been run, `REPORT.md` has no
@@ -434,3 +439,40 @@ scripts\build_windows.bat msvc
 scripts\run_benchmarks.bat msvc
 python scripts\summarize_bench.py --dir output\windows\benchmarks
 ```
+
+## Regrade 2026-11-06 (strict, evidence rechecked)
+
+Re-ran the committed Ubuntu build: `--kat` 9/9, `test_core` 351 assertions /
+11 cases, `test_crossval` 22 assertions / 3 cases, `ctest` 4/4. Rechecked the
+CSV row counts (1000/100/30), summary CIs/CVs, plots, OpenSSL comparison and
+`REPORT.md` §7. Score is against `docs/Lab2.txt`.
+
+| Criterion | Max | Score | Reason |
+|---|---:|---:|---|
+| FIPS-197 AES-128 core | 30 | 30 | Manual rounds, column-major state, key schedule; FIPS-197 C.1 passes. |
+| CTR mode correctness | 15 | 15 | Big-endian counter, partial final block, no padding, overflow fail-closed. |
+| KATs and cross-validation | 15 | 15 | 9 KATs plus 3 OpenSSL parity cases pass on the current Ubuntu build. Windows KAT is valid; Windows CTest/crossval logs are stale but the test code is unchanged. |
+| Engineering quality and documentation | 10 | 9 | Build, modules, CLI, CTest and README are good. C-16 academic-integrity statement is still absent from the report. |
+| Performance study and analysis | 10 | 10 | Sizes, N >= 30, CIs, plots and a comparison are present. OpenSSL is an accepted oracle (the brief allows Crypto++ or OpenSSL), and a benchmark run-time log is not required. |
+| Security engineering discussion | 20 | 20 | §7 covers S-box/cache timing, constant-time limits, nonce reuse/two-time pad, malleability, key handling and AES-NI. |
+| **Core** | **100** | **99** | |
+| Bonus A: AES-192/256 | +10 | +10 | Schedules, FIPS-197 C.2/C.3 KATs, OpenSSL parity. |
+| Bonus B: AES-XTS | +5 | +5 | GF(2^128) tweak, ciphertext stealing, KATs, OpenSSL parity. |
+| Bonus C: AES-NI/bitsliced | +5 | 0 | Not implemented. |
+| **Total** | **120** | **114** | 99 core + 15 bonus. |
+
+**Cap:** the source says "100 pts + Bonus" and `GradingSystem.txt` says
+"Total 100 (+bonus)". No cap is stated. If the course caps the final at 100,
+the result is **100**; otherwise it is **114**. The old audit's "capped at 100"
+was an assumption, not a source rule.
+
+**What still keeps it from a clean 100 core:** only the missing C-16
+academic-integrity statement. If that is treated as a submission/packaging item
+rather than documentation, the core is **100/100** and the additive total is
+**115**. Windows CTest/cross-validation
+after the OpenSSL switch and the PDF/identity/archive are submission items, not
+rubric rows; the run-time log and the Crypto++/OpenSSL choice are not rubric
+requirements.
+
+`REPORT.md` §8 still self-grades 100/100 core and repeats the old cap; update it
+to this table before submitting if the grader follows the same strict reading.

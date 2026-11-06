@@ -3,7 +3,7 @@
 > **Normative source:** `docs/Lab2.txt`
 > **Deep implementation reference:** `docs/lab2_reference.md` (normative brief
 > still wins; the reference is an implementation guide)
-> **Course core:** `docs/lab requirement.md`, `docs/GradingSystem.txt`
+> **Course core:** `docs/course-objectives.txt`, `docs/GradingSystem.txt`; toolchain: `docs/lab requirement.md`
 > **Existing implementation:** `lab02/`
 > **Report:** `lab02/REPORT.md`
 > **Audit / regrade:** `docs/missing/lab2.md`
@@ -39,7 +39,7 @@
 7. Run negative tests and explain why CTR cannot detect tampering.
 8. Benchmark AES-128 CTR at 1 MiB, 100 MiB, and 1 GiB if feasible; compare
    table-based vs computed S-box, memory footprint, cache behavior, branch
-   prediction, and Crypto++ throughput.
+   prediction, and oracle (Crypto++ or OpenSSL) throughput.
 9. Write the security section: timing/cache leakage from table S-boxes and
    T-tables, constant-time coding, keystream reuse/two-time pad, CTR
    malleability, confidentiality without authenticity, why CTR is not AEAD,
@@ -112,7 +112,7 @@ Measure AES-128 CTR encryption and decryption throughput. Analyze:
 - Table-based vs computed S-box.
 - Memory footprint and cache-line behavior.
 - Branch-prediction impact.
-- Comparison with Crypto++.
+- Comparison with the chosen oracle (Crypto++ or OpenSSL).
 - Throughput table (MB/s) and plots.
 
 Use the course protocol for warm-up, repetitions, and 95% CIs.
@@ -156,7 +156,7 @@ After this lab you should be able to:
 - [ ] Negative tests cover wrong key/IV, tampering, length errors, overflow.
 - [ ] `ctest` passes on Linux and Windows.
 - [ ] Benchmarks cover 1 MiB and 100 MiB (1 GiB if feasible) with statistics
-      and plots; Crypto++ comparison included.
+      and plots; oracle throughput comparison included.
 - [ ] Security analysis covers cache/timing, two-time pad, malleability, and
       AES-NI.
 - [ ] README documents build, CLI, key/IV rules, and limitations.
@@ -170,7 +170,7 @@ After this lab you should be able to:
 | CTR mode correctness | 15 | Big-endian counter, partial blocks, arbitrary length, no padding, overflow fail-closed. |
 | KATs and cross-validation | 15 | FIPS-197 + SP 800-38A vectors and byte-identical Crypto++/OpenSSL parity. |
 | Engineering and documentation | 10 | CMake, modular code, fail-closed CLI, Catch2/CTest, clear README. |
-| Performance evaluation | 10 | Required sizes, table-vs-computed analysis, memory/cache/branch discussion, Crypto++ comparison, plots. |
+| Performance evaluation | 10 | Required sizes, table-vs-computed analysis, memory/cache/branch discussion, Crypto++/OpenSSL comparison, plots. |
 | Security engineering discussion | 20 | Timing/cache attacks, constant-time coding, keystream reuse, malleability, no authentication, AES-NI. |
 | **Subtotal** | **100** | |
 | Bonus A: AES-192/256 | +10 | Full schedules and FIPS-197 C.2/C.3 KATs. |
@@ -195,7 +195,8 @@ lab02/
     catch.hpp             vendored Catch2 2.13.10
     test_aes.cpp          FIPS-197 vectors
     test_ctr.cpp          SP 800-38A CTR + negative tests
-    test_crossval.cpp     Crypto++ oracle parity (CTR + XTS)
+    test_crossval.cpp     OpenSSL oracle parity (CTR + XTS)
+    bench_openssl.cpp     OpenSSL throughput oracle (test-only)
     cli_test.sh / cli_test.cmake
   kat/vectors.json
   scripts/                build, benchmark, summarize, plot
@@ -208,7 +209,7 @@ lab02/
 |---|---|---|
 | CMake | >= 3.16 (verified 4.2.3 Linux, 4.3.1 Windows) | out-of-source |
 | C++ compiler | C++17: GCC 15.2, Clang 21.1.8, MSVC 19.51, MinGW GCC 16.2 | |
-| Crypto++ | 8.9.0 | **oracle only**, linked to `test_crossval` |
+| OpenSSL | 3.5.5+ | **oracle only**, linked to `test_crossval` and `bench_openssl` |
 | Catch2 | 2.13.10 | vendored, offline |
 | Python | 3.8+ | optional statistics/plots |
 
@@ -257,40 +258,7 @@ is available with `RUNS_100MB=500 RUNS_1GB=50`. Keep the system-tracking log
 next to the CSVs. Generate summary statistics and plots before writing the
 report.
 
-### Status / remaining gaps (2026-11-05)
+### Status / remaining gaps
 
-Closed in the implementation pass:
-
-- Windows build/test/KAT/CLI evidence exists for MSVC, MinGW GCC and MinGW
-  Clang: 9/9 KAT and 4/4 CTest each.
-- Windows UTF-8 paths and `--text` are fixed and covered by `cli_test.cmake`.
-- KAT coverage expanded to 9 vectors: CTR AES-128/192/256, partial block,
-  FIPS-197 C.1/C.2/C.3, IEEE P1619 XTS and CAVP XTS.
-- Unsupported KAT modes are counted as skip failures.
-- Cross-validation is mandatory when `ENABLE_CROSSVAL=ON`.
-- CLI flags `--encode`, `--decode`, `--nonce`, `--threads`, `--verbose`;
-  `bench --verbose` reports progress/ETA; conflicting key/IV sources and
-  unknown bench options are rejected.
-- Key/round-key zeroization and a computed-S-box reference test.
-- Time-based warm-up, CPU pinning in the Linux script, High Performance /
-  `/high /affinity` in Windows, and `THREADS=4` (`--threads 4`) for both
-  scripts.
-- Windows MSVC benchmark for 1 MiB / 100 MiB / 1 GiB with summary, robust
-  summary and six plots; see `lab02/output/windows/benchmarks/AUDIT.md`.
-- `lab02/REPORT.md` and the audit/regrade in `docs/missing/lab2.md`.
-
-Still open:
-
-- Ubuntu `--kat`/`ctest` logs are not committed; no Linux host was available.
-- The committed Ubuntu benchmark CSVs used the old 5-iteration warm-up,
-  `powersave`, one thread, and no CPU pinning. Rerun with the new protocol
-  before citing them as final.
-- Windows uses the chosen 1000/100/30 (N >= 30); the nominal 1000/500/50 is
-  optional. It still has no run-time environment log.
-- Ubuntu has no 1 GiB plot; Windows has all six plots.
-- No Crypto++ **throughput** comparison (cross-validation is correctness only).
-- No PDF/DOCX; identity fields are blank.
-- Bonus C (AES-NI/bitsliced) is not implemented.
-- CTR/XTS are whole-file; streaming is future work.
-
-Treat those as work items, not as done.
+See the status note at the top of this file and `docs/missing/lab2.md` for the
+current evidence and the open work items.

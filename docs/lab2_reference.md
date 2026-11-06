@@ -2,9 +2,9 @@
 
 > **Course:** NT219 — Information Security / Cryptography Laboratory  
 > **Topic:** Lab 2 — AES-128 Implementation in Pure C++ (CTR Mode, FIPS-197 Compliant)  
-> **Specification Reference:** `Lab2.txt` is normative and wins on any conflict. [lab requirement.md](file:///home/han-sui/Downloads/NT219/lab%20requirement.md) is only a toolchain appendix.  
+> **Specification Reference:** `Lab2.txt` is normative and wins on any conflict. [lab requirement.md](lab%20requirement.md) is only a toolchain appendix.  
 > **Target Platforms:** Ubuntu 26.04 LTS (GCC 15.2 / Clang 21.1) & Windows 11 (MSVC 19.51 / MinGW64)  
-> **Output Path:** [lab2_reference.md](file:///home/han-sui/Downloads/NT219/lab2_reference.md)
+> **Location:** `docs/lab2_reference.md`
 
 ---
 

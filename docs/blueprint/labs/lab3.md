@@ -1,7 +1,7 @@
 # Lab 3 — RSA-OAEP and Hybrid Encryption
 
 > **Normative source:** `docs/Lab3.txt`
-> **Course core:** `docs/lab requirement.md`, `docs/GradingSystem.txt`
+> **Course core:** `docs/course-objectives.txt`, `docs/GradingSystem.txt`; toolchain: `docs/lab requirement.md`
 > **Existing implementation:** none (`lab03/` does not exist yet)
 > **Tool:** `rsatool`
 
