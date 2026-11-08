@@ -127,7 +127,7 @@ without a requirement.
 |---|---|---|---|
 | M1 | Lab 1 `aestool` | KAT 8 modes, `ctest`, negative tests, benchmark CSVs, report section | Done in `lab01/`; report refresh noted in README |
 | M2 | Lab 2 `aestool` | FIPS-197/SP 800-38A KAT, oracle parity, `ctest`, 1 MiB/100 MiB/1 GiB benchmarks | Core/tests/report done; Ubuntu KAT 9/9, CTest 4/4, OpenSSL cross-validation and 1000/100/30 benchmark committed. Windows KAT/unit logs valid; Windows CTest/cross-validation need a rerun after the OpenSSL switch. Open: Windows run-time environment log, Windows OpenSSL throughput, PDF/identity (`lab02/REPORT.md`, `docs/missing/lab2.md`) |
-| M3 | Lab 3 `rsatool` | OAEP + hybrid KAT, negative tests, 3072/4096 benchmarks | Not started |
+| M3 | Lab 3 `rsatool` | OAEP + hybrid KAT, negative tests, 3072/4096 benchmarks | Done in `lab03/`: OpenSSL 4.0.2 + GCC 15.2, KAT 2/2, CTest 5/5, CPU-pinned 4-thread benchmark (1000/100 runs) and plots. Windows build scripts present, not run on this host. |
 | M4 | Lab 4 `hashtool` | Hash KAT, X.509 parse/verify, both attack demos, benchmarks | Not started |
 | M5 | Lab 5 `sigtool` | ECDSA/RSA-PSS vectors, negative tests, benchmarks | Not started |
 | M6 | Lab 6 `pqtool` | ML-DSA/ML-KEM vectors, PQ certificate verify/tamper test, benchmarks | Not started |

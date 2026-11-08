@@ -200,7 +200,7 @@ security analysis and self-grade.
 | Ubuntu benchmark CSV | 1000/100/30 on GCC 15.2 with 4 threads and CPUs 0-3; no environment log; 1 MiB CV 14.4% |
 | OpenSSL throughput comparison | Ubuntu 4-thread data under `output/ubuntu/benchmarks/openssl/`; Windows not run |
 | Plots | Windows per-size plots; Ubuntu one combined summary plot (all sizes) |
-| PDF/DOCX report | not generated; identity fields blank; academic-integrity statement missing |
+| PDF/DOCX report | not generated; identity fields blank; academic-integrity statement in `REPORT.md` Appendix A |
 
 The Ubuntu run uses CPU pinning, 4 threads and the new time-based warm-up;
 cite the 1 MiB point with its 14.4% CV caveat. The Windows matrix uses the

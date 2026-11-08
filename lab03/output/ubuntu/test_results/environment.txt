@@ -1,0 +1,23 @@
+Platform: Linux 7.0.0-42-generic x86_64 GNU/Linux
+Compiler: g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+OpenSSL CLI: OpenSSL 4.0.2 25 Aug 2026 (Library: OpenSSL 4.0.2 25 Aug 2026)
+OpenSSL library: 	libcrypto.so.4 => /home/han-sui/CryptoLib/lib/openssl/gcc/lib64/libcrypto.so.4 (0x000078248d600000)
+CMake cache:
+OPENSSL_CRYPTO_LIBRARY:FILEPATH=/home/han-sui/CryptoLib/lib/openssl/gcc/lib64/libcrypto.so
+OPENSSL_INCLUDE_DIR:PATH=/home/han-sui/CryptoLib/lib/openssl/gcc/include
+OPENSSL_CRYPTO_LIBRARY-ADVANCED:INTERNAL=1
+OPENSSL_INCLUDE_DIR-ADVANCED:INTERNAL=1
+KAT:
+PASS oaep-sha256-empty-label
+PASS oaep-sha256-nonempty-label
+KAT summary: 2 passed, 0 failed
+CTest:
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =   1.43 sec
+
+Benchmark:
+Affinity: taskset -c 0-3 (4 logical CPUs)
+Threads: 4 workers
+Runs: RSA=1000, <=1 MiB=1000, 100 MiB=100

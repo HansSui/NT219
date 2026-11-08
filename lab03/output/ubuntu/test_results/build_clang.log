@@ -1,0 +1,31 @@
+-- C++ compiler: Clang 21.1.8
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- OpenSSL: 4.0.2
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/han-sui/Downloads/NT219/lab03/build/ubuntu-clang
+[ 27%] Built target rsacore
+[ 63%] Built target test_oaep
+[ 63%] Built target test_hybrid
+[ 72%] Building CXX object CMakeFiles/rsatool.dir/src/main.cpp.o
+[ 90%] Built target test_negative
+[100%] Linking CXX executable rsatool
+[100%] Built target rsatool
+Test project /home/han-sui/Downloads/NT219/lab03/build/ubuntu-clang
+    Start 1: oaep
+1/5 Test #1: oaep .............................   Passed    0.25 sec
+    Start 2: hybrid
+2/5 Test #2: hybrid ...........................   Passed    0.47 sec
+    Start 3: negative
+3/5 Test #3: negative .........................   Passed    0.32 sec
+    Start 4: kat
+4/5 Test #4: kat ..............................   Passed    0.01 sec
+    Start 5: cli
+5/5 Test #5: cli ..............................   Passed    0.24 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =   1.29 sec
+built: /home/han-sui/Downloads/NT219/lab03/build/ubuntu-clang/rsatool

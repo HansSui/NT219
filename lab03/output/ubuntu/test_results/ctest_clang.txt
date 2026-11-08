@@ -1,0 +1,15 @@
+Test project /home/han-sui/Downloads/NT219/lab03/build/ubuntu-clang
+    Start 1: oaep
+1/5 Test #1: oaep .............................   Passed    0.90 sec
+    Start 2: hybrid
+2/5 Test #2: hybrid ...........................   Passed    0.25 sec
+    Start 3: negative
+3/5 Test #3: negative .........................   Passed    0.47 sec
+    Start 4: kat
+4/5 Test #4: kat ..............................   Passed    0.01 sec
+    Start 5: cli
+5/5 Test #5: cli ..............................   Passed    0.54 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =   2.18 sec

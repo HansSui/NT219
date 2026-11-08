@@ -12,6 +12,7 @@ NT219/
   docs/               course briefs, blueprint and audit notes
   lab01/              Lab 1 - symmetric encryption CLI (aestool)
   lab02/              Lab 2 - pure C++ AES/CTR
+  lab03/              Lab 3 - RSA-OAEP + hybrid AES-GCM (rsatool)
 ```
 
 ### lab01
@@ -38,6 +39,7 @@ lab requirement.md          course/toolchain core
 GradingSystem.txt           performance, report and submission rules
 blueprint/                  plan-only blueprint and lab briefs
 missing/                    implementation audit for Labs 1-2
+memory/                     repo memory (Index, architecture, decisions, history)
 ```
 
 Use `lab01/README.md` and `lab01/BENCHMARKS.md` for the current build and output
@@ -128,3 +130,34 @@ Ubuntu GCC 15.2 logs show 9/9 KAT, 4/4 CTest with OpenSSL, and the new
 `lab02/output/ubuntu/benchmarks/openssl/`; see `docs/missing/lab2.md`. The
 Vietnamese report is `lab02/REPORT.md`; benchmark details are in
 `lab02/BENCHMARKS.md`.
+
+## Quick start (Lab 3)
+
+Linux:
+
+```bash
+cd lab03
+# requires OpenSSL 4.0.2; set OPENSSL_ROOT_DIR if auto-detection misses it
+scripts/build_linux.sh gcc
+./build/ubuntu-gcc/rsatool keygen --bits 3072 --pub pub.pem --priv priv.pem
+./build/ubuntu-gcc/rsatool encrypt --in msg.bin --pub pub.pem --out ct.bin --label ctx
+./build/ubuntu-gcc/rsatool decrypt --in ct.bin --priv priv.pem --out msg.bin --label ctx
+./build/ubuntu-gcc/rsatool --kat kat/oaep_vectors.json
+(cd build/ubuntu-gcc && ctest --output-on-failure)
+```
+
+Windows:
+
+```bat
+cd lab03
+scripts\build_windows.bat msvc
+```
+
+Lab 3 uses OpenSSL 4.0.2 for RSA-OAEP-SHA256 and AES-256-GCM. It writes PEM,
+DER and metadata for 3072/4096-bit keys, switches to a versioned hybrid envelope
+above the direct OAEP limit, and fails closed on tampered ciphertext, tags,
+headers, labels, keys and encodings. See `lab03/README.md` for the format and
+`lab03/REPORT.md` / `lab03/BENCHMARKS.md` for the report and measured results.
+Ubuntu GCC 15.2 + OpenSSL 4.0.2: KAT 2/2, `ctest` 5/5, CPU-pinned 4-thread
+benchmark (1000/100 runs) with summary and three plots under
+`lab03/output/ubuntu/benchmarks/`.

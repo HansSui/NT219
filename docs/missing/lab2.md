@@ -28,15 +28,14 @@ core at 100/100 (security is a discussion criterion, and `REPORT.md` §7 covers
 every listed topic) and assumed a 100 cap.
 
 **Superseded 2026-11-06 by the strict regrade at the end of this file:** core
-99/100, bonus +15, total 114 additive (100 if the course caps the final score).
+100/100, bonus +15, total 115 additive (100 if the course caps the final score).
 OpenSSL is an accepted oracle and a benchmark run-time log is not required, so
 neither is a deduction. The old "capped at 100" assumption is not stated in the
-source rubric.
+source rubric. The C-16 academic-integrity statement was added on 2026-11-06.
 
 The submission is **not final**: the Windows CTest/cross-validation logs still
-say Crypto++, Windows OpenSSL throughput has not been run, `REPORT.md` has no
-academic-integrity statement, and identity/PDF/archive are missing. The
-console-only benchmark scripts also leave no run-time environment log.
+say Crypto++, Windows OpenSSL throughput has not been run, and identity/PDF/
+archive are missing. The benchmark run-time log is optional.
 
 ## Baseline before this pass
 
@@ -88,7 +87,7 @@ tests, docs and evidence are intended to be committed.
 |---|---|---|---|
 | L2-01 | Windows build/test/KAT evidence | **Partial** | KAT/unit logs valid; CTest/cross-validation logs predate the OpenSSL oracle switch; benchmark CSV/summary/plots exist |
 | L2-02 | No committed Ubuntu test/KAT logs | **OK** | GCC 15.2: 9/9 KAT, 4/4 CTest, 351/22 assertions; logs under `output/ubuntu/test_results/` (2026-11-05) |
-| L2-03 | No final report | **Partial** | `lab02/REPORT.md` written; PDF/DOCX, identity fields and academic-integrity statement missing |
+| L2-03 | No final report | **Partial** | `lab02/REPORT.md` written; PDF/DOCX and identity fields missing; academic-integrity statement added 2026-11-06 |
 | L2-04 | Thin KAT coverage; skips hidden | **OK** | 9 KATs; unsupported mode counts as skip and exits nonzero |
 | L2-05 | Cross-validation optional | **OK** | CMake fails if `ENABLE_CROSSVAL=ON` and OpenSSL is missing |
 | L2-06 | Benchmark protocol not required | **OK** | Both platforms 1000/100/30; Ubuntu 2026-11-05 with 4 threads/CPUs 0-3/`performance`; console-only, no env log |
@@ -150,10 +149,10 @@ negative tests, benchmark method, the 2026-11-05 Ubuntu table, S-box/cache
 analysis, nonce reuse, malleability, key wiping, AES-NI, rubric self-grade and
 remaining work.
 
-Still missing: student name/MSSV/class, PDF/DOCX export, a final package, and
-an academic-integrity statement (C-16). The self-grade is now 100/100 core
-under the rubric wording; the missing statement/identity/PDF are submission
-gaps, not a reason to lower the technical rows.
+Still missing: student name/MSSV/class, PDF/DOCX export, and a final package.
+The C-16 academic-integrity statement is now in Appendix A of the report. The
+self-grade is 100/100 core under the rubric wording; the missing identity/PDF
+are submission gaps, not a reason to lower the technical rows.
 
 ### L2-04 - KAT coverage and skips
 
@@ -376,17 +375,13 @@ the rubric wording:**
 - The rubric says "Crypto++ comparison"; Lab 2 uses OpenSSL, which the user
   accepted as the comparison oracle.
 - There is no run-time environment log because the benchmark scripts are
-  intentionally console-only.
-- If the grader folds the missing academic-integrity statement (C-16) into
-  Engineering/documentation, that row would be 9/10 until the statement is
-  added.
+  intentionally console-only; this is optional, not required by the rubric.
 - Windows CTest/cross-validation must be rerun after the OpenSSL switch before
   citing Windows parity; Windows OpenSSL throughput is not required for the
   rubric but is an optional extra.
 
-**Submission gaps (not rubric deductions):** academic-integrity statement,
-student identity, PDF/DOCX/archive, Windows rerun, and optionally Windows
-OpenSSL throughput.
+**Submission gaps (not rubric deductions):** student identity,
+PDF/DOCX/archive, Windows rerun, and optionally Windows OpenSSL throughput.
 
 ## Remaining actions
 
@@ -406,7 +401,8 @@ OpenSSL throughput.
 7. Optional: stream CTR in chunks; optional Bonus C (AES-NI/bitsliced).
 8. Optional: add a stateful nonce/IV registry if the course wants enforcement
    rather than documentation.
-9. Add the academic-integrity statement to `lab02/REPORT.md` (C-16).
+9. ~~Add the academic-integrity statement to `lab02/REPORT.md` (C-16).~~ Done
+   2026-11-06: Appendix A in `lab02/REPORT.md`.
 
 ## Benchmark commands
 
@@ -452,27 +448,20 @@ CSV row counts (1000/100/30), summary CIs/CVs, plots, OpenSSL comparison and
 | FIPS-197 AES-128 core | 30 | 30 | Manual rounds, column-major state, key schedule; FIPS-197 C.1 passes. |
 | CTR mode correctness | 15 | 15 | Big-endian counter, partial final block, no padding, overflow fail-closed. |
 | KATs and cross-validation | 15 | 15 | 9 KATs plus 3 OpenSSL parity cases pass on the current Ubuntu build. Windows KAT is valid; Windows CTest/crossval logs are stale but the test code is unchanged. |
-| Engineering quality and documentation | 10 | 9 | Build, modules, CLI, CTest and README are good. C-16 academic-integrity statement is still absent from the report. |
+| Engineering quality and documentation | 10 | 10 | Build, modules, CLI, CTest, README and report are good; C-16 statement is in Appendix A. |
 | Performance study and analysis | 10 | 10 | Sizes, N >= 30, CIs, plots and a comparison are present. OpenSSL is an accepted oracle (the brief allows Crypto++ or OpenSSL), and a benchmark run-time log is not required. |
 | Security engineering discussion | 20 | 20 | §7 covers S-box/cache timing, constant-time limits, nonce reuse/two-time pad, malleability, key handling and AES-NI. |
-| **Core** | **100** | **99** | |
+| **Core** | **100** | **100** | |
 | Bonus A: AES-192/256 | +10 | +10 | Schedules, FIPS-197 C.2/C.3 KATs, OpenSSL parity. |
 | Bonus B: AES-XTS | +5 | +5 | GF(2^128) tweak, ciphertext stealing, KATs, OpenSSL parity. |
 | Bonus C: AES-NI/bitsliced | +5 | 0 | Not implemented. |
-| **Total** | **120** | **114** | 99 core + 15 bonus. |
+| **Total** | **120** | **115** | 100 core + 15 bonus. |
 
 **Cap:** the source says "100 pts + Bonus" and `GradingSystem.txt` says
 "Total 100 (+bonus)". No cap is stated. If the course caps the final at 100,
-the result is **100**; otherwise it is **114**. The old audit's "capped at 100"
+the result is **100**; otherwise it is **115**. The old audit's "capped at 100"
 was an assumption, not a source rule.
 
-**What still keeps it from a clean 100 core:** only the missing C-16
-academic-integrity statement. If that is treated as a submission/packaging item
-rather than documentation, the core is **100/100** and the additive total is
-**115**. Windows CTest/cross-validation
-after the OpenSSL switch and the PDF/identity/archive are submission items, not
-rubric rows; the run-time log and the Crypto++/OpenSSL choice are not rubric
-requirements.
-
-`REPORT.md` §8 still self-grades 100/100 core and repeats the old cap; update it
-to this table before submitting if the grader follows the same strict reading.
+**Remaining non-rubric items:** Windows CTest/cross-validation after the OpenSSL
+switch, Windows OpenSSL throughput, and the PDF/identity/archive. The run-time
+log and the Crypto++/OpenSSL choice are not rubric requirements.

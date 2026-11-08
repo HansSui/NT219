@@ -2,7 +2,7 @@
 
 > **Normative source:** `docs/Lab3.txt`
 > **Course core:** `docs/course-objectives.txt`, `docs/GradingSystem.txt`; toolchain: `docs/lab requirement.md`
-> **Existing implementation:** none (`lab03/` does not exist yet)
+> **Existing implementation:** `lab03/` (OpenSSL 4.0.2, GCC 15.2)
 > **Tool:** `rsatool`
 
 ## 1. What to do
@@ -201,19 +201,19 @@ After this lab you should be able to:
 
 ## 5. Infrastructure
 
-### Proposed layout (`lab03/`, not yet present)
+### Layout (`lab03/`)
 
 ```
 lab03/
   CMakeLists.txt
   README.md
   BENCHMARKS.md
+  REPORT.md
   src/
-    rsa_oaep.hpp/.cpp     keygen, OAEP encrypt/decrypt, label handling
-    keyio.hpp/.cpp        PEM/DER/metadata JSON
-    hybrid.hpp/.cpp       AES-256-GCM envelope
-    envelope.hpp/.cpp     header parse/serialize/validate
-    minijson.hpp          small JSON parser (reuse the lab01/02 pattern)
+    rsa.hpp/.cpp          keygen, OAEP encrypt/decrypt, label, PEM/DER
+    hybrid.hpp/.cpp       AES-256-GCM envelope, header parse/serialize/AAD
+    util.hpp              hex/base64/JSON/file helpers
+    minijson.hpp          small JSON parser (reused from Lab 1)
     main.cpp              CLI: keygen, encrypt, decrypt, bench, --kat
   tests/
     catch.hpp
@@ -226,7 +226,7 @@ lab03/
   scripts/
     build_linux.sh
     build_windows.bat
-    run_benchmarks.sh / .bat
+    run_benchmarks.sh
     summarize_bench.py
     plot_bench.py
   output/
@@ -242,8 +242,8 @@ lab03/
 |---|---|---|
 | CMake | >= 3.16 | match Labs 1-2 |
 | C++ compiler | C++17: GCC 15.2, Clang 21.1.8, MSVC 19.51, MinGW GCC 16.2 | |
-| Crypto++ | 8.9.0 | recommended to match Lab 1 |
-| OpenSSL | 3.x | allowed alternative; useful for PEM/DER and ciphertext cross-checks |
+| Crypto++ | 8.9.0 | not used for Lab 3 (no PEM helpers in the installed build) |
+| OpenSSL | 4.0.2 (required) | **chosen implementation library**; CLI used for cross-checks |
 | Catch2 | 2.13.10 | vendored |
 | Python | 3.8+ | statistics and plots |
 
@@ -279,15 +279,19 @@ scripts\build_windows.bat msvc
 | AES-256-GCM | 1 KiB, 1 MiB, 100 MiB | MB/s |
 | Hybrid | 1 KiB, 1 MiB, 100 MiB | latency, MB/s |
 
-Keep the environment table with every run. RSA keygen is expensive; use enough
-repeats for a stable CI but do not run it 1000 times.
+Keep the environment table with every run. The committed protocol uses four
+pinned workers, 1000 runs for RSA and <=1 MiB payloads, and 100 runs for
+100 MiB; reduce RSA keygen repeats if wall-clock time is constrained.
 
 ### Risks / gaps
 
-- No code exists; all commands above are proposed.
-- The envelope must be versioned or self-describing from the first commit;
-  retrofitting a format later breaks stored ciphertext.
-- OAEP label handling is easy to get wrong; test a non-empty label and a wrong
-  label explicitly.
-- "Automatic hybrid" needs a clear threshold and a report-visible decision.
-- Library choice changes key serialization; record it in the README and report.
+- Ubuntu is verified; Windows build/test evidence still needs a Windows host.
+- The envelope must stay versioned; retrofitting a format later breaks stored
+  ciphertext.
+- OAEP label handling is easy to get wrong; the tests cover non-empty and wrong
+  labels.
+- "Automatic hybrid" uses the `k - 2*hLen - 2` threshold; the README and report
+  record it.
+- Library choice changes key serialization; OpenSSL 4.0.2 is pinned in CMake,
+  the build scripts, README, report and memory. Builds on other OpenSSL versions
+  are rejected on purpose.

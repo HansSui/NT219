@@ -1,0 +1,5 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // Use the project's ponytail lab agent for every new session.
+  "default_agent": "main"
+}

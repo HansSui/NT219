@@ -1,0 +1,23 @@
+Lab 3 benchmark: OpenSSL 4.0.2, RSA=1000, <=1MiB=1000, 100MiB=100
+threads=4, affinity=0-3, warmup=1.0s -> /home/han-sui/Downloads/NT219/lab03/output/ubuntu/benchmarks/bench_ubuntu_gcc_rsa_hybrid.csv
+bench rsa_keygen bits=3072 size=0 threads=4 runs=1000 done
+bench rsa_encrypt bits=3072 size=32 threads=4 runs=1000 done
+bench rsa_decrypt bits=3072 size=32 threads=4 runs=1000 done
+bench rsa_keygen bits=4096 size=0 threads=4 runs=1000 done
+bench rsa_encrypt bits=4096 size=32 threads=4 runs=1000 done
+bench rsa_decrypt bits=4096 size=32 threads=4 runs=1000 done
+bench aes_gcm bits=256 size=1024 threads=4 runs=1000 done
+bench aes_gcm_decrypt bits=256 size=1024 threads=4 runs=1000 done
+bench aes_gcm bits=256 size=1048576 threads=4 runs=1000 done
+bench aes_gcm_decrypt bits=256 size=1048576 threads=4 runs=1000 done
+bench aes_gcm bits=256 size=104857600 threads=4 runs=100 done
+bench aes_gcm_decrypt bits=256 size=104857600 threads=4 runs=100 done
+bench hybrid_encrypt bits=3072 size=1024 threads=4 runs=1000 done
+bench hybrid_decrypt bits=3072 size=1024 threads=4 runs=1000 done
+bench hybrid_encrypt bits=3072 size=1048576 threads=4 runs=1000 done
+bench hybrid_decrypt bits=3072 size=1048576 threads=4 runs=1000 done
+bench hybrid_encrypt bits=3072 size=104857600 threads=4 runs=100 done
+bench hybrid_decrypt bits=3072 size=104857600 threads=4 runs=100 done
+wrote /home/han-sui/Downloads/NT219/lab03/output/ubuntu/benchmarks/summary_gcc.csv
+wrote plots to /home/han-sui/Downloads/NT219/lab03/output/ubuntu/benchmarks/graph
+benchmarks done: /home/han-sui/Downloads/NT219/lab03/output/ubuntu/benchmarks
