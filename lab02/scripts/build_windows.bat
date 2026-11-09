@@ -12,8 +12,9 @@ set "compiler=%~1"
 if "%compiler%"=="" set "compiler=msvc"
 
 rem OpenSSL is oracle-only, but CMake requires it when ENABLE_CROSSVAL=ON.
-rem Expected layout: %OPENSSL_ROOT_DIR%\include\openssl\*.h
-rem                  %OPENSSL_ROOT_DIR%\lib\ or \libs\openssl\* (libcrypto)
+if not defined OPENSSL_ROOT_DIR if /i "%compiler%"=="gcc" if exist "D:\cryptolibrary\libs\openssl\gcc\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary\libs\openssl\gcc"
+if not defined OPENSSL_ROOT_DIR if /i "%compiler%"=="clang" if exist "D:\cryptolibrary\libs\openssl\gcc\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary\libs\openssl\gcc"
+if not defined OPENSSL_ROOT_DIR if /i "%compiler%"=="msvc" if exist "D:\cryptolibrary\libs\openssl\msvc\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary\libs\openssl\msvc"
 if not defined OPENSSL_ROOT_DIR if exist "D:\cryptolibrary\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary"
 
 set "crypto_args="

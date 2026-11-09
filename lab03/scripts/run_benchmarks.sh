@@ -26,7 +26,7 @@ fi
 
 mkdir -p "$out_dir"
 csv="$out_dir/bench_ubuntu_${compiler}_rsa_hybrid.csv"
-echo "Lab 3 benchmark: OpenSSL 4.0.2, RSA=$runs_rsa, <=1MiB=$runs_small, 100MiB=$runs_large"
+echo "Lab 3 benchmark: OpenSSL 4.0.x, RSA=$runs_rsa, <=1MiB=$runs_small, 100MiB=$runs_large"
 echo "threads=$threads, affinity=$PIN_CPU, warmup=${warmup}s -> $csv"
 "${launcher[@]}" "$bin" bench --runs-rsa "$runs_rsa" --runs-small "$runs_small" \
     --runs-large "$runs_large" --threads "$threads" --warmup "$warmup" \

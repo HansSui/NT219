@@ -10,19 +10,19 @@ case "$compiler" in
     *)     echo "usage: $0 [gcc|clang]" >&2; exit 1 ;;
 esac
 
-# Lab 3 requires OpenSSL 4.0.2. Use OPENSSL_ROOT_DIR when set, otherwise
-# auto-detect the local 4.0.2 install if present.
+# Lab 3 requires OpenSSL 4.0.x or newer. Use OPENSSL_ROOT_DIR when set,
+# otherwise auto-detect the local 4.0.x install if present.
 if [[ -z "${OPENSSL_ROOT_DIR:-}" ]]; then
     for candidate in "$HOME/CryptoLib/lib/openssl/gcc" /usr/local /opt/openssl; do
         if [[ -f "$candidate/include/openssl/evp.h" ]] &&
-           grep -q 'OPENSSL_VERSION_STR "4\.0\.2"' "$candidate/include/openssl/opensslv.h"; then
+           grep -Eq 'OPENSSL_VERSION_STR "4\.0\.[0-9]+"' "$candidate/include/openssl/opensslv.h"; then
             OPENSSL_ROOT_DIR="$candidate"
             break
         fi
     done
 fi
 if [[ -z "${OPENSSL_ROOT_DIR:-}" ]]; then
-    echo "OpenSSL 4.0.2 not found; set OPENSSL_ROOT_DIR=/path/to/openssl" >&2
+    echo "OpenSSL 4.0.x not found; set OPENSSL_ROOT_DIR=/path/to/openssl" >&2
     exit 1
 fi
 

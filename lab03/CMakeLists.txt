@@ -8,9 +8,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(BUILD_TESTING "Build unit tests" ON)
 
 message(STATUS "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-find_package(OpenSSL 4.0.2 REQUIRED)
-if(NOT OPENSSL_VERSION VERSION_EQUAL "4.0.2")
-    message(FATAL_ERROR "OpenSSL 4.0.2 is required, found ${OPENSSL_VERSION}")
+# The course requires OpenSSL 4.0.x or newer. Accept any 4.0+ patch/minor so a
+# 4.0.3 install (e.g. D:\cryptolibrary) works without editing the project.
+find_package(OpenSSL 4.0 REQUIRED)
+if(OPENSSL_VERSION VERSION_LESS "4.0.0")
+    message(FATAL_ERROR "OpenSSL 4.0 or newer is required, found ${OPENSSL_VERSION}")
 endif()
 find_package(Threads REQUIRED)
 message(STATUS "OpenSSL: ${OPENSSL_VERSION}")
@@ -21,6 +23,12 @@ add_library(rsacore STATIC
 )
 target_include_directories(rsacore PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(rsacore PUBLIC OpenSSL::Crypto)
+if(WIN32)
+    target_link_libraries(rsacore PUBLIC Ws2_32 Crypt32)
+endif()
+if(MINGW)
+    target_link_libraries(rsacore PUBLIC ws2_32 crypt32 advapi32 user32 bcrypt)
+endif()
 
 add_executable(rsatool src/main.cpp)
 target_link_libraries(rsatool PRIVATE rsacore Threads::Threads)

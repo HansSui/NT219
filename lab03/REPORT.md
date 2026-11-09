@@ -1,5 +1,10 @@
 # Lab 3 report — RSA-OAEP and hybrid encryption
 
+**Student:** Nguyễn Công Tuấn  
+**Student ID:** 25522012  
+**Class:** NT219.R11.ANTT  
+**Updated:** 09/11/2026
+
 ## 1. Objective and outcomes
 
 The goal is a `rsatool` CLI that generates RSA keys of at least 3072 bits,
@@ -28,10 +33,11 @@ CSV/summary/plots, and this report.
 | Key formats | PEM (PKCS#8 private, SPKI public) and DER (PKCS#1 private, SPKI public) |
 | Metadata | `creation_time`, `modulus_bits`, `hash`, key paths |
 
-The implementation library is OpenSSL 4.0.2 because the brief allows it and it
+The implementation library is OpenSSL 4.0.x because the brief allows it and it
 provides OAEP labels, AES-GCM, PEM/DER and key validation without custom ASN.1
-code. The build requires and links the 4.0.2 library; the 4.0.2 CLI is used only
-as an independent cross-check.
+code. The committed evidence was produced with 4.0.2; the build requires 4.0 or
+newer and accepts 4.0.3. The 4.0.2 CLI was used only as an independent
+cross-check.
 
 ### 2.2 Why OAEP rather than PKCS#1 v1.5
 

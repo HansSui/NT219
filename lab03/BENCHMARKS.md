@@ -14,7 +14,8 @@
 
 ## Method
 
-- Build: `scripts/build_linux.sh gcc` (requires and links OpenSSL 4.0.2).
+- Build: `scripts/build_linux.sh gcc` (requires OpenSSL 4.0.x or newer; the
+  committed run used 4.0.2).
 - Affinity: `taskset -c 0-3` (four logical CPUs) by default.
 - Threads: 4 worker threads; each worker times independent operations.
 - Warm-up: 1 s per worker before each case.
@@ -42,20 +43,27 @@ The script defaults are the same; the environment variables are shown explicitly
 Key generation is inherently variable (prime search); its standard deviation is
 large. Numbers are single-host and indicative, not a cross-machine record.
 
-Windows has no batch wrapper; build with OpenSSL 4.0.2 and run the tool directly.
-Do not cite these numbers until the run exists:
+Windows now has a batch wrapper, `scripts/run_benchmarks.bat`; it builds if
+needed, pins CPUs 0-3, sets the High performance power plan, writes the CSV and
+summary, and regenerates the plots. Do not cite these numbers until the run
+exists:
 
 ```bat
 cd lab03
 set "OPENSSL_ROOT_DIR=D:\cryptolibrary"
-scripts\build_windows.bat msvc
+scripts\run_benchmarks.bat msvc
+```
+
+Equivalent manual command:
+
+```bat
 build\windows-msvc\Release\rsatool.exe bench --runs-rsa 1000 --runs-small 1000 ^
   --runs-large 100 --threads 4 --warmup 1 ^
   --out output\windows\benchmarks\bench_windows_msvc_rsa_hybrid.csv --verbose
 ```
 
-Use `start /affinity F /wait /b` before `rsatool.exe` if a four-CPU controlled
-run is required; the command above does not pin affinity.
+Override `RUNS_RSA`, `RUNS_SMALL`, `RUNS_LARGE`, `WARMUP`, `THREADS`, `PIN_MASK`
+or `OUT_DIR` as needed. Use `PIN_MASK=0` to disable affinity.
 
 ## Measured results
 

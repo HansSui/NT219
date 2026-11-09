@@ -28,6 +28,14 @@
   bars with CI/value labels, added labels to Lab 2's summary, reconciled Lab 3
   report/benchmark tables with the committed CSV, and wrote
   `docs/missing/lab3.md`. Windows and report PDFs still unverified.
+- 2026-11-09 — Relaxed the Lab 3 OpenSSL gate from exact 4.0.2 to >= 4.0 so the
+  installed `D:\cryptolibrary` 4.0.3 works; the Linux auto-detect now accepts any
+  4.0.x header. Added `lab03/scripts/run_benchmarks.bat` and filled the Lab 2/3
+  report identity. Windows build/benchmark still unrun.
+- 2026-11-09 — Fixed MinGW Windows OpenSSL discovery for the nested
+  `D:\cryptolibrary\libs\openssl\gcc` prefix and linked the required Windows
+  system libraries for Lab 2 oracle targets and Lab 3. Lab 2 and Lab 3 now
+  build and pass CTest locally with OpenSSL 4.0.3.
 - 2026-11-09 — Fixed `lab01/scripts/package_lab1.py` self-recursion when staging
   `output/` under `output/package/` (the evidence copy now ignores `package`).
   Packaged Lab 1 with the student identity into

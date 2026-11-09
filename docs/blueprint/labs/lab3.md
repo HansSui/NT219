@@ -243,7 +243,7 @@ lab03/
 | CMake | >= 3.16 | match Labs 1-2 |
 | C++ compiler | C++17: GCC 15.2, Clang 21.1.8, MSVC 19.51, MinGW GCC 16.2 | |
 | Crypto++ | 8.9.0 | not used for Lab 3 (no PEM helpers in the installed build) |
-| OpenSSL | 4.0.2 (required) | **chosen implementation library**; CLI used for cross-checks |
+| OpenSSL | 4.0.x or newer (4.0.2+) | **chosen implementation library**; CLI used for cross-checks |
 | Catch2 | 2.13.10 | vendored |
 | Python | 3.8+ | statistics and plots |
 
@@ -292,9 +292,9 @@ pinned workers, 1000 runs for RSA and <=1 MiB payloads, and 100 runs for
   labels.
 - "Automatic hybrid" uses the `k - 2*hLen - 2` threshold; the README and report
   record it.
-- Library choice changes key serialization; OpenSSL 4.0.2 is pinned in CMake,
-  the build scripts, README, report and memory. Builds on other OpenSSL versions
-  are rejected on purpose.
+- Library choice changes key serialization; OpenSSL 4.0.x or newer is required
+  in CMake and the build scripts. Patch/minor releases such as 4.0.3 are
+  accepted; pre-4.0 builds are rejected on purpose.
 
 ### Status 2026-11-09
 

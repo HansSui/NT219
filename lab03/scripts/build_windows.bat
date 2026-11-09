@@ -11,7 +11,10 @@ set "root=%~dp0.."
 set "compiler=%~1"
 if "%compiler%"=="" set "compiler=msvc"
 
-rem OpenSSL 4.0.2 is required. Expected layout: %OPENSSL_ROOT_DIR%\include\openssl\evp.h
+rem OpenSSL 4.0.x or newer is required.
+if not defined OPENSSL_ROOT_DIR if /i "%compiler%"=="gcc" if exist "D:\cryptolibrary\libs\openssl\gcc\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary\libs\openssl\gcc"
+if not defined OPENSSL_ROOT_DIR if /i "%compiler%"=="clang" if exist "D:\cryptolibrary\libs\openssl\gcc\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary\libs\openssl\gcc"
+if not defined OPENSSL_ROOT_DIR if /i "%compiler%"=="msvc" if exist "D:\cryptolibrary\libs\openssl\msvc\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary\libs\openssl\msvc"
 if not defined OPENSSL_ROOT_DIR if exist "D:\cryptolibrary\include\openssl\evp.h" set "OPENSSL_ROOT_DIR=D:\cryptolibrary"
 set "crypto_args="
 if defined OPENSSL_ROOT_DIR set "crypto_args=-DOPENSSL_ROOT_DIR="%OPENSSL_ROOT_DIR%""

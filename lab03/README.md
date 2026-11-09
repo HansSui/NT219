@@ -4,9 +4,10 @@ Implements RSA-OAEP with SHA-256/MGF1-SHA-256, optional OAEP labels, and an
 automatic AES-256-GCM hybrid envelope for messages above the RSA plaintext
 limit. Keys are written as PEM, DER and a metadata JSON file.
 
-**Library decision:** this lab uses **OpenSSL 4.0.2** for all primitives and key
-formats. The build rejects any other version. OpenSSL CLI 4.0.2 is used only as
-an independent cross-check; it is never called by `rsatool` at runtime. Rejected
+**Library decision:** this lab uses **OpenSSL 4.0.x or newer** for all primitives
+and key formats. The committed evidence was produced with 4.0.2; the build also
+accepts 4.0.3 and later 4.x releases. OpenSSL CLI 4.0.2 was used only as an
+independent cross-check; it is never called by `rsatool` at runtime. Rejected
 alternative: Crypto++ 8.9.0, because the installed package has no PEM helpers and
 would force hand-written PEM/ASN.1 plumbing. See `docs/memory/decisions.md`.
 
@@ -16,7 +17,7 @@ would force hand-written PEM/ASN.1 plumbing. See `docs/memory/decisions.md`.
 |---|---|---|
 | CMake | ≥ 3.16 (tested 4.2.3) | same as Labs 1–2 |
 | C++ compiler | C++17 (GCC 15.2, Clang 21.1.8, MSVC 19.51, MinGW GCC 16.2) | |
-| OpenSSL | **4.0.2 (required)** | `OPENSSL_ROOT_DIR` / `D:\cryptolibrary` |
+| OpenSSL | **4.0.x or newer (4.0.2+)** | `OPENSSL_ROOT_DIR` / `D:\cryptolibrary` |
 | Catch2 | 2.13.10 | vendored at `tests/catch.hpp` |
 | Python | 3.8+ | benchmark summary/plots (`matplotlib` for plots) |
 
@@ -24,19 +25,19 @@ Ubuntu:
 
 ```bash
 sudo apt install -y build-essential cmake python3-matplotlib
-# OpenSSL 4.0.2 must be available separately; set OPENSSL_ROOT_DIR to its prefix.
+# OpenSSL 4.0.x must be available separately; set OPENSSL_ROOT_DIR to its prefix.
 ```
 
 The Linux build script auto-detects `$HOME/CryptoLib/lib/openssl/gcc` when it
-contains 4.0.2. Otherwise pass it explicitly:
+contains 4.0.x. Otherwise pass it explicitly:
 
 ```bash
-OPENSSL_ROOT_DIR=/path/to/openssl-4.0.2 scripts/build_linux.sh gcc
+OPENSSL_ROOT_DIR=/path/to/openssl-4.0.x scripts/build_linux.sh gcc
 ```
 
-Windows (MSVC): install "Desktop development with C++" and OpenSSL **4.0.2**,
-then set `OPENSSL_ROOT_DIR` (the scripts look in `D:\cryptolibrary`). MinGW:
-install MinGW OpenSSL 4.0.2 and pass its prefix.
+Windows (MSVC): install "Desktop development with C++" and OpenSSL **4.0.x or
+newer**, then set `OPENSSL_ROOT_DIR` (the scripts look in `D:\cryptolibrary`).
+MinGW: install MinGW OpenSSL 4.0.x or newer and pass its prefix.
 
 ## Build and test
 
@@ -44,8 +45,8 @@ install MinGW OpenSSL 4.0.2 and pass its prefix.
 cd lab03
 scripts/build_linux.sh gcc
 # or: scripts/build_linux.sh clang
-# use a specific 4.0.2 prefix if auto-detection misses it:
-# OPENSSL_ROOT_DIR=/path/to/openssl-4.0.2 scripts/build_linux.sh gcc
+# use a specific 4.0.x prefix if auto-detection misses it:
+# OPENSSL_ROOT_DIR=/path/to/openssl-4.0.x scripts/build_linux.sh gcc
 ```
 
 ```bat

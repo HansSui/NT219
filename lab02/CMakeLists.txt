@@ -76,11 +76,23 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_SOURCE_DIR}/tests"
         )
         target_link_libraries(test_crossval PRIVATE aes_core OpenSSL::Crypto)
+        if(WIN32)
+            target_link_libraries(test_crossval PRIVATE Ws2_32 Crypt32)
+        endif()
+        if(MINGW)
+            target_link_libraries(test_crossval PRIVATE ws2_32 crypt32 advapi32 user32 bcrypt)
+        endif()
         add_test(NAME cross_validation COMMAND test_crossval)
 
         # Throughput oracle for the performance comparison; test-only.
         add_executable(bench_openssl tests/bench_openssl.cpp)
         target_link_libraries(bench_openssl PRIVATE OpenSSL::Crypto Threads::Threads)
+        if(WIN32)
+            target_link_libraries(bench_openssl PRIVATE Ws2_32 Crypt32)
+        endif()
+        if(MINGW)
+            target_link_libraries(bench_openssl PRIVATE ws2_32 crypt32 advapi32 user32 bcrypt)
+        endif()
     else()
         message(WARNING
             "ENABLE_CROSSVAL=OFF: the build has no OpenSSL oracle and cannot "

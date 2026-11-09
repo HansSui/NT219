@@ -94,7 +94,7 @@ self-grade table.
 |---|---|---|---|---|
 | 1 | AES modes: ECB/CBC/OFB/CFB/CTR/XTS/CCM/GCM | `aestool` | Crypto++ **required**; OpenSSL forbidden for primitives | Implemented in `lab01/` |
 | 2 | AES-128 core + CTR, pure C++ | `aestool` | STL only for primitives; Crypto++/OpenSSL **oracle only** | Implemented in `lab02/` |
-| 3 | RSA-OAEP + AES-GCM hybrid envelope | `rsatool` | OpenSSL 4.0.2 | Implemented in `lab03/` |
+| 3 | RSA-OAEP + AES-GCM hybrid envelope | `rsatool` | OpenSSL 4.0.x | Implemented in `lab03/` |
 | 4 | SHA-2/SHA-3/SHAKE, X.509, MD5/length-extension demos | `hashtool` | OpenSSL/Crypto++ plus `hashclash`/`hashpump` | Specified only |
 | 5 | ECDSA P-256/P-384 and RSA-PSS-3072 | `sigtool` | Crypto++/OpenSSL allowed | Specified only |
 | 6 | ML-DSA-44/65, ML-KEM-512/768, PQ certificate | `pqtool` | PQC library not named by the brief | Specified only |

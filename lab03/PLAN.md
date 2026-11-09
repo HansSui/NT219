@@ -3,7 +3,7 @@
 Status: implemented and verified on Ubuntu (2026-11-07). Windows scripts are
 present but not run on this host.
 
-Library decision: **OpenSSL 4.0.2 (required)**. The brief allows Crypto++ or OpenSSL;
+Library decision: **OpenSSL 4.0.x or newer (4.0.2+)**. The brief allows Crypto++ or OpenSSL;
 OpenSSL owns RSA-OAEP labels, AES-256-GCM, PEM/DER and key checks, so it removes
 custom PEM/ASN.1 code. OpenSSL CLI is the independent cross-check.
 See `docs/memory/decisions.md`.

@@ -4,9 +4,9 @@ Last updated: 2026-11-07
 
 - RSA-OAEP plaintext limit is `k - 2*hLen - 2` bytes (318 at 3072 bits, 446 at
   4096). Off-by-one here breaks the automatic hybrid switch.
-- Lab 3 requires OpenSSL **4.0.2**; CMake rejects other versions. The build
-  script auto-detects `$HOME/CryptoLib/lib/openssl/gcc` or uses
-  `OPENSSL_ROOT_DIR`.
+- Lab 3 requires OpenSSL **4.0.x or newer**; CMake accepts 4.0.2+ (the Windows
+  `D:\cryptolibrary` install is 4.0.3). The build script auto-detects
+  `$HOME/CryptoLib/lib/openssl/gcc` or uses `OPENSSL_ROOT_DIR`.
 - OpenSSL 4.0.2 `EVP_PKEY_CTX_set0_rsa_oaep_label` takes ownership of an
   `OPENSSL_malloc` buffer; free it only on failure before ownership transfers.
 - Decrypt must write nothing on failure, especially after a tag mismatch.

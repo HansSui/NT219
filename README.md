@@ -137,7 +137,7 @@ Linux:
 
 ```bash
 cd lab03
-# requires OpenSSL 4.0.2; set OPENSSL_ROOT_DIR if auto-detection misses it
+# requires OpenSSL 4.0.x or newer; set OPENSSL_ROOT_DIR if auto-detection misses it
 scripts/build_linux.sh gcc
 ./build/ubuntu-gcc/rsatool keygen --bits 3072 --pub pub.pem --priv priv.pem
 ./build/ubuntu-gcc/rsatool encrypt --in msg.bin --pub pub.pem --out ct.bin --label ctx
@@ -153,7 +153,7 @@ cd lab03
 scripts\build_windows.bat msvc
 ```
 
-Lab 3 uses OpenSSL 4.0.2 for RSA-OAEP-SHA256 and AES-256-GCM. It writes PEM,
+Lab 3 uses OpenSSL 4.0.x (4.0.2 in the committed run) for RSA-OAEP-SHA256 and AES-256-GCM. It writes PEM,
 DER and metadata for 3072/4096-bit keys, switches to a versioned hybrid envelope
 above the direct OAEP limit, and fails closed on tampered ciphertext, tags,
 headers, labels, keys and encodings. See `lab03/README.md` for the format and

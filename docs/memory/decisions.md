@@ -16,6 +16,13 @@ without custom ASN.1 or PEM code. OpenSSL CLI remains the independent format and
 ciphertext cross-check. Rejected: Crypto++ 8.9.0 because the installed package
 has no PEM helpers and would force hand-written PEM/DER plus OAEP plumbing.
 
+## 2026-11-09 Lab 3 accepts any OpenSSL 4.0.x
+
+The exact `VERSION_EQUAL 4.0.2` gate rejected the installed 4.0.3 at
+`D:\cryptolibrary`. CMake now requires OpenSSL >= 4.0 and accepts newer 4.0.x
+patches; the Linux auto-detect matches any `4.0.N` header. The committed Ubuntu
+evidence still records 4.0.2. Supersedes the exact pin below.
+
 ## 2026-11-07 Lab 3 pins OpenSSL 4.0.2
 
 The course environment's 4.0.2 install is at

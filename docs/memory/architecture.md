@@ -9,7 +9,7 @@ NT219/
   docs/                  briefs, blueprint, audit notes, memory
   lab01/                 AES modes CLI (Crypto++)
   lab02/                 pure C++ AES core + CTR CLI
-  lab03/                 RSA-OAEP + hybrid AES-GCM CLI (OpenSSL 4.0.2)
+  lab03/                 RSA-OAEP + hybrid AES-GCM CLI (OpenSSL 4.0.x)
 ```
 
 Each lab is standalone: no cross-lab library, no shared build target. This is

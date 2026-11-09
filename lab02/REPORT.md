@@ -2,9 +2,9 @@
 
 **Học phần:** NT219 — An toàn thông tin  
 **Bài thực hành:** Lab 2 — AES-128 Implementation in Pure C++ (CTR Mode, FIPS-197)  
-**Sinh viên:** ................................................  
-**MSSV:** ................................................  
-**Lớp:** ................................................  
+**Sinh viên:** Nguyễn Công Tuấn  
+**MSSV:** 25522012  
+**Lớp:** NT219.R11.ANTT  
 **Ngày cập nhật:** 06/11/2026  
 
 > Báo cáo dùng số liệu Ubuntu trong `lab02/output/ubuntu/benchmarks/`, số liệu
