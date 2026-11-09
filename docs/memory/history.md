@@ -15,3 +15,21 @@
 - 2026-11-07 — Lab 3 benchmark protocol: 4 worker threads, `taskset -c 0-3`,
   1000 runs for ≤1 MiB and 100 for 100 MiB, per-size run counts. GCC benchmark
   and plots regenerated.
+- 2026-11-09 — Lab 2 plot is now a grouped bar chart comparing encrypt,
+  decrypt and total (aggregate both directions) per size; Ubuntu and Windows
+  combined summaries regenerated. The six older Windows per-size plots were
+  left unchanged.
+- 2026-11-09 — Reconciled the six-lab documentation with current implementation
+  status; clarified Lab 4 certificate validation, Lab 5 timing language, Lab 6
+  ML-KEM implicit-rejection and key-format semantics, and the archive binary
+  requirement conflict.
+- 2026-11-09 — Regraded Labs 1–3 on Ubuntu (Lab 1 KAT 29/29 ctest 2/2; Lab 2
+  KAT 9/9 ctest 4/4; Lab 3 KAT 2/2 ctest 5/5). Converted Lab 3 plots to grouped
+  bars with CI/value labels, added labels to Lab 2's summary, reconciled Lab 3
+  report/benchmark tables with the committed CSV, and wrote
+  `docs/missing/lab3.md`. Windows and report PDFs still unverified.
+- 2026-11-09 — Fixed `lab01/scripts/package_lab1.py` self-recursion when staging
+  `output/` under `output/package/` (the evidence copy now ignores `package`).
+  Packaged Lab 1 with the student identity into
+  `lab01/output/package/lab01-submission.zip` (5.5 MiB, 255 files); generated
+  output is not committed.

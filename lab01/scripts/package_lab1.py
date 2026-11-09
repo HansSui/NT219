@@ -39,6 +39,11 @@ INCLUDE = [
 IGNORE = shutil.ignore_patterns(
     "__pycache__", "*.pyc", "*.o", "*.obj", ".aestool_nonces", ".aestool_nonces.lock"
 )
+# The staging tree lives under output/package; never copy it into itself.
+EVIDENCE_IGNORE = shutil.ignore_patterns(
+    "__pycache__", "*.pyc", "*.o", "*.obj", ".aestool_nonces",
+    ".aestool_nonces.lock", "package"
+)
 
 
 def copy_tree(src: Path, dst: Path) -> None:
@@ -140,8 +145,7 @@ def main() -> int:
     if not args.skip_evidence:
         evidence = ROOT / "output"
         if evidence.is_dir():
-            copy_tree(evidence, stage / "output")
-            shutil.rmtree(stage / "output" / "package", ignore_errors=True)
+            shutil.copytree(evidence, stage / "output", ignore=EVIDENCE_IGNORE)
             has_evidence = True
 
     binaries: list[tuple[str, Path]] = []

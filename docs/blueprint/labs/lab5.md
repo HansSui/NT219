@@ -33,7 +33,8 @@
 10. Compare results with Lab 6 (PQC) in the discussion.
 11. Optional bonus: formula-level implementation from primitives (+15) and
     security-engineering analysis (timing variance, fault injection, modular
-    exponentiation side channels, deterministic nonce protection).
+    exponentiation side channels, deterministic nonce protection). Follow the
+    single +15 bonus row in the rubric; do not count both activities as +15.
 
 ## 2. Requirements
 
@@ -121,7 +122,9 @@ Required analysis:
 - Signature size: ECDSA vs RSA-PSS.
 - Verification cost vs signing cost.
 - Public exponent choice.
-- Why verification must be constant-time.
+- Which signing/key-generation operations must avoid secret-dependent timing;
+  verification inputs are public, so constant-time verification is not
+  generally a secrecy requirement. Keep failure behavior clear and non-leaky.
 - How improper error handling leaks information.
 - Timing attack surface, fault injection, modular-exponentiation side channels,
   and deterministic nonce protection (bonus B).

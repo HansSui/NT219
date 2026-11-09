@@ -26,9 +26,10 @@ Level 2ML-KEM-512
 Level 3ML-KEM-768
 Level 5ML-KEM-1024
 Students must:
-•Implement ML-KEM-512
-•Perform encapsulation → shared secret
-•Perform decapsulation → verify shared secret match
+•Use an approved, vetted implementation of ML-KEM-512
+•Perform encapsulation → ciphertext and shared secret
+•Perform decapsulation → confirm that a valid ciphertext recovers the same shared secret
+•Test altered ciphertext according to ML-KEM implicit rejection; do not assume decapsulation returns an error
 Discuss:
 •IND-CCA security
 •Fujisaki–Okamoto transform
@@ -45,7 +46,8 @@ KEM Encapsulation
 pqtool encaps --algo mlkem-512 --pub pub.pem --ct ct.bin --ss ss.bin
 KEM Decapsulation
 pqtool decaps --algo mlkem-512 --priv priv.pem --ct ct.bin --ss ss.bin
-Supported Formats•Keys: PEM / DER
+Supported Formats
+•Keys: use the selected library's supported encoding; document it. PEM/DER may be used only when a defined wrapper/encoding is supported.
 •Signatures: raw / base64
 •Ciphertexts: binary
 •Optional: JSON structured certificate format
@@ -57,6 +59,8 @@ Students must implement a minimal certificate structure:
 "issuer": "PQ-CA",
 "signature": "<ML-DSA signature by CA>"
 }
+The signature must cover a canonical, documented encoding of the certificate
+fields (excluding the signature itself), not an unspecified JSON serialization.
 Tasks:
 1. Generate CA key pair (ML-DSA)
 2. Sign subject public key
@@ -71,8 +75,8 @@ Students must demonstrate:
 •Modified message → verification fails
 •Modified signature → fails
 •Modified public key → fails
-•Modified ciphertext (KEM) → decapsulation fails•
-Wrong private key → failure
+•Modified ciphertext (KEM) does not recover the sender's shared secret; ML-KEM may return a pseudorandom fallback secret rather than an error
+•Wrong private key → shared-secret mismatch; do not require a distinct decapsulation error
 Include:
 •Automated unit tests
 •Batch verification (verify N signatures)

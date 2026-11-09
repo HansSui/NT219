@@ -184,8 +184,11 @@ python scripts\summarize_bench.py --dir output\windows\benchmarks\openssl
 - The Ubuntu run (2026-11-05) used 4 threads, CPUs 0-3 and the `performance`
   governor, but wrote no environment log (the script is console-only). The
   1 MiB point has CV 14.4%, so cite it with that noise caveat.
-- A single combined summary plot covers all three Ubuntu sizes;
-  `graphs/bench_ubuntu_gcc_ctr_summary.png`.
+- A single combined bar chart covers all three Ubuntu sizes and plots
+  encrypt, decrypt and total (aggregate both directions) with 95% CI;
+  `graphs/bench_ubuntu_gcc_ctr_summary.png`. The same 3-series summary is
+  generated for Windows at `output/windows/benchmarks/graphs/bench_windows_msvc_ctr_summary.png`;
+  the six older per-size Windows plots remain.
 - The Windows benchmark uses the chosen 1000/100/30 counts but has no
   run-time environment log.
 - OpenSSL throughput was measured on Ubuntu only; Windows has no comparison

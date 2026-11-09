@@ -1,6 +1,6 @@
 # Decisions
 
-Last updated: 2026-11-07
+Last updated: 2026-11-09
 
 ## 2026-11-02 Standalone labs
 
@@ -40,3 +40,13 @@ the 100 MiB cases practical while exposing memory-bandwidth contention.
 (without `tag`) is the AES-GCM AAD. Why: any header tamper fails the tag, and a
 stored ciphertext never depends on an out-of-band guess. Rejected: bare JSON
 file with the ciphertext base64-encoded inside it (larger, less stream-friendly).
+
+## 2026-11-09 Corrected Lab 4/6 security semantics
+
+Lab 4 can parse certificate structure without an issuer key, but it cannot
+verify authenticity; such a certificate remains unverified and must not be
+accepted as trusted. Lab 6 negative tests follow ML-KEM implicit rejection:
+altered ciphertext or a wrong key may yield a fallback secret rather than a
+distinct error. Tests compare against the expected valid secret and do not
+assume an error signal. PQ key serialization must match the selected library's
+defined encoding.

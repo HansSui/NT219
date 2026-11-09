@@ -159,9 +159,9 @@ runs for RSA and for AES/hybrid 1 KiB and 1 MiB, and 100 runs for the 100 MiB
 cases. The matrix covers RSA 3072/4096,
 AES-256-GCM and hybrid encryption/decryption. The command writes per-run CSV
 rows; the Python helper writes mean, median, standard deviation, 95% CI and
-three plots. Latency is per operation under four-way concurrency; aggregate
-throughput is four times the per-op MB/s. See `BENCHMARKS.md` for the table and
-method.
+three grouped-bar comparison plots. Latency is per operation under four-way
+concurrency; aggregate throughput is four times the per-op MB/s. See
+`BENCHMARKS.md` for the table and method.
 
 ## Known limitations
 

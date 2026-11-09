@@ -120,26 +120,26 @@ Method: four worker threads pinned to CPUs 0–3, 1 s warm-up per worker,
 1000 runs for RSA and for AES/hybrid 1 KiB/1 MiB, 100 runs for the 100 MiB
 cases, mean/median/sample SD/95% CI,
 GCC 15.2 `-O3`, OpenSSL 4.0.2 library, Intel i5-1135G7. Full table and plots:
-`BENCHMARKS.md`, `output/ubuntu/benchmarks/`.
+`BENCHMARKS.md`, `output/ubuntu/benchmarks/graph/`.
 
 | Case | 3072 | 4096 |
 |---|---:|---:|
-| Key generation (mean) | 207.04 ms | 687.47 ms |
-| Encrypt 32 B (mean) | 0.055 ms | 0.108 ms |
-| Decrypt 32 B (mean) | 1.316 ms | 3.090 ms |
+| Key generation (mean) | 186.41 ms | 604.71 ms |
+| Encrypt 32 B (mean) | 0.052 ms | 0.105 ms |
+| Decrypt 32 B (mean) | 1.198 ms | 2.637 ms |
 
 | Hybrid (3072) | 1 KiB | 1 MiB | 100 MiB |
 |---|---:|---:|---:|
-| Encrypt mean | 0.081 ms | 1.887 ms | 274.844 ms |
-| Encrypt throughput (4 threads) | 52.0 MB/s | 2250.1 MB/s | 1538.4 MB/s |
-| Decrypt mean | 1.421 ms | 2.017 ms | 185.481 ms |
-| Decrypt throughput (4 threads) | 3.0 MB/s | 2204.5 MB/s | 2274.3 MB/s |
+| Encrypt mean | 0.065 ms | 1.772 ms | 251.621 ms |
+| Encrypt throughput (4 threads) | 64.3 MB/s | 2457.7 MB/s | 1675.1 MB/s |
+| Decrypt mean | 1.316 ms | 1.774 ms | 171.222 ms |
+| Decrypt throughput (4 threads) | 3.2 MB/s | 2450.7 MB/s | 2465.2 MB/s |
 
-AES-256-GCM alone reached about 2.2 GB/s aggregate at 1 KiB, 11.3 GB/s at
-1 MiB and 2.4 GB/s at 100 MiB (encryption; decryption 2.8/20.8/3.6 GB/s),
+AES-256-GCM alone reached about 2.4 GB/s aggregate at 1 KiB, 15.0 GB/s at
+1 MiB and 2.6 GB/s at 100 MiB (encryption; decryption 2.8/22.6/4.3 GB/s),
 which is why bulk data must not use RSA. RSA private operations are much slower
 than public operations because they use the secret exponent and CRT; 4096-bit
-RSA is about 2.0–3.3× slower than 3072 in this four-thread run. At small sizes
+RSA is about 2.0–3.2× slower than 3072 in this four-thread run. At small sizes
 hybrid cost is dominated by the RSA wrap/unwrap; at 100 MiB the AES pass
 dominates. The tool holds the whole payload in memory, so peak memory is a few
 times the input size (more with four concurrent operations); a streaming

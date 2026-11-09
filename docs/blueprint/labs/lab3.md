@@ -295,3 +295,12 @@ pinned workers, 1000 runs for RSA and <=1 MiB payloads, and 100 runs for
 - Library choice changes key serialization; OpenSSL 4.0.2 is pinned in CMake,
   the build scripts, README, report and memory. Builds on other OpenSSL versions
   are rejected on purpose.
+
+### Status 2026-11-09
+
+Ubuntu GCC 15.2 + OpenSSL 4.0.2 re-verified: KAT 2/2, `ctest` 5/5, unit
+counts 24/7 (OAEP), 27/5 (hybrid), 20/5 (negative). The three plots are now
+grouped bars with 95% CI and value labels, and `BENCHMARKS.md`/`REPORT.md`
+tables were reconciled with the committed `summary_gcc.csv`. Windows build,
+KAT, CTest and benchmark remain unrun; the report identity/PDF/archive is
+still missing. See `docs/missing/lab3.md`.

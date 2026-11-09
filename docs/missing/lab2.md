@@ -465,3 +465,32 @@ was an assumption, not a source rule.
 **Remaining non-rubric items:** Windows CTest/cross-validation after the OpenSSL
 switch, Windows OpenSSL throughput, and the PDF/identity/archive. The run-time
 log and the Crypto++/OpenSSL choice are not rubric requirements.
+
+## Regrade 2026-11-09 (Ubuntu recheck, plot labels)
+
+Re-ran Ubuntu 26.04 / GCC 15.2: `--kat` 9/9, `ctest` 4/4, unit tests 351
+assertions/11 cases, cross-validation 22 assertions/3 cases. Core remains
+**100/100**; bonus A +10 and B +5 (C not implemented), total 115 additive.
+
+The grouped encrypt/decrypt/total bars now carry value labels, matching the
+Lab 1 comparison style. Both summary PNGs were regenerated from the committed
+CSVs; no benchmark was rerun and no CSV changed:
+
+```bash
+cd lab02
+python3 scripts/plot_bench.py output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_*.csv \
+  --out-dir output/ubuntu/benchmarks/graphs --platform ubuntu-gcc
+python3 scripts/plot_bench.py output/windows/benchmarks/bench_windows_msvc_ctr_*.csv \
+  --out-dir output/windows/benchmarks/graphs --platform windows-msvc
+```
+
+**`addBlocks()` review, no change made.** It increments one block at a time
+(O(blocks)) and silently wraps at 2^128. A wrap needs 2^128 blocks
+(2^132 bytes), far beyond addressable memory, so the threaded chunk-boundary
+wrap cannot occur; at 1 GiB the loop overhead is around 1% of the AES-CTR time.
+The tested single-thread overflow path in `ctr_crypt()` still fails closed.
+Changing the helper would add untestable code for no practical gain.
+
+Still open: Windows CTest/cross-validation after the OpenSSL switch, Windows
+OpenSSL throughput, and identity/PDF/archive. The 1000/100/30 benchmark data is
+unchanged and still valid.

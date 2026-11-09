@@ -1,16 +1,15 @@
 # Repo memory — NT219 labs
 
-Last updated: 2026-11-07
+Last updated: 2026-11-09
 
 Entry point for the project brain. Read this first, then only the files the task
 needs. The code wins over memory.
 
 ## What this repo is
 
-Six self-contained NT219 cryptography labs, each a CMake C++17 project with CLI,
-KATs, Catch2 tests, benchmarks and a report. `lab01/` and `lab02/` are
-implemented, and `lab03/` (RSA-OAEP + hybrid AES-GCM) is implemented and verified
-on Ubuntu. Labs 4–6 are not started.
+Six self-contained NT219 cryptography labs. `lab01/`, `lab02/`, and `lab03/`
+(RSA-OAEP + hybrid AES-GCM) have implementations; Lab 3 is verified on Ubuntu.
+Labs 4–6 have briefs and blueprints only.
 
 ## Map
 
@@ -28,5 +27,6 @@ on Ubuntu. Labs 4–6 are not started.
 - Normative lab briefs: `docs/lab1.txt`, `docs/Lab2.txt` … `docs/Lab6.txt`.
 - Course core: `docs/course-objectives.txt`, `docs/GradingSystem.txt`,
   `docs/lab requirement.md`.
-- Plan: `docs/blueprint/BLUEPRINT.md`, `docs/blueprint/labs/lab3.md`.
+- Plan: `docs/blueprint/BLUEPRINT.md`, `docs/blueprint/labs/lab1.md` through
+  `lab6.md`.
 - Build evidence: each lab's `README.md`, `BENCHMARKS.md`, `output/`.

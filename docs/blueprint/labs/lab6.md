@@ -16,6 +16,8 @@
    - Encapsulation -> ciphertext + shared secret.
    - Decapsulation -> the same shared secret.
    - A check that the two shared secrets match.
+   - For altered ciphertext, test the library's specified implicit-rejection
+     behavior; do not assume decapsulation returns an error.
 4. Implement `keygen`, `sign`, `verify`, `encaps`, and `decaps` with the same
    CLI shape as Lab 5.
 5. Build the post-quantum certificate mini-project:
@@ -67,7 +69,7 @@ pqtool decaps  --algo mlkem-512 --priv priv.pem --ct ct.bin --ss ss.bin
 
 | Item | Requirement |
 |---|---|
-| Keys | PEM or DER |
+| Keys | Use the library's supported serialization. PEM/DER is required only when a defined encoding is supported; otherwise document the binary encoding or a clearly labeled wrapper. |
 | Signatures | raw or base64 |
 | KEM ciphertexts | binary |
 | Optional | JSON structured certificate format |
@@ -90,7 +92,8 @@ Tasks:
 1. Generate the CA key pair (ML-DSA).
 2. Sign the subject public key.
 3. Verify the certificate signature.
-4. Detect tampering.
+4. Detect tampering by verifying the certificate signature over a canonical,
+   documented encoding of the signed fields.
 
 Discuss:
 
@@ -105,8 +108,11 @@ Must demonstrate:
 - Modified message -> verification fails.
 - Modified signature -> fails.
 - Modified public key -> fails.
-- Modified KEM ciphertext -> decapsulation fails.
-- Wrong private key -> failure.
+- Modified KEM ciphertext -> decapsulation must not yield the sender's shared
+  secret. ML-KEM implementations use implicit rejection and may return a
+  pseudorandom fallback secret rather than an error.
+- Wrong private key -> shared-secret mismatch; do not require a distinct
+  decapsulation error.
 - Malformed key/ciphertext -> failure.
 - Tampered certificate -> failure.
 
@@ -183,7 +189,8 @@ After this lab you should be able to:
 
 - [ ] `pqtool` builds on Ubuntu and Windows with CMake.
 - [ ] ML-DSA-44 keygen/sign/verify works; ML-DSA-65 works if claiming +5.
-- [ ] ML-KEM-512 keygen/encaps/decaps works and shared secrets match.
+- [ ] ML-KEM-512 keygen/encaps/decaps works and valid shared secrets match;
+      altered-ciphertext tests follow the library's implicit-rejection behavior.
 - [ ] PQ certificate signs, verifies, and detects tampering.
 - [ ] KAT/round-trip tests and all negative tests pass; `ctest` passes on both
       OSes.

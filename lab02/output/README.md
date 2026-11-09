@@ -11,11 +11,11 @@
 | `windows/test_results/unit_*.txt` | Catch2 unit tests | 351 assertions / 11 cases |
 | `windows/test_results/crossval_*.txt` | prior Crypto++ parity tests | stale; rerun with OpenSSL |
 | `windows/test_results/environment.txt` | prior Windows host/oracle versions | stale Crypto++ note; update after rerun |
-| `windows/benchmarks/` | Windows benchmark CSVs, summary, plots, audit | 1000/100/30 rows, 2026-11-05; see `AUDIT.md` |
+| `windows/benchmarks/` | Windows benchmark CSVs, summary, plots, audit | 1000/100/30 rows, 2026-11-05; combined 3-series summary plot added; see `AUDIT.md` |
 | `ubuntu/benchmarks/*.csv` | Ubuntu GCC benchmark rows | 1000/100/30, 2026-11-05 |
 | `ubuntu/benchmarks/*.log` | system-tracking logs | old run; current script is console-only |
 | `ubuntu/benchmarks/summary*.csv` | statistics | 2026-11-05 |
-| `ubuntu/benchmarks/graphs/` | one combined throughput + latency summary plot | all three sizes, 2026-11-05 |
+| `ubuntu/benchmarks/graphs/` | one combined throughput + latency summary plot (encrypt, decrypt, total) | all three sizes, 2026-11-05 |
 | `ubuntu/benchmarks/openssl/` | OpenSSL throughput oracle CSVs + summary | 4 threads, 2026-11-05 |
 | `ubuntu/test_results/` | Ubuntu GCC KAT/CTest/unit/crossval/environment logs | 9/9 KAT, 4/4 CTest, OpenSSL oracle, 2026-11-05 |
 

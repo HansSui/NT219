@@ -20,8 +20,10 @@
    malformed parameters.
 4. Parse an X.509 certificate and extract subject, issuer, SPKI algorithm and
    parameters, signature algorithm, validity, key usage, and SANs.
-5. Verify the certificate signature with the issuer public key when available;
-   otherwise verify TBS integrity and algorithm consistency, then fail closed.
+5. Verify the certificate signature with the issuer public key when available.
+   If it is unavailable, perform only structural and algorithm-consistency
+   checks, report the signature as unverified, and do not accept the
+   certificate as trusted or valid.
 6. Deploy HTTPS on Apache or Nginx with TLS 1.2 or 1.3, a trusted root (e.g.
    ZeroSSL), and an ECDSA certificate where possible. Save a screenshot/log, the
    config snippet, and a trust-chain explanation.
@@ -80,8 +82,9 @@ Required extraction:
 Signature verification:
 
 - Verify with the issuer public key when provided.
-- If the issuer key is unavailable, verify TBS structure integrity, validate
-  algorithm consistency, and fail closed.
+- If the issuer key is unavailable, check structure and algorithm consistency
+  only; report the signature as unverified and do not accept the certificate as
+  trusted or valid.
 
 TLS deployment:
 

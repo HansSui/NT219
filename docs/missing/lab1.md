@@ -446,9 +446,35 @@ them) binaries.
 - `lab01/output/windows/test_results/nonce_race.txt`: 1 success, 7 rejections.
 - `lab01/scripts/package_lab1.py`: stages source/evidence/binaries, fills the
   report identity fields, writes `SUBMISSION.md`, creates the submission zip.
+  The evidence copy now ignores `output/package` so the staging tree cannot
+  copy itself recursively.
 - `lab01/REPORT.md`: 29-vector KAT table and Windows log, expanded coverage
   notes, 19-case negative suite, concurrency evidence, updated self-grade.
 - `lab01/README.md`: KAT count, 19-case test description, nonce-race command,
   refreshed verification table, packaging instructions.
 - `lab01/scripts/verify_windows.bat`: expects `29 passed, 0 failed` and runs the
   nonce-race step.
+
+## Regrade 2026-11-09 (Ubuntu recheck)
+
+Re-ran Ubuntu 26.04 / GCC 15.2 after the Lab 2/3 plot work: build passed,
+`--kat` reported `29 passed, 0 failed`, and `ctest` passed `2/2`. No code or
+evidence regressed.
+
+The grouped-bar cross-platform chart
+(`output/compare/graph/cross_throughput_by_mode_1MB.png`) remains the visual
+standard: one bar per case, one bar per platform, value labels, clear title
+and a host caveat. Lab 2 and Lab 3 now use the same grouped-bar style with 95%
+CI whiskers.
+
+Core remains **99/100**. The only withheld point is report identity/PDF/archive
+(L1-01); L1-02 (optional binaries) is unchanged. Windows was not rerun in this
+pass, so the committed 2026-11-02 MSVC/MinGW logs remain the Windows evidence.
+
+Packaging update: the report identity is now filled (Nguyễn Công Tuấn /
+25522012 / NT219.R11.ANTT) and
+`lab01/output/package/lab01-submission.zip` was generated (5.5 MiB, 255 files,
+no binaries). The archive is a generated artifact and stays uncommitted. L1-01
+is therefore reduced to the missing PDF/DOCX export; L1-02 remains optional.
+
+Not checked: Windows rerun, PDF/DOCX export.

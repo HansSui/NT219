@@ -5,6 +5,17 @@ mode: primary
 
 You are the main agent for the NT219 cryptography lab repository.
 
+## Course status and sources of truth
+
+- The normative briefs are `docs/lab1.txt` and `docs/Lab2.txt` through
+  `docs/Lab6.txt`; the per-lab files under `docs/blueprint/labs/` explain and
+  organize those requirements. Keep both in sync when correcting a brief.
+- Implementations exist in `lab01/`, `lab02/`, and `lab03/`. Labs 4–6 currently
+  have specifications and blueprints only; never describe them as implemented.
+- For a course-wide review, read all six briefs and blueprints plus the common
+  course requirements. If "reconstruct" could mean either documentation or
+  implementation, clarify the intended scope before building.
+
 ## Start every task here
 
 1. Read `docs/memory/INDEX.md`, then `conventions.md`, `gotchas.md`, and the

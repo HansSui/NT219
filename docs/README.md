@@ -1,13 +1,14 @@
 # Course documentation
 
-Reference material, lab briefs, and the plan-only blueprint. The implemented
-labs live in `../lab01/` and `../lab02/`; Labs 3-6 are specified only.
+Reference material, lab briefs, and the plan-only blueprint. Labs 1-3 have
+implementations in `../lab01/`, `../lab02/`, and `../lab03/`; Labs 4-6 are
+specified and planned, but not implemented.
 
 | File | Contents |
 |---|---|
 | `blueprint/BLUEPRINT.md` | Plan-only index for Labs 1-6: shared course core, repo model, grading policy, gaps |
 | `blueprint/labs/lab1.md` … `lab6.md` | Per-lab brief: what to do, requirements, expected outcomes, rubric, infrastructure |
-| `missing/lab1.md`, `missing/lab2.md` | Implementation audit, fix log, remaining gaps and regrade |
+| `missing/lab1.md`, `missing/lab2.md`, `missing/lab3.md` | Implementation audit, fix log, remaining gaps and regrade |
 | `../lab01/REPORT.md` | Vietnamese Lab 1 report and self-grade |
 | `../lab02/REPORT.md` | Vietnamese Lab 2 report and self-grade |
 | `lab1.txt` | Lab 1 brief: Crypto++ symmetric modes, constraints, rubric |
@@ -28,3 +29,5 @@ For the implemented labs use:
 - `../lab01/output/README.md` - what each output directory contains
 - `../lab02/README.md` - pure C++ AES/CTR build, CLI, tests
 - `../lab02/BENCHMARKS.md` - Lab 2 benchmark matrix and CSV format
+- `../lab03/README.md` - RSA-OAEP and hybrid-envelope build, CLI, and format
+- `../lab03/REPORT.md` / `../lab03/BENCHMARKS.md` - Lab 3 report and results

@@ -67,11 +67,11 @@ Signature Verification
 Students must:
 •Verify certificate signature using issuer public key (if provided)
 •If issuer key unavailable:
-oVerify TBS structure integrity
-oValidate algorithm consistency
-oFail closed
+oValidate the TBS structure and algorithm consistency only
+oReport that the signature cannot be verified; do not accept the certificate as trusted or valid
+oFail closed for any operation requiring a verified certificate
 TLS Deployment Task
-Configure HTTPS on:
+Configure HTTPS on a system or hostname you own or are explicitly authorized to administer:
 •
 Apache or Nginx•TLS 1.2 or TLS 1.3
 •Using a trusted root (e.g., ZeroSSL)

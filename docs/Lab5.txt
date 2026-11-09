@@ -67,7 +67,7 @@ Include:
 •Batch verification (verify N signatures)
 •Clear error codes and UX messages
 Required Discussion
-•Why signature verification must be constant-time
+•Which signing/key-generation operations must avoid secret-dependent timing; signature verification operates on public inputs and generally does not require constant-time behavior to protect a secret
 •How improper error handling may leak information
 4. Performance Evaluation
 Students must benchmark:

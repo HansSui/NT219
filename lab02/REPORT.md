@@ -483,8 +483,11 @@ Nguồn: `output/windows/benchmarks/summary.csv`; kiểm tra đầy đủ ở
 
 Một biểu đồ tổng hợp cho cả ba kích thước Ubuntu:
 
-- `graphs/bench_ubuntu_gcc_ctr_summary.png` — throughput và latency, mean ±
-  95% CI; latency dùng trục log.
+- `graphs/bench_ubuntu_gcc_ctr_summary.png` — biểu đồ cột cho throughput và
+  latency, mean ± 95% CI; latency dùng trục log. Mỗi panel có ba cột encrypt,
+  decrypt và
+  total (tổng hai chiều: throughput = `2*size / (t_enc + t_dec)`, latency =
+  `t_enc + t_dec`).
 
 Lệnh tạo:
 
@@ -494,7 +497,11 @@ python3 scripts/plot_bench.py output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_*.cs
 ```
 
 Windows đã có 6 biểu đồ riêng trong `output/windows/benchmarks/graphs/`:
-throughput và latency cho 1 MiB, 100 MiB, 1 GiB.
+throughput và latency cho 1 MiB, 100 MiB, 1 GiB. Ngoài ra
+`bench_windows_msvc_ctr_summary.png` dùng cùng bố cục ba chuỗi
+encrypt/decrypt/total như biểu đồ Ubuntu để so sánh trực tiếp giữa hai nền
+tảng; lưu ý hai máy/compiler khác nhau nên chỉ so sánh xu hướng, không so
+sánh tuyệt đối (§6.3).
 
 ### 6.5 So sánh throughput với OpenSSL
 

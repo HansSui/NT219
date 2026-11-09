@@ -2,9 +2,9 @@
 
 **Học phần:** NT219 — An toàn thông tin  
 **Bài thực hành:** Lab 1 — Symmetric Encryption with Crypto++  
-**Sinh viên:** ................................................  
-**MSSV:** ................................................  
-**Lớp:** ................................................  
+**Sinh viên:** Nguyễn Công Tuấn  
+**MSSV:** 25522012  
+**Lớp:** NT219.R11.ANTT  
 **Ngày hoàn thành:** 21/10/2026  
 
 > Báo cáo này được viết bằng tiếng Việt. Toàn bộ số liệu hiệu năng lấy từ các tệp CSV
@@ -1301,7 +1301,7 @@ Các điểm hoàn thiện chính:
   performance/AC). Hai host vẫn khác nhau nên so sánh Windows/Ubuntu được trình bày
   như quan sát (mục 5.4, 6.2), không phải thí nghiệm nhân quả.
 - **Điểm trừ còn lại:**
-  - **Report (−1):** Phần Sinh viên/MSSV/Lớp còn chờ điền thông tin cá nhân và xuất bản PDF/DOCX.
+  - **Report (−1):** Chưa xuất PDF/DOCX từ Markdown.
 
 ### 8.2 Checklist nộp bài
 
@@ -1318,11 +1318,11 @@ Các điểm hoàn thiện chính:
 | Windows binary | Có trên môi trường Windows; không commit binary |
 | GUI | Có (`gui/aestool_gui.py`; self-test Windows + Ubuntu) |
 | Linux binary | Đã build trên Ubuntu; không commit binary |
-| Sinh viên/MSSV/Lớp | Chưa điền; `scripts/package_lab1.py` điền vào bản staged |
+| Sinh viên/MSSV/Lớp | Đã điền trong `REPORT.md` và bản staged |
 | PDF/DOCX | Chưa xuất; cần export từ Markdown |
 | Self-grade | Có; mục 8.1 |
 | Academic integrity | Có; mục 11.4 |
-| Gói nộp | `scripts/package_lab1.py` tạo `output/package/lab01-submission.zip`; cần chạy với thông tin sinh viên và binary Linux |
+| Gói nộp | `scripts/package_lab1.py` tạo `output/package/lab01-submission.zip`; bản hiện tại có thông tin sinh viên, chưa gồm binary |
 
 ### 8.3 Đối chiếu yêu cầu chung của học phần
 
