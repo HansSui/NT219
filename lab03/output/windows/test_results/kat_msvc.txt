@@ -1,0 +1,3 @@
+PASS oaep-sha256-empty-label
+PASS oaep-sha256-nonempty-label
+KAT summary: 2 passed, 0 failed

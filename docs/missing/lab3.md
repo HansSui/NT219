@@ -31,11 +31,11 @@ hybrid-vs-AES comparison.
 
 | Check | Ubuntu | Windows |
 |---|---|---|
-| Build and `ctest` | Pass, 5/5 (GCC 15.2; committed Clang log also 5/5) | Script present; not run |
-| CLI KAT | `2 passed, 0 failed` (GCC and Clang logs) | Not verified |
-| Unit/negative tests | OAEP 24 assertions/7 cases; hybrid 27/5; negative 20/5 | Not verified |
-| CLI negative suite | Pass (label, wrong key, tampered payload/header, malformed input) | Not verified |
-| Benchmark data | 18-case CSV, summary, 3 plots (1000/1000/100, 4 threads) | Missing |
+| Build and `ctest` | Pass, 5/5 (GCC 15.2; committed Clang log also 5/5) | Pass, 5/5 (MSVC 2026-11-10; MinGW GCC 2026-11-09) |
+| CLI KAT | `2 passed, 0 failed` (GCC and Clang logs) | `2 passed, 0 failed` (MSVC + MinGW GCC) |
+| Unit/negative tests | OAEP 24/7; hybrid 27/5; negative 20/5 (older Ubuntu log) | MSVC OAEP 36/9; hybrid 36/6; negative 20/5 |
+| CLI negative suite | Pass (label, wrong key, tampered payload/header, malformed input) | Pass (`cli_test.cmake`) |
+| Benchmark data | 18-case CSV, summary, 3 plots (1000/1000/100, 4 threads) | 18-case CSV, summary, 3 plots |
 | Docs vs evidence | Tables now match `summary_gcc.csv` | N/A |
 
 Ubuntu commands used:
@@ -51,32 +51,34 @@ scripts/build_linux.sh gcc
 
 | ID | Gap | Requirement | Ubuntu | Windows | Severity |
 |---|---|---|---|---|---|
-| L3-01 | No Windows build/test/KAT evidence | C-13; rubric cross-platform 5 | N/A | Not verified | High |
-| L3-02 | Final report identity, PDF/DOCX and archive absent | C-13, C-14; report 10 | Partial | Partial | High (submission) |
-| L3-03 | No Windows benchmark run or benchmark script | Performance evidence | N/A | Missing | Medium |
+| L3-01 | No Windows build/test/KAT evidence | C-13; rubric cross-platform 5 | N/A | Fixed 2026-11-10 (MSVC + MinGW GCC) | Closed |
+| L3-02 | Final report PDF/DOCX and archive absent (identity filled) | C-13, C-14; report 10 | Partial | Partial | High (submission) |
+| L3-03 | No Windows benchmark run or benchmark script | Performance evidence | N/A | Fixed 2026-11-10 (script + data) | Closed |
 | L3-04 | Report/BENCHMARKS tables disagreed with the committed CSV | Report quality | Fixed 2026-11-09 | N/A | Closed |
 | L3-05 | Line plots obscured the required comparisons | Performance plots | Fixed 2026-11-09 | N/A | Closed |
-| L3-06 | Manual OAEP padding bonus not implemented | Bonus +5 | Missing | Missing | Optional |
+| L3-06 | Manual OAEP padding bonus not implemented | Bonus +5 | Fixed 2026-11-10 | Fixed 2026-11-10 | Closed |
 | L3-07 | Hybrid security analysis is partial | Bonus +10 | Partial (6/10) | N/A | Optional |
 
-### L3-01 - Windows build, tests and KAT are not evidenced
+### L3-01 - Windows build, tests and KAT (fixed 2026-11-10)
 
-`scripts/build_windows.bat` supports MSVC, MinGW GCC and MinGW Clang and pins
-OpenSSL 4.0.2, but `lab03/output/windows/` is empty. The rubric awards 5 points
-for cross-platform build and documentation; Ubuntu GCC and Clang are verified,
-so 4/5 is held pending a Windows run. Do not claim Windows parity until
-`output/windows/` contains build/`ctest`/KAT logs.
+`scripts/build_windows.bat` supports MSVC, MinGW GCC and MinGW Clang and requires
+OpenSSL 4.0.x or newer. It now saves the CTest log and a KAT log under
+`lab03/output/windows/test_results/` after every run.
 
-Fix on a Windows host:
+Committed Windows evidence:
+
+- `ctest_msvc.txt`: 5/5 passed (MSVC 19.51, 2026-11-10), OAEP 36/9, hybrid
+  36/6, negative 20/5, KAT 2/2, CLI all passed.
+- `kat_msvc.txt`: `2 passed, 0 failed`.
+- `ctest_mingw_gcc.txt` and `kat_mingw_gcc.txt`: 5/5 and 2/2 (MinGW GCC,
+  2026-11-09).
+
+Reproduce on a Windows host:
 
 ```bat
 cd lab03
 set "OPENSSL_ROOT_DIR=D:\cryptolibrary"
 scripts\build_windows.bat msvc
-build\windows-msvc\Release\rsatool.exe --kat kat\oaep_vectors.json
-pushd build\windows-msvc
-ctest -C Release --output-on-failure
-popd
 ```
 
 ### L3-02 - Final report package is not produced
@@ -93,10 +95,13 @@ This is the only core deduction besides Windows evidence: report quality
 
 ### L3-03 - No Windows benchmark data
 
-There is no `run_benchmarks.bat` for Lab 3. The benchmark is not required on
-both OSes by the brief, but controlled Windows data would strengthen the
-performance evidence. The command is in "Benchmark commands" below; the CSV
-schema, summary script and plot script are cross-platform.
+**Fixed 2026-11-10.** `scripts/run_benchmarks.bat` now mirrors the Linux
+wrapper (build-if-needed, CPU affinity, High performance plan, CSV, summary and
+plots). Windows MSVC data is committed under `output/windows/benchmarks/`:
+`bench_windows_msvc_rsa_hybrid.csv`, `summary_msvc.csv` and three grouped plots.
+The benchmark is not required on both OSes by the brief, but the Windows run now
+strengthens the performance evidence. Reproduce with
+`scripts\run_benchmarks.bat msvc`.
 
 ### L3-04 - Documentation tables were stale (fixed)
 
@@ -129,11 +134,12 @@ python3 scripts/plot_bench.py \
   --out-dir output/ubuntu/benchmarks/graph --platform ubuntu-gcc
 ```
 
-### L3-06 - Manual OAEP bonus not attempted
+### L3-06 - Manual OAEP bonus (fixed 2026-11-10)
 
-The implementation uses OpenSSL's OAEP (`EVP_PKEY_encrypt`/`decrypt`) rather
-than hand-written MGF1, XOR masking and constant-time padding validation. The
-brief makes this optional (+5); not claiming it is correct.
+`src/rsa.cpp` now implements OAEP encoding/decoding with MGF1-SHA-256, XOR
+masking and a best-effort constant-time padding check, while the EVP path
+remains available. `tests/test_oaep.cpp` and `tests/test_hybrid.cpp` cover the
+manual path. The optional +5 bonus can now be claimed after a Windows test run.
 
 ### L3-07 - Hybrid security analysis bonus is partial
 
@@ -177,16 +183,16 @@ The safe claim is 97 until Windows logs and the report package exist.
 
 ### Windows
 
-1. Build with OpenSSL 4.0.2 and run KAT + `ctest` (see L3-01).
-2. Run the benchmark command below and commit CSV/summary/plots under
-   `output/windows/`.
-3. Add the Windows result to `BENCHMARKS.md` or clearly mark it as Ubuntu-only.
+1. Build with OpenSSL 4.0.x and run KAT + `ctest` (see L3-01).
+2. ~~Run the benchmark and commit CSV/summary/plots under `output/windows/`.~~
+   Done 2026-11-10; reproduce with `scripts\run_benchmarks.bat msvc`.
+3. Windows benchmark is now in `BENCHMARKS.md`; keep it labelled Windows MSVC.
 
 ### Submission
 
-1. Fill student identity in `REPORT.md`.
+1. ~~Fill student identity in `REPORT.md`.~~ Done 2026-11-10.
 2. Export PDF/DOCX and create the archive.
-3. Keep the OpenSSL 4.0.2 requirement and Windows evidence statement accurate.
+3. Keep the OpenSSL 4.0.x requirement and Windows evidence statement accurate.
 
 ## Benchmark commands
 
@@ -198,31 +204,38 @@ PIN_CPU=0-3 THREADS=4 RUNS_RSA=1000 RUNS_SMALL=1000 RUNS_LARGE=100 \
   WARMUP=1 scripts/run_benchmarks.sh gcc
 ```
 
-Windows (not run here; there is no batch wrapper, so invoke the tool directly):
+Windows (data committed 2026-11-10; reproduce with the wrapper):
 
 ```bat
 cd lab03
 set "OPENSSL_ROOT_DIR=D:\cryptolibrary"
-scripts\build_windows.bat msvc
-build\windows-msvc\Release\rsatool.exe bench --runs-rsa 1000 --runs-small 1000 ^
-  --runs-large 100 --threads 4 --warmup 1 ^
-  --out output\windows\benchmarks\bench_windows_msvc_rsa_hybrid.csv --verbose
-python scripts\summarize_bench.py ^
-  --input output\windows\benchmarks\bench_windows_msvc_rsa_hybrid.csv ^
-  --out output\windows\benchmarks\summary_msvc.csv
-python scripts\plot_bench.py ^
-  --input output\windows\benchmarks\bench_windows_msvc_rsa_hybrid.csv ^
-  --out-dir output\windows\benchmarks\graph --platform windows-msvc
+scripts\run_benchmarks.bat msvc
 ```
 
-The Windows command does not pin affinity; use `start /affinity F /wait /b`
-around `rsatool.exe` if a 4-CPU controlled run is required.
+The wrapper pins CPUs 0-3, sets the High performance plan, and writes the CSV,
+`summary_msvc.csv` and three plots under `output\windows\benchmarks\`. Override
+`RUNS_RSA`, `RUNS_SMALL`, `RUNS_LARGE`, `WARMUP`, `THREADS`, `PIN_MASK` or
+`OUT_DIR`; use `PIN_MASK=0` to disable affinity.
 
 ## Residual risk
 
-- Ubuntu-only evidence; Windows build, KAT, CTest and benchmark are unverified.
+- Windows MSVC and MinGW GCC build/KAT/CTest logs now exist; MinGW Clang was not
+  rerun for the manual-OAEP change.
 - OpenSSL is the sole implementation; the two KAT vectors and OpenSSL CLI
   interoperability are the independent checks.
 - Benchmarks are single-host and indicative; 100 MiB runs use 100 samples.
-- The report/PDF/identity package is still missing, so the submission is not
-  final.
+- The PDF/archive package is still missing, so the submission is not final.
+
+## Update 2026-11-10
+
+- OpenSSL requirement relaxed from exact 4.0.2 to **4.0.x or newer**; the
+  installed `D:\cryptolibrary` is 4.0.3 and now configures. The Linux
+  auto-detect accepts any `4.0.N` header.
+- `scripts/run_benchmarks.bat` added; Windows MSVC benchmark CSV, summary and
+  plots are committed.
+- Manual OAEP (MGF1-SHA-256 + XOR masking + constant-time padding check) is
+  implemented; the optional +5 bonus can be claimed after the Windows test run.
+- `build_windows.bat` now copies `LastTest.log` and runs the KAT into
+  `output/windows/test_results/` automatically. MSVC and MinGW GCC logs are
+  committed.
+- Report identity filled. Remaining: PDF/archive.

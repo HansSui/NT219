@@ -1,0 +1,91 @@
+Start testing: Nov 10 20:01 SE Asia Standard Time
+----------------------------------------------------------
+1/5 Testing: oaep
+1/5 Test: oaep
+Command: "E:/NT219/lab03/build/windows-msvc/Release/test_oaep.exe"
+Directory: E:/NT219/lab03/build/windows-msvc
+"oaep" start time: Nov 10 20:01 SE Asia Standard Time
+Output:
+----------------------------------------------------------
+===============================================================================
+All tests passed (36 assertions in 9 test cases)
+
+<end of output>
+Test time =   1.04 sec
+----------------------------------------------------------
+Test Passed.
+"oaep" end time: Nov 10 20:01 SE Asia Standard Time
+"oaep" time elapsed: 00:00:01
+----------------------------------------------------------
+
+2/5 Testing: hybrid
+2/5 Test: hybrid
+Command: "E:/NT219/lab03/build/windows-msvc/Release/test_hybrid.exe"
+Directory: E:/NT219/lab03/build/windows-msvc
+"hybrid" start time: Nov 10 20:01 SE Asia Standard Time
+Output:
+----------------------------------------------------------
+===============================================================================
+All tests passed (36 assertions in 6 test cases)
+
+<end of output>
+Test time =   0.40 sec
+----------------------------------------------------------
+Test Passed.
+"hybrid" end time: Nov 10 20:01 SE Asia Standard Time
+"hybrid" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/5 Testing: negative
+3/5 Test: negative
+Command: "E:/NT219/lab03/build/windows-msvc/Release/test_negative.exe"
+Directory: E:/NT219/lab03/build/windows-msvc
+"negative" start time: Nov 10 20:01 SE Asia Standard Time
+Output:
+----------------------------------------------------------
+===============================================================================
+All tests passed (20 assertions in 5 test cases)
+
+<end of output>
+Test time =   1.33 sec
+----------------------------------------------------------
+Test Passed.
+"negative" end time: Nov 10 20:01 SE Asia Standard Time
+"negative" time elapsed: 00:00:01
+----------------------------------------------------------
+
+4/5 Testing: kat
+4/5 Test: kat
+Command: "E:/NT219/lab03/build/windows-msvc/Release/rsatool.exe" "--kat" "E:/NT219/lab03/kat/oaep_vectors.json"
+Directory: E:/NT219/lab03/build/windows-msvc
+"kat" start time: Nov 10 20:01 SE Asia Standard Time
+Output:
+----------------------------------------------------------
+PASS oaep-sha256-empty-label
+PASS oaep-sha256-nonempty-label
+KAT summary: 2 passed, 0 failed
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"kat" end time: Nov 10 20:01 SE Asia Standard Time
+"kat" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/5 Testing: cli
+5/5 Test: cli
+Command: "E:/visual studio download/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe" "-DTOOL=E:/NT219/lab03/build/windows-msvc/Release/rsatool.exe" "-DWORK_DIR=E:/NT219/lab03/build/windows-msvc/cli_test" "-P" "E:/NT219/lab03/tests/cli_test.cmake"
+Directory: E:/NT219/lab03/build/windows-msvc
+"cli" start time: Nov 10 20:01 SE Asia Standard Time
+Output:
+----------------------------------------------------------
+-- cli_test.cmake: all Lab 3 cases passed
+<end of output>
+Test time =   1.09 sec
+----------------------------------------------------------
+Test Passed.
+"cli" end time: Nov 10 20:01 SE Asia Standard Time
+"cli" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Nov 10 20:01 SE Asia Standard Time

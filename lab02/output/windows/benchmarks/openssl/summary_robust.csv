@@ -1,0 +1,4 @@
+platform,compiler,mode,size_bytes,size,runs,enc_median_us,dec_median_us,enc_trimmed_mean_us,dec_trimmed_mean_us,enc_median_MBps,dec_median_MBps,enc_outlier_pct,dec_outlier_pct,enc_cv,dec_cv,enc_stability,dec_stability
+openssl,msvc,CTR,1048576,1MB,1000,1057.500,1030.350,1408.907,1383.461,945.626,970.545,26.40,28.10,0.5839,0.5569,noisy,noisy
+openssl,msvc,CTR,104857600,100MB,100,67440.800,67488.500,71332.298,71379.196,1482.784,1481.747,2.00,1.00,0.2818,0.2484,noisy,ok
+openssl,msvc,CTR,1073741824,1GB,30,730622.500,748331.150,790478.836,795664.500,1401.546,1368.683,0.00,3.33,0.2089,0.2620,ok,noisy

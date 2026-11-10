@@ -149,10 +149,11 @@ negative tests, benchmark method, the 2026-11-05 Ubuntu table, S-box/cache
 analysis, nonce reuse, malleability, key wiping, AES-NI, rubric self-grade and
 remaining work.
 
-Still missing: student name/MSSV/class, PDF/DOCX export, and a final package.
-The C-16 academic-integrity statement is now in Appendix A of the report. The
-self-grade is 100/100 core under the rubric wording; the missing identity/PDF
-are submission gaps, not a reason to lower the technical rows.
+Student identity is now filled (2026-11-10: Nguyễn Công Tuấn / 25522012 /
+NT219.R11.ANTT). Still missing: PDF/DOCX export and a final package. The C-16
+academic-integrity statement is in Appendix A of the report. The self-grade is
+100/100 core under the rubric wording; the missing PDF/archive is a submission
+gap, not a reason to lower the technical rows.
 
 ### L2-04 - KAT coverage and skips
 
@@ -292,7 +293,7 @@ Still missing:
 - Run-time environment log for either benchmark run; the chosen 1000/100/30
   counts are accepted, so the nominal 500/50 is not required.
 - A PDF/DOCX report.
-- A final archive with student identity.
+- A final archive (student identity is now filled in `REPORT.md`).
 
 ## Regrade
 

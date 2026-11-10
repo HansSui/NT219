@@ -28,6 +28,9 @@
   bars with CI/value labels, added labels to Lab 2's summary, reconciled Lab 3
   report/benchmark tables with the committed CSV, and wrote
   `docs/missing/lab3.md`. Windows and report PDFs still unverified.
+- 2026-11-10 — Lab 3 Windows evidence: `build_windows.bat` now saves CTest and
+  KAT logs under `output/windows/test_results/`; MSVC 5/5 + KAT 2/2 and MinGW
+  GCC 5/5 + KAT 2/2 are committed. Manual OAEP added (OAEP 36/9, hybrid 36/6).
 - 2026-11-09 — Relaxed the Lab 3 OpenSSL gate from exact 4.0.2 to >= 4.0 so the
   installed `D:\cryptolibrary` 4.0.3 works; the Linux auto-detect now accepts any
   4.0.x header. Added `lab03/scripts/run_benchmarks.bat` and filled the Lab 2/3
