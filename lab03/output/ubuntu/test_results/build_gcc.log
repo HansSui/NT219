@@ -1,0 +1,26 @@
+-- C++ compiler: GNU 15.2.0
+-- OpenSSL: 4.0.2
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/han-sui/Downloads/NT219/lab03/build/ubuntu-gcc
+[ 27%] Built target rsacore
+[ 63%] Built target test_negative
+[ 63%] Built target rsatool
+[100%] Built target test_hybrid
+[100%] Built target test_oaep
+Test project /home/han-sui/Downloads/NT219/lab03/build/ubuntu-gcc
+    Start 1: oaep
+1/5 Test #1: oaep .............................   Passed    0.57 sec
+    Start 2: hybrid
+2/5 Test #2: hybrid ...........................   Passed    0.53 sec
+    Start 3: negative
+3/5 Test #3: negative .........................   Passed    0.75 sec
+    Start 4: kat
+4/5 Test #4: kat ..............................   Passed    0.01 sec
+    Start 5: cli
+5/5 Test #5: cli ..............................   Passed    0.47 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =   2.33 sec
+built: /home/han-sui/Downloads/NT219/lab03/build/ubuntu-gcc/rsatool

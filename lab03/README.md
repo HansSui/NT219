@@ -5,11 +5,12 @@ automatic AES-256-GCM hybrid envelope for messages above the RSA plaintext
 limit. Keys are written as PEM, DER and a metadata JSON file.
 
 **Library decision:** this lab uses **OpenSSL 4.0.x or newer** for all primitives
-and key formats. The committed evidence was produced with 4.0.2; the build also
-accepts 4.0.3 and later 4.x releases. OpenSSL CLI 4.0.2 was used only as an
-independent cross-check; it is never called by `rsatool` at runtime. Rejected
-alternative: Crypto++ 8.9.0, because the installed package has no PEM helpers and
-would force hand-written PEM/ASN.1 plumbing. See `docs/memory/decisions.md`.
+and key formats. Ubuntu evidence used 4.0.2; the Windows benchmark used the
+host 4.0.x install (build scripts target 4.0.3), but has no version log. OpenSSL
+CLI 4.0.2 was used only as an independent cross-check; it is never called by
+`rsatool` at runtime. Rejected alternative: Crypto++ 8.9.0, because the
+installed package has no PEM helpers and would force hand-written PEM/ASN.1
+plumbing. See `docs/memory/decisions.md`.
 
 ## Dependencies
 
@@ -143,6 +144,14 @@ independent RSA-OAEP-SHA256 vectors generated with OpenSSL `pkeyutl` (empty
 label and non-empty label); `tests/cli_test.sh` additionally cross-checks PEM
 format and OAEP interop with the OpenSSL CLI when it is installed.
 
+The library also carries the optional bonus primitives, covered by the unit
+tests but not exposed as CLI flags:
+
+- `rsa::oaepEncryptManual` / `rsa::oaepDecryptManual` — hand-written MGF1,
+  XOR masking and OAEP padding validation, interoperable with OpenSSL OAEP.
+- `hybrid::aesCtrHmacEncrypt` / `hybrid::aesCtrHmacDecrypt` — AES-256-CTR with
+  encrypt-then-MAC HMAC-SHA256, used as the GCM comparison.
+
 ```bash
 ./build/ubuntu-gcc/rsatool --kat kat/oaep_vectors.json
 ```
@@ -173,8 +182,11 @@ concurrency; aggregate throughput is four times the per-op MB/s. See
   for the key wrap. Production TLS should use ECDHE/ML-KEM.
 - OpenSSL is the only implementation; there is no second crypto library for a
   byte-for-byte oracle. OpenSSL CLI checks cover formats and OAEP interop.
-- Benchmarks are single-host, pinned to CPUs 0–3 and run with four worker
-  threads; the CSV and environment table are the evidence.
+- The optional manual OAEP path is best-effort constant-time and is not the CLI
+  default. The AES-CTR+HMAC comparison is unit-tested but not benchmarked.
+- Benchmarks are from two hosts (Ubuntu GCC and Windows MSVC), pinned to
+  CPUs 0–3 with four worker threads; the CSVs and environment table are the
+  evidence. The Windows run has no run-time log.
 
 ## References
 

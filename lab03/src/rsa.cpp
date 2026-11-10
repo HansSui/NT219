@@ -3,13 +3,17 @@
 #include "util.hpp"
 
 #include <openssl/bio.h>
+#include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/pem.h>
+#include <openssl/rand.h>
 #include <openssl/rsa.h>
 #include <openssl/x509.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
+#include <limits>
 #include <vector>
 
 namespace rsa {
@@ -93,6 +97,151 @@ EVP_PKEY_CTX* newContext(const Key& key) {
     return ctx;
 }
 
+constexpr std::size_t kOaepHashBytes = 32;
+
+std::string sha256(const std::string& data) {
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int length = 0;
+    util::require(EVP_Digest(data.data(), data.size(), digest, &length, EVP_sha256(), nullptr) == 1,
+                  "SHA-256 failed");
+    return std::string(reinterpret_cast<char*>(digest), length);
+}
+
+std::string mgf1(const std::string& seed, std::size_t length) {
+    std::string out;
+    out.reserve(length);
+    for (std::uint32_t counter = 0; out.size() < length; ++counter) {
+        std::string input = seed;
+        input.push_back(static_cast<char>((counter >> 24) & 0xff));
+        input.push_back(static_cast<char>((counter >> 16) & 0xff));
+        input.push_back(static_cast<char>((counter >> 8) & 0xff));
+        input.push_back(static_cast<char>(counter & 0xff));
+        out += sha256(input);
+    }
+    out.resize(length);
+    return out;
+}
+
+std::string xorStrings(const std::string& left, const std::string& right) {
+    util::require(left.size() == right.size(), "internal OAEP length mismatch");
+    std::string out(left.size(), '\0');
+    for (std::size_t i = 0; i < left.size(); ++i)
+        out[i] = static_cast<char>(static_cast<unsigned char>(left[i]) ^
+                                   static_cast<unsigned char>(right[i]));
+    return out;
+}
+
+// Best-effort constant-time helpers for the OAEP padding check.
+unsigned char ctIsZero(unsigned char value) {
+    return static_cast<unsigned char>(((static_cast<unsigned int>(value) - 1) >> 8) & 1);
+}
+
+unsigned char ctLess(std::size_t left, std::size_t right) {
+    return static_cast<unsigned char>((left - right) >>
+        (std::numeric_limits<std::size_t>::digits - 1));
+}
+
+std::size_t ctSelect(unsigned char bit, std::size_t yes, std::size_t no) {
+    const std::size_t mask = static_cast<std::size_t>(0) - bit;
+    return (yes & mask) | (no & ~mask);
+}
+
+std::string rawRsa(const Key& key, const std::string& input, bool encrypt) {
+    EVP_PKEY_CTX* ctx = newContext(key);
+    std::string out;
+    try {
+        if (encrypt) {
+            util::require(EVP_PKEY_encrypt_init(ctx) > 0, "RSA encryption failed");
+            util::require(EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_NO_PADDING) > 0,
+                          "RSA encryption failed");
+            std::size_t length = 0;
+            util::require(EVP_PKEY_encrypt(ctx, nullptr, &length,
+                                           reinterpret_cast<const unsigned char*>(input.data()),
+                                           input.size()) > 0,
+                          "RSA encryption failed");
+            out.resize(length);
+            util::require(EVP_PKEY_encrypt(ctx, reinterpret_cast<unsigned char*>(&out[0]), &length,
+                                           reinterpret_cast<const unsigned char*>(input.data()),
+                                           input.size()) > 0,
+                          "RSA encryption failed");
+            out.resize(length);
+        } else {
+            util::require(EVP_PKEY_decrypt_init(ctx) > 0, "decryption failed");
+            util::require(EVP_PKEY_CTX_set_rsa_padding(ctx, RSA_NO_PADDING) > 0,
+                          "decryption failed");
+            std::size_t length = 0;
+            util::require(EVP_PKEY_decrypt(ctx, nullptr, &length,
+                                           reinterpret_cast<const unsigned char*>(input.data()),
+                                           input.size()) > 0,
+                          "decryption failed");
+            out.resize(length);
+            util::require(EVP_PKEY_decrypt(ctx, reinterpret_cast<unsigned char*>(&out[0]), &length,
+                                           reinterpret_cast<const unsigned char*>(input.data()),
+                                           input.size()) > 0,
+                          "decryption failed");
+            out.resize(length);
+        }
+    } catch (...) {
+        EVP_PKEY_CTX_free(ctx);
+        throw;
+    }
+    EVP_PKEY_CTX_free(ctx);
+    return out;
+}
+
+std::string oaepEncode(const std::string& label, const std::string& message, std::size_t k) {
+    util::require(k >= 2 * kOaepHashBytes + 2, "RSA key is too small for OAEP");
+    util::require(message.size() <= k - 2 * kOaepHashBytes - 2,
+                  "plaintext exceeds the RSA-OAEP limit");
+    const std::string lHash = sha256(label);
+    const std::size_t dbLength = k - kOaepHashBytes - 1;
+    std::string db(dbLength, '\0');
+    std::copy(lHash.begin(), lHash.end(), db.begin());
+    const std::size_t psLength = dbLength - lHash.size() - 1 - message.size();
+    db[lHash.size() + psLength] = '\x01';
+    std::copy(message.begin(), message.end(), db.begin() + lHash.size() + psLength + 1);
+
+    std::string seed(kOaepHashBytes, '\0');
+    util::require(RAND_bytes(reinterpret_cast<unsigned char*>(&seed[0]),
+                             static_cast<int>(seed.size())) == 1,
+                  "secure random generator failed");
+    const std::string maskedDb = xorStrings(db, mgf1(seed, dbLength));
+    const std::string maskedSeed = xorStrings(seed, mgf1(maskedDb, kOaepHashBytes));
+
+    std::string encoded(k, '\0');
+    std::copy(maskedSeed.begin(), maskedSeed.end(), encoded.begin() + 1);
+    std::copy(maskedDb.begin(), maskedDb.end(), encoded.begin() + 1 + kOaepHashBytes);
+    return encoded;
+}
+
+std::string oaepDecode(const std::string& label, const std::string& encoded, std::size_t k) {
+    util::require(encoded.size() == k, "decryption failed");
+    unsigned char bad = ctIsZero(static_cast<unsigned char>(encoded[0])) ^ 1;
+
+    const std::string maskedSeed = encoded.substr(1, kOaepHashBytes);
+    const std::string maskedDb = encoded.substr(1 + kOaepHashBytes);
+    const std::string seed = xorStrings(maskedSeed, mgf1(maskedDb, kOaepHashBytes));
+    const std::string db = xorStrings(maskedDb, mgf1(seed, maskedDb.size()));
+    const std::string lHash = sha256(label);
+    bad |= static_cast<unsigned char>(CRYPTO_memcmp(db.data(), lHash.data(), lHash.size()) != 0);
+
+    std::size_t separator = db.size();
+    unsigned char found = 0;
+    for (std::size_t i = kOaepHashBytes; i < db.size(); ++i) {
+        const unsigned char isOne = ctIsZero(static_cast<unsigned char>(db[i]) ^ 1);
+        separator = ctSelect(isOne & (found ^ 1), i, separator);
+        found |= isOne;
+    }
+    bad |= static_cast<unsigned char>(found ^ 1);
+    for (std::size_t i = kOaepHashBytes; i < db.size(); ++i) {
+        bad |= ctLess(i, separator) & (ctIsZero(static_cast<unsigned char>(db[i])) ^ 1);
+    }
+    // shortcut: best-effort constant-time padding check; OpenSSL raw RSA and
+    // the final plaintext copy still vary. Use EVP OAEP for production.
+    if (bad) throw std::runtime_error("decryption failed");
+    return db.substr(separator + 1);
+}
+
 }  // namespace
 
 Key generateKey(int bits) {
@@ -174,6 +323,25 @@ std::string oaepDecrypt(const Key& privateKey, const std::string& ciphertext,
     }
     EVP_PKEY_CTX_free(ctx);
     return out;
+}
+
+std::string oaepEncryptManual(const Key& publicKey, const std::string& plaintext,
+                              const std::string& label) {
+    const std::size_t k = static_cast<std::size_t>(publicKey.bits() + 7) / 8;
+    return rawRsa(publicKey, oaepEncode(label, plaintext, k), true);
+}
+
+std::string oaepDecryptManual(const Key& privateKey, const std::string& ciphertext,
+                              const std::string& label) {
+    const std::size_t k = static_cast<std::size_t>(privateKey.bits() + 7) / 8;
+    std::string encoded;
+    try {
+        encoded = rawRsa(privateKey, ciphertext, false);
+        return oaepDecode(label, encoded, k);
+    } catch (...) {
+        if (!encoded.empty()) OPENSSL_cleanse(&encoded[0], encoded.size());
+        throw std::runtime_error("decryption failed");
+    }
 }
 
 }  // namespace rsa

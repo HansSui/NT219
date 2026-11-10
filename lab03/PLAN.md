@@ -1,7 +1,10 @@
 # Lab 3 plan
 
-Status: implemented and verified on Ubuntu (2026-11-07). Windows scripts are
-present but not run on this host.
+Status: implemented and verified on Ubuntu (2026-11-07). Windows MSVC benchmark
+and grouped plots are committed (2026-11-10); Windows KAT/CTest logs are still
+missing. Bonus manual-OAEP and AES-CTR+HMAC primitives are implemented and
+unit-tested (2026-11-10); the CTR+HMAC variant is not benchmarked or exposed as
+a CLI mode.
 
 Library decision: **OpenSSL 4.0.x or newer (4.0.2+)**. The brief allows Crypto++ or OpenSSL;
 OpenSSL owns RSA-OAEP labels, AES-256-GCM, PEM/DER and key checks, so it removes

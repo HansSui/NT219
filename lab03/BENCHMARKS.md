@@ -1,6 +1,6 @@
 # Lab 3 benchmarks
 
-## Environment
+## Environment (Ubuntu)
 
 | Item | Value |
 |---|---|
@@ -23,6 +23,8 @@
   1000**, **AES/hybrid 100 MiB 100**.
 - RSA: one operation per timed sample; message 32 bytes, OAEP-SHA256.
 - AES-GCM/Hybrid: one operation per timed sample at the stated size.
+- Optional comparison: AES-256-CTR + HMAC-SHA256 is unit-tested but is not in
+  this benchmark matrix; no CTR+HMAC timing claims are made.
 - Metrics: mean, median, sample standard deviation and 95% CI
   (`1.96 * sd / sqrt(n)`). `elapsed_ms` is per operation under four-way
   concurrency; aggregate throughput is `per-op MB/s × 4`.
@@ -41,12 +43,12 @@ PIN_CPU=0-3 THREADS=4 RUNS_RSA=1000 RUNS_SMALL=1000 RUNS_LARGE=100 \
 
 The script defaults are the same; the environment variables are shown explicitly.
 Key generation is inherently variable (prime search); its standard deviation is
-large. Numbers are single-host and indicative, not a cross-machine record.
+large. Each platform's numbers are single-host and indicative; the two hosts
+are not a controlled comparison.
 
 Windows now has a batch wrapper, `scripts/run_benchmarks.bat`; it builds if
 needed, pins CPUs 0-3, sets the High performance power plan, writes the CSV and
-summary, and regenerates the plots. Do not cite these numbers until the run
-exists:
+summary, and regenerates the plots. The committed run is from 2026-11-10:
 
 ```bat
 cd lab03
@@ -65,7 +67,22 @@ build\windows-msvc\Release\rsatool.exe bench --runs-rsa 1000 --runs-small 1000 ^
 Override `RUNS_RSA`, `RUNS_SMALL`, `RUNS_LARGE`, `WARMUP`, `THREADS`, `PIN_MASK`
 or `OUT_DIR` as needed. Use `PIN_MASK=0` to disable affinity.
 
-## Measured results
+### Environment (Windows)
+
+| Item | Value |
+|---|---|
+| OS | Windows 11 host; no Lab 3 run-time log |
+| Compiler | MSVC 19.51 (`build\windows-msvc`) |
+| OpenSSL | 4.0.x (Windows host install; no Lab 3 version log) |
+| Threads | 4 (from the CSV `threads` column) |
+| Affinity / power | Script defaults: CPUs 0-3, High performance; not captured in a log |
+| Date | 2026-11-10 |
+
+The CSV/summary/plots are the evidence of record. The missing run-time log
+means affinity, power plan and priority are script defaults, not verified
+metadata.
+
+## Measured results (Ubuntu)
 
 `elapsed` is per operation; `MB/s` is per-operation throughput; aggregate is for
 all four worker threads.
@@ -90,6 +107,32 @@ all four worker threads.
 | hybrid_decrypt | 3072 | 1 KiB | 4 | 1000 | 1.316 | 1.264 | 0.207 | 0.013 | 0.8 | 3.2 |
 | hybrid_decrypt | 3072 | 1 MiB | 4 | 1000 | 1.774 | 1.585 | 0.417 | 0.026 | 612.7 | 2450.7 |
 | hybrid_decrypt | 3072 | 100 MiB | 4 | 100 | 171.222 | 170.623 | 13.572 | 2.660 | 616.3 | 2465.2 |
+
+## Measured results (Windows MSVC)
+
+Sources: `output/windows/benchmarks/bench_windows_msvc_rsa_hybrid.csv`,
+`summary_msvc.csv`, `graph/`. Same matrix as Ubuntu (1000/1000/100).
+
+| Case | Bits | Size | Threads | Runs | Mean ms | Median ms | SD ms | 95% CI ms | Mean MB/s | Aggregate MB/s |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| rsa_keygen | 3072 | — | 4 | 1000 | 330.932 | 277.948 | 218.385 | 13.536 | — | — |
+| rsa_keygen | 4096 | — | 4 | 1000 | 829.217 | 703.324 | 550.214 | 34.103 | — | — |
+| rsa_encrypt | 3072 | 32 B | 4 | 1000 | 0.079 | 0.079 | 0.003 | 0.000 | 0.4 | 1.6 |
+| rsa_encrypt | 4096 | 32 B | 4 | 1000 | 0.109 | 0.109 | 0.003 | 0.000 | 0.3 | 1.2 |
+| rsa_decrypt | 3072 | 32 B | 4 | 1000 | 1.765 | 1.702 | 0.306 | 0.019 | 0.0 | 0.1 |
+| rsa_decrypt | 4096 | 32 B | 4 | 1000 | 3.409 | 3.184 | 0.528 | 0.033 | 0.0 | 0.0 |
+| aes_gcm | 256 | 1 KiB | 4 | 1000 | 0.003 | 0.003 | 0.001 | 0.000 | 371.3 | 1485.1 |
+| aes_gcm | 256 | 1 MiB | 4 | 1000 | 1.199 | 1.106 | 0.319 | 0.020 | 917.2 | 3668.6 |
+| aes_gcm | 256 | 100 MiB | 4 | 100 | 123.306 | 122.613 | 6.866 | 1.346 | 853.1 | 3412.3 |
+| aes_gcm_decrypt | 256 | 1 KiB | 4 | 1000 | 0.003 | 0.003 | 0.000 | 0.000 | 397.9 | 1591.5 |
+| aes_gcm_decrypt | 256 | 1 MiB | 4 | 1000 | 0.638 | 0.570 | 0.452 | 0.028 | 1803.8 | 7215.4 |
+| aes_gcm_decrypt | 256 | 100 MiB | 4 | 100 | 76.504 | 77.150 | 9.813 | 1.923 | 1402.9 | 5611.7 |
+| hybrid_encrypt | 3072 | 1 KiB | 4 | 1000 | 0.113 | 0.114 | 0.006 | 0.000 | 9.1 | 36.3 |
+| hybrid_encrypt | 3072 | 1 MiB | 4 | 1000 | 1.969 | 1.839 | 0.386 | 0.024 | 548.5 | 2194.1 |
+| hybrid_encrypt | 3072 | 100 MiB | 4 | 100 | 194.323 | 194.293 | 16.833 | 3.299 | 545.7 | 2182.7 |
+| hybrid_decrypt | 3072 | 1 KiB | 4 | 1000 | 1.865 | 1.825 | 0.300 | 0.019 | 0.6 | 2.2 |
+| hybrid_decrypt | 3072 | 1 MiB | 4 | 1000 | 2.915 | 2.805 | 0.382 | 0.024 | 364.6 | 1458.4 |
+| hybrid_decrypt | 3072 | 100 MiB | 4 | 100 | 136.146 | 137.209 | 12.499 | 2.450 | 779.0 | 3115.9 |
 
 ## Interpretation
 
@@ -116,3 +159,9 @@ all four worker threads.
   memory is several times the payload (100 MiB case; four concurrent operations
   increase it further); a streaming envelope would reduce this. RSA key
   generation is the only CPU-expensive setup step.
+- **Windows MSVC vs Ubuntu GCC:** the same ordering holds (RSA private >
+  public, hybrid dominated by RSA at small sizes and AES at large sizes), but
+  absolute numbers differ. At 1 MiB, AES-GCM encrypt is 917 MB/s on Windows and
+  3757 MB/s on Ubuntu; RSA-3072 keygen is 331 ms vs 186 ms. Different OS,
+  compiler and OpenSSL build mean these are observations, not a controlled
+  cross-platform comparison. The Windows run has no environment log.

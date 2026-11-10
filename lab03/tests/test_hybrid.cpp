@@ -102,3 +102,31 @@ TEST_CASE("AES-256-GCM rejects tampered ciphertext, tag and AAD") {
     badCiphertext[0] ^= 0x01;
     REQUIRE_THROWS(hybrid::aesGcmDecrypt(key, iv, "aad", badCiphertext, tag));
 }
+
+TEST_CASE("AES-256-CTR + HMAC round-trips and rejects tampering") {
+    const std::string key(64, 'k');
+    const std::string iv(16, 'i');
+    std::string tag;
+    const std::string ciphertext =
+        hybrid::aesCtrHmacEncrypt(key, iv, "aad", "payload", tag);
+    REQUIRE(tag.size() == 32);
+    REQUIRE(ciphertext.size() == 7);
+    REQUIRE(hybrid::aesCtrHmacDecrypt(key, iv, "aad", ciphertext, tag) == "payload");
+    REQUIRE_THROWS(hybrid::aesCtrHmacDecrypt(key, iv, "other", ciphertext, tag));
+
+    std::string badTag = tag;
+    badTag[0] ^= 0x01;
+    REQUIRE_THROWS(hybrid::aesCtrHmacDecrypt(key, iv, "aad", ciphertext, badTag));
+
+    std::string badCiphertext = ciphertext;
+    badCiphertext[0] ^= 0x01;
+    REQUIRE_THROWS(hybrid::aesCtrHmacDecrypt(key, iv, "aad", badCiphertext, tag));
+
+    std::string badIv = iv;
+    badIv[0] ^= 0x01;
+    REQUIRE_THROWS(hybrid::aesCtrHmacDecrypt(key, badIv, "aad", ciphertext, tag));
+
+    std::string emptyTag;
+    REQUIRE(hybrid::aesCtrHmacEncrypt(key, iv, "", "", emptyTag).empty());
+    REQUIRE(hybrid::aesCtrHmacDecrypt(key, iv, "", "", emptyTag).empty());
+}

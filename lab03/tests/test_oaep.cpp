@@ -59,6 +59,35 @@ TEST_CASE("OAEP plaintext limit is k - 2*hLen - 2") {
     REQUIRE_THROWS(rsa::oaepEncrypt(testKey(), std::string(limit + 1, 'm'), ""));
 }
 
+TEST_CASE("Manual OAEP interoperates with EVP OAEP in both directions") {
+    const std::string message = "manual OAEP payload";
+    for (const std::string& label : {std::string(), std::string("context-v1")}) {
+        const std::string manual = rsa::oaepEncryptManual(testKey(), message, label);
+        REQUIRE(manual.size() == static_cast<std::size_t>(testKey().bits() / 8));
+        REQUIRE(rsa::oaepDecrypt(testKey(), manual, label) == message);
+
+        const std::string library = rsa::oaepEncrypt(testKey(), message, label);
+        REQUIRE(rsa::oaepDecryptManual(testKey(), library, label) == message);
+    }
+}
+
+TEST_CASE("Manual OAEP enforces the limit and fails closed") {
+    const std::size_t limit = rsa::maxPlaintext(testKey());
+    const std::string maximum(limit, 'm');
+    REQUIRE(rsa::oaepDecryptManual(
+                testKey(), rsa::oaepEncryptManual(testKey(), maximum, ""), "") == maximum);
+    REQUIRE_THROWS(rsa::oaepEncryptManual(testKey(), std::string(limit + 1, 'm'), ""));
+
+    const std::string ciphertext = rsa::oaepEncryptManual(testKey(), "secret", "right-label");
+    REQUIRE_THROWS(rsa::oaepDecryptManual(testKey(), ciphertext, "wrong-label"));
+    REQUIRE_THROWS(rsa::oaepDecryptManual(secondKey(), ciphertext, "right-label"));
+
+    std::string tampered = ciphertext;
+    tampered[0] ^= 0x01;
+    REQUIRE_THROWS(rsa::oaepDecryptManual(testKey(), tampered, "right-label"));
+    REQUIRE_THROWS(rsa::oaepDecryptManual(testKey(), "short", "right-label"));
+}
+
 TEST_CASE("Wrong OAEP label and wrong private key fail") {
     const std::string ciphertext = rsa::oaepEncrypt(testKey(), "secret", "right-label");
     REQUIRE_THROWS(rsa::oaepDecrypt(testKey(), ciphertext, "wrong-label"));

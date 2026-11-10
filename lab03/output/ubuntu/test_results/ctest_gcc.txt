@@ -1,15 +1,15 @@
 Test project /home/han-sui/Downloads/NT219/lab03/build/ubuntu-gcc
     Start 1: oaep
-1/5 Test #1: oaep .............................   Passed    0.33 sec
+1/5 Test #1: oaep .............................   Passed    0.37 sec
     Start 2: hybrid
-2/5 Test #2: hybrid ...........................   Passed    0.23 sec
+2/5 Test #2: hybrid ...........................   Passed    0.11 sec
     Start 3: negative
-3/5 Test #3: negative .........................   Passed    0.32 sec
+3/5 Test #3: negative .........................   Passed    0.63 sec
     Start 4: kat
 4/5 Test #4: kat ..............................   Passed    0.01 sec
     Start 5: cli
-5/5 Test #5: cli ..............................   Passed    0.53 sec
+5/5 Test #5: cli ..............................   Passed    0.22 sec
 
 100% tests passed, 0 tests failed out of 5
 
-Total Test time (real) =   1.43 sec
+Total Test time (real) =   1.34 sec

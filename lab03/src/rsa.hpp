@@ -49,4 +49,12 @@ std::string oaepEncrypt(const Key& publicKey, const std::string& plaintext,
 std::string oaepDecrypt(const Key& privateKey, const std::string& ciphertext,
                         const std::string& label);
 
+// Manual OAEP (MGF1-SHA256, XOR masking, constant-time-ish padding check)
+// using OpenSSL only for raw RSA and SHA-256. Interoperates with `oaepEncrypt`
+// and with standard RSA-OAEP-SHA256 ciphertexts.
+std::string oaepEncryptManual(const Key& publicKey, const std::string& plaintext,
+                              const std::string& label);
+std::string oaepDecryptManual(const Key& privateKey, const std::string& ciphertext,
+                              const std::string& label);
+
 }  // namespace rsa

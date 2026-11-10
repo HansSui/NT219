@@ -3,10 +3,13 @@
 #include "minijson.hpp"
 #include "util.hpp"
 
+#include <openssl/crypto.h>
 #include <openssl/evp.h>
+#include <openssl/hmac.h>
 #include <openssl/rand.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <sstream>
 #include <vector>
 
@@ -16,6 +19,9 @@ namespace {
 constexpr std::size_t kAesKeyBytes = 32;
 constexpr std::size_t kIvBytes = 12;
 constexpr std::size_t kTagBytes = 16;
+constexpr std::size_t kCtrHmacKeyBytes = 64;
+constexpr std::size_t kCtrIvBytes = 16;
+constexpr std::size_t kHmacTagBytes = 32;
 
 std::string headerJson(const Envelope& envelope, bool withTag) {
     std::ostringstream out;
@@ -137,6 +143,57 @@ std::string gcmDecrypt(const std::string& key, const std::string& iv, const std:
     return out;
 }
 
+std::string ctrXor(const std::string& key, const std::string& iv, const std::string& input) {
+    if (input.empty()) return {};
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    util::require(ctx != nullptr, "cannot create AES-CTR context");
+    std::string out(input.size(), '\0');
+    int length = 0;
+    int total = 0;
+    const bool ok =
+        EVP_EncryptInit_ex(ctx, EVP_aes_256_ctr(), nullptr,
+                           reinterpret_cast<const unsigned char*>(key.data()),
+                           reinterpret_cast<const unsigned char*>(iv.data())) == 1 &&
+        EVP_EncryptUpdate(ctx, reinterpret_cast<unsigned char*>(&out[0]), &length,
+                          reinterpret_cast<const unsigned char*>(input.data()),
+                          static_cast<int>(input.size())) == 1;
+    total = length;
+    if (ok) {
+        int finalLength = 0;
+        if (EVP_EncryptFinal_ex(ctx, reinterpret_cast<unsigned char*>(&out[0]) + total,
+                                &finalLength) != 1) {
+            EVP_CIPHER_CTX_free(ctx);
+            throw std::runtime_error("AES-CTR encryption failed");
+        }
+        total += finalLength;
+    }
+    EVP_CIPHER_CTX_free(ctx);
+    util::require(ok, "AES-CTR encryption failed");
+    out.resize(static_cast<std::size_t>(total));
+    return out;
+}
+
+std::string hmacSha256(const std::string& key, const std::string& data) {
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int length = 0;
+    util::require(HMAC(EVP_sha256(), key.data(), static_cast<int>(key.size()),
+                       reinterpret_cast<const unsigned char*>(data.data()), data.size(),
+                       digest, &length) != nullptr,
+                  "HMAC-SHA256 failed");
+    return std::string(reinterpret_cast<char*>(digest), length);
+}
+
+std::string authData(const std::string& iv, const std::string& aad,
+                     const std::string& ciphertext) {
+    std::string out = iv;
+    const std::uint64_t aadLength = aad.size();
+    for (int shift = 56; shift >= 0; shift -= 8)
+        out.push_back(static_cast<char>((aadLength >> shift) & 0xff));
+    out += aad;
+    out += ciphertext;
+    return out;
+}
+
 std::string getString(const minijson::Value& root, const char* key) {
     try {
         return root.getString(key);
@@ -248,6 +305,32 @@ std::string aesGcmDecrypt(const std::string& key, const std::string& iv,
     util::require(key.size() == kAesKeyBytes && iv.size() == kIvBytes && tag.size() == kTagBytes,
                   "invalid AES-GCM key, IV or tag");
     return gcmDecrypt(key, iv, aad, ciphertext, tag);
+}
+
+std::string aesCtrHmacEncrypt(const std::string& key, const std::string& iv,
+                              const std::string& aad, const std::string& plaintext,
+                              std::string& tag) {
+    util::require(key.size() == kCtrHmacKeyBytes && iv.size() == kCtrIvBytes,
+                  "invalid AES-CTR+HMAC key or IV");
+    const std::string aesKey = key.substr(0, kAesKeyBytes);
+    const std::string macKey = key.substr(kAesKeyBytes);
+    const std::string ciphertext = ctrXor(aesKey, iv, plaintext);
+    tag = hmacSha256(macKey, authData(iv, aad, ciphertext));
+    return ciphertext;
+}
+
+std::string aesCtrHmacDecrypt(const std::string& key, const std::string& iv,
+                              const std::string& aad, const std::string& ciphertext,
+                              const std::string& tag) {
+    util::require(key.size() == kCtrHmacKeyBytes && iv.size() == kCtrIvBytes &&
+                  tag.size() == kHmacTagBytes,
+                  "invalid AES-CTR+HMAC key, IV or tag");
+    const std::string aesKey = key.substr(0, kAesKeyBytes);
+    const std::string macKey = key.substr(kAesKeyBytes);
+    const std::string expected = hmacSha256(macKey, authData(iv, aad, ciphertext));
+    util::require(CRYPTO_memcmp(expected.data(), tag.data(), expected.size()) == 0,
+                  errorMessage());
+    return ctrXor(aesKey, iv, ciphertext);
 }
 
 }  // namespace hybrid

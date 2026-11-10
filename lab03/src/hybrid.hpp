@@ -39,6 +39,17 @@ std::string aesGcmDecrypt(const std::string& key, const std::string& iv,
                           const std::string& aad, const std::string& ciphertext,
                           const std::string& tag);
 
+// AES-256-CTR + HMAC-SHA256 (encrypt-then-MAC) comparison primitive. The key
+// is 64 bytes: the first 32 bytes encrypt, the last 32 bytes authenticate. The
+// IV is 16 bytes and the tag is 32 bytes. The tag covers the IV, AAD length,
+// AAD and ciphertext.
+std::string aesCtrHmacEncrypt(const std::string& key, const std::string& iv,
+                              const std::string& aad, const std::string& plaintext,
+                              std::string& tag);
+std::string aesCtrHmacDecrypt(const std::string& key, const std::string& iv,
+                              const std::string& aad, const std::string& ciphertext,
+                              const std::string& tag);
+
 std::string encrypt(const rsa::Key& publicKey, const std::string& plaintext,
                     const std::string& label);
 std::string decrypt(const rsa::Key& privateKey, const std::string& data,
