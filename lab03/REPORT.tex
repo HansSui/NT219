@@ -1,0 +1,1611 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[a4paper,top=2.54cm,bottom=2.54cm,left=2.54cm,right=2.54cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese,english]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{microtype}
+
+\definecolor{codegray}{gray}{0.95}
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codegray},
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  keepspaces=true,
+  showstringspaces=false
+}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\setcounter{tocdepth}{2}
+\setlength{\emergencystretch}{3em}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Báo cáo Lab NT219}
+\fancyhead[R]{\ReportTitleShort}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{15pt}
+\renewcommand{\chaptername}{Chương}
+\renewcommand{\thechapter}{\Roman{chapter}}
+
+\newcommand{\ReportTitleShort}{\ReportTitle}
+\newcommand{\ReportTitle}{}
+\newcommand{\ReportStudent}{}
+\newcommand{\ReportId}{}
+\newcommand{\ReportClass}{}
+\newcommand{\ReportDate}{}
+
+\renewcommand{\ReportTitle}{BÁO CÁO LAB 3 -- RSA-OAEP VÀ MÃ HÓA LAI}
+\renewcommand{\ReportStudent}{Nguyễn Công Tuấn}
+\renewcommand{\ReportId}{25522012}
+\renewcommand{\ReportClass}{NT219.R11.ANTT}
+\renewcommand{\ReportDate}{15/11/2026}
+\begin{document}
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+{\large\bfseries TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN, ĐHQG-HCM\par}
+\vspace{0.4cm}
+{\large\bfseries KHOA MẠNG MÁY TÍNH VÀ TRUYỀN THÔNG\par}
+\vspace{2.2cm}
+{\Large\bfseries BÁO CÁO LAB\par}
+\vspace{0.8cm}
+{\LARGE\bfseries \ReportTitle\par}
+\vfill
+\begin{tabular}{rl}
+Học phần: & NT219 -- An toàn thông tin\\
+Sinh viên: & \ReportStudent\\
+MSSV: & \ReportId\\
+Lớp: & \ReportClass\\
+\end{tabular}
+\vfill
+\ReportDate\par
+\end{center}
+\end{titlepage}
+\pagenumbering{arabic}
+\tableofcontents
+\clearpage
+
+
+\begin{quote}
+Báo cáo giữ nguyên các số liệu đã đo và truy vết chúng về mã nguồn, nhật ký, CSV hoặc đồ thị trong kho lưu trữ. Những giới hạn của bằng chứng hiện có được nêu rõ thay vì suy diễn kết quả chưa được đo. Cụ thể: Windows không có run-time environment log; log MinGW GCC ngày 09/11/2026 có trước khi bổ sung OAEP thủ công và CTR+HMAC; benchmark Windows và Ubuntu là hai host khác nhau, không phải thí nghiệm có kiểm soát.
+\end{quote}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Tóm tắt điều hành}
+
+
+Lab 3 yêu cầu xây dựng công cụ dòng lệnh \texttt{rsatool} có khả năng tạo cặp khóa RSA tối thiểu 3072 bit, thực hiện RSA-OAEP với SHA-256 và MGF1-SHA-256, hỗ trợ nhãn tùy chọn, đồng thời tự chuyển sang một gói mã hóa AES-256-GCM khi bản rõ vượt quá giới hạn của RSA. Khóa được lưu ở PEM và DER, kèm tệp JSON siêu dữ liệu. Mọi đầu vào sai định dạng hoặc bị sửa đổi phải làm thao tác thất bại an toàn và không làm lộ nguyên nhân chi tiết.
+
+
+Sản phẩm gồm dự án C++17 dùng CMake, lõi dựa trên OpenSSL, CLI, kiểm thử Catch2, hai vector KAT OAEP độc lập, kiểm thử âm CLI, CSV/tóm tắt/đồ thị hiệu năng. Hai phần mở rộng tùy chọn cũng đã được cài đặt ở mức thư viện và kiểm thử: hiện thực OAEP thủ công, và so sánh AES-256-CTR kết hợp HMAC-SHA256.
+
+
+Kết quả chính:
+
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{RSA-OAEP:} RSA-3072/4096, SHA-256, MGF1-SHA-256, nhãn tùy chọn, giới hạn trực tiếp 318 byte (3072) và 446 byte (4096).
+\item \textbf{Envelope lai:} AES-256-GCM, IV 96 bit ngẫu nhiên, khóa AES 256 bit được bọc bằng RSA-OAEP; header chuẩn hóa (không gồm tag) là AAD; tag được xác thực trước khi ghi plaintext.
+\item \textbf{Định dạng khóa:} PEM (PKCS\#8/SPKI) và DER (PKCS\#1/SPKI), metadata JSON; từ chối khóa dưới 3072 bit.
+\item \textbf{Kiểm thử:} KAT 2/2; \texttt{ctest} 5/5 trên Ubuntu GCC, Ubuntu Clang, Windows MSVC và Windows MinGW GCC. Bộ test OAEP 36 assertion/9 case, hybrid 36/6, negative 20/5 trên MSVC; log MinGW GCC cũ hơn có 24/7, 27/5, 20/5.
+\item \textbf{Hiệu năng Ubuntu:} RSA-3072 keygen 180.157 ms, RSA-4096 606.081 ms; hybrid 1 MiB mã hóa 1.817 ms và giải mã 1.674 ms mỗi thao tác dưới 4 luồng.
+\item \textbf{Hiệu năng Windows:} RSA-3072 keygen 369.274 ms, RSA-4096 1081.614 ms; hybrid 1 MiB mã hóa 2.805 ms và giải mã 4.579 ms mỗi thao tác dưới 4 luồng.
+\item \textbf{So sánh:} RSA giải mã chậm hơn mã hóa khoảng 21–27 lần; RSA-4096 chậm hơn 3072 khoảng 1.7–3.4 lần; ở 100 MiB chi phí AES-GCM chiếm ưu thế, còn ở 1 KiB chi phí bọc/giải bọc khóa RSA chiếm ưu thế.
+\end{itemize}
+
+
+Điểm chưa hoàn thiện: khóa riêng chưa được mã hóa bằng mật khẩu; CLI đọc toàn bộ payload vào bộ nhớ; chưa có thư viện mật mã thứ hai để so sánh byte-for-byte; Windows thiếu run-time log; MinGW Clang chưa chạy lại; CTR+HMAC chưa được benchmark và chưa có nghiên cứu timing khi xác thực thất bại; chưa có PDF/archive nộp bài.
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Mục tiêu và phạm vi}
+
+
+\section{Mục tiêu của Lab 3}
+
+
+Theo đề bài và mục tiêu học phần, Lab 3 hướng tới các năng lực sau:
+
+
+\begin{enumerate}[leftmargin=*]
+\item Tạo và lưu trữ cặp khóa RSA an toàn, tối thiểu 3072 bit.
+\item Cài đặt/sử dụng RSA-OAEP với SHA-256 và MGF1-SHA-256, hỗ trợ nhãn.
+\item Xử lý giới hạn kích thước bản rõ và tự động chuyển sang mã hóa lai.
+\item Phát hiện và xử lý lỗi mật mã theo hướng fail-closed, không rò rỉ nguyên nhân.
+\item Benchmark RSA theo kích thước khóa và benchmark chế độ lai.
+\item Giải thích vì sao mã hóa lai là bắt buộc trong thực tế.
+\item Thảo luận IND-CCA2 của OAEP, lỗi của PKCS\#1 v1.5, forward secrecy và hướng nâng cấp ECDHE/ML-KEM.
+\end{enumerate}
+
+
+\section{Yêu cầu kỹ thuật và cách đáp ứng}
+
+
+\begin{longtable}{p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}}
+\toprule
+Yêu cầu từ đề bài & Cài đặt trong bài & Bằng chứng & Trạng thái \\
+\midrule
+\endfirsthead
+\toprule
+Yêu cầu từ đề bài & Cài đặt trong bài & Bằng chứng & Trạng thái \\
+\midrule
+\endhead
+RSA modulus ≥ 3072 bit & \texttt{keygen --bits 3072/4096}; từ chối < 3072 khi load/generate & \texttt{src/rsa.cpp}, \texttt{test\_negative.cpp} & Đạt \\
+RSA-OAEP SHA-256 & \texttt{EVP\_PKEY\_CTX\_set\_rsa\_padding(RSA\_PKCS1\_OAEP\_PADDING)}, \texttt{rsa\_oaep\_md=sha256}, \texttt{rsa\_mgf1\_md=sha256} & \texttt{src/rsa.cpp} & Đạt \\
+Nhãn OAEP tùy chọn & \texttt{--label}; label được đưa vào OAEP và header & \texttt{src/rsa.cpp}, \texttt{src/hybrid.cpp} & Đạt \\
+Giới hạn \texttt{mLen <= k - 2hLen - 2} & Kiểm tra trước khi mã hóa; 318/446 byte cho 3072/4096 & \texttt{src/rsa.cpp}, \texttt{test\_oaep.cpp} & Đạt \\
+Tự chuyển sang hybrid & Khi vượt giới hạn, sinh AES key + IV, bọc key, mã hóa AES-GCM & \texttt{src/main.cpp}, \texttt{src/hybrid.cpp} & Đạt \\
+AES-256-GCM & \texttt{EVP\_aes\_256\_gcm}, IV 96 bit, tag 128 bit & \texttt{src/hybrid.cpp} & Đạt \\
+Envelope JSON tự mô tả & \texttt{RSAENV1} + JSON header + payload nhị phân & \texttt{src/hybrid.cpp} & Đạt \\
+Xác thực header & Header không gồm tag là AAD; sửa header làm tag fail & \texttt{src/hybrid.cpp}, \texttt{test\_negative.cpp} & Đạt \\
+Lưu PEM + DER + metadata & \texttt{keygen} ghi \texttt{.pem}, \texttt{.der}, \texttt{.json} & \texttt{src/rsa.cpp}, \texttt{tests/cli\_test.*} & Đạt \\
+Ciphertext raw/hex/base64 & \texttt{--encode}, \texttt{--decode}; raw mặc định cho tệp & \texttt{src/main.cpp}, \texttt{util.hpp} & Đạt \\
+Kiểm tra ciphertext sai định dạng & Parser kiểm tra magic/version/mode/hash/payload\_len/base64 & \texttt{src/hybrid.cpp} & Đạt \\
+Sai nhãn/khóa bị từ chối & OAEP label và private key được kiểm tra & \texttt{test\_oaep.cpp}, \texttt{cli\_test.*} & Đạt \\
+Không tạo output khi lỗi & Ghi output sau khi giải mã/xác thực thành công & \texttt{src/main.cpp} & Đạt \\
+Lỗi không rò rỉ nguyên nhân & \texttt{decrypt} chỉ báo \texttt{error: decryption failed} & \texttt{src/main.cpp} & Đạt \\
+Unit test Catch2 & 3 binary test + KAT + CLI & \texttt{tests/}, \texttt{ctest} 5/5 & Đạt \\
+KAT & 2 vector OAEP-SHA256 độc lập & \texttt{kat/oaep\_vectors.json} & Đạt \\
+Benchmark RSA 3072/4096 & keygen/encrypt/decrypt, 1000 lần & \texttt{summary\_gcc.csv}, \texttt{summary\_msvc.csv} & Đạt \\
+Benchmark hybrid 1 KiB/1 MiB/100 MiB & AES-GCM + hybrid encrypt/decrypt & CSV/summary & Đạt \\
+Phân tích latency/throughput & §6 & Báo cáo này & Đạt \\
+Bonus: OAEP thủ công & MGF1/XOR/validate, tương tác OpenSSL & \texttt{rsa::oaepEncryptManual}, test & Đạt \\
+Bonus: phân tích bảo mật lai & §7.2–7.10 & Báo cáo này & Đạt \\
+Bonus tùy chọn: CTR+HMAC & Encrypt-then-MAC, so sánh GCM & \texttt{hybrid::aesCtrHmac*}, test & Đạt một phần; chưa benchmark \\
+\bottomrule
+\end{longtable}
+
+
+\section{Phạm vi và giới hạn của báo cáo}
+
+
+\begin{itemize}[leftmargin=*]
+\item Bắt buộc: RSA-OAEP SHA-256, hybrid AES-256-GCM, PEM/DER/metadata, kiểm thử âm, benchmark.
+\item Bonus: OAEP thủ công, phân tích bảo mật lai, so sánh CTR+HMAC ở mức thư viện.
+\item Không làm: streaming envelope, mã hóa private key bằng mật khẩu, ECDHE/ML-KEM trong code, benchmark CTR+HMAC.
+\item OpenSSL là thư viện primitive duy nhất; không có implementation thứ hai để so sánh byte-for-byte. OpenSSL CLI chỉ dùng trong test để kiểm tra định dạng và tương tác OAEP.
+\item Các so sánh Windows/Ubuntu là quan sát trên hai host, không phải thí nghiệm nhân quả.
+\end{itemize}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Thiết kế và cài đặt}
+
+
+\section{Cấu trúc mã nguồn}
+
+
+\begin{lstlisting}
+lab03/
+├── CMakeLists.txt          CMake C++17; OpenSSL bắt buộc
+├── README.md               build, CLI, định dạng, giới hạn
+├── BENCHMARKS.md           ma trận đo, môi trường, kết quả
+├── REPORT.md               báo cáo này
+├── src/
+│   ├── rsa.hpp/.cpp        keygen, OAEP, label, PEM/DER, manual OAEP
+│   ├── hybrid.hpp/.cpp     envelope AES-256-GCM, header/AAD, CTR+HMAC
+│   ├── util.hpp            hex/base64/JSON/file helpers
+│   ├── minijson.hpp        JSON parser tối giản
+│   └── main.cpp            CLI: keygen, encrypt, decrypt, bench, --kat
+├── tests/
+│   ├── catch.hpp           Catch2 2.13.10 vendored
+│   ├── test_oaep.cpp       OAEP, label, size limit, PEM/DER, manual OAEP
+│   ├── test_hybrid.cpp     envelope, tamper, 1 KiB/1 MiB, CTR+HMAC
+│   ├── test_negative.cpp   parser, key size, header, malformed input
+│   ├── cli_test.sh         CLI Linux
+│   └── cli_test.cmake      CLI Windows
+├── kat/oaep_vectors.json   2 vector OAEP-SHA256 độc lập
+├── scripts/                build, benchmark, summarize, plot
+└── output/                 log, CSV, summary, biểu đồ
+\end{lstlisting}
+
+
+Kích thước phần code do sinh viên viết (không tính \texttt{catch.hpp}): khoảng 1.600 dòng C++ cho \texttt{src/} và khoảng 500 dòng cho test/script. \texttt{rsa.cpp} và \texttt{hybrid.cpp} chứa toàn bộ logic mật mã/định dạng; \texttt{main.cpp} chỉ lo CLI và benchmark.
+
+
+\section{Tham số mật mã}
+
+
+\begin{longtable}{p{0.46\textwidth}p{0.46\textwidth}}
+\toprule
+Thành phần & Lựa chọn \\
+\midrule
+\endfirsthead
+\toprule
+Thành phần & Lựa chọn \\
+\midrule
+\endhead
+Kích thước mô-đun RSA & 3072 bit; 4096 bit dùng để so sánh; từ chối nhỏ hơn 3072 bit \\
+Hàm băm OAEP/MGF & SHA-256 / MGF1-SHA-256 \\
+Nhãn OAEP & Tùy chọn; được ràng buộc bởi phép biến đổi OAEP \\
+Mã hóa dữ liệu lai & AES-256-GCM \\
+IV của GCM & 96 bit, sinh ngẫu nhiên mới cho mỗi thông điệp \\
+Tag GCM & 128 bit, phải xác thực trước khi trả bản rõ \\
+Định dạng khóa & PEM (PKCS\#8 private, SPKI public) và DER (PKCS\#1 private, SPKI public) \\
+Siêu dữ liệu & \texttt{creation\_time}, \texttt{modulus\_bits}, \texttt{hash}, đường dẫn khóa \\
+\bottomrule
+\end{longtable}
+
+
+OpenSSL 4.0.x được dùng vì đề bài cho phép và thư viện cung cấp OAEP, nhãn, AES-GCM, PEM/DER và kiểm tra khóa mà không cần tự viết ASN.1. Bằng chứng Ubuntu dùng OpenSSL 4.0.2; các script Windows hướng tới OpenSSL 4.0.3. CLI OpenSSL 4.0.2 chỉ được dùng làm công cụ đối chiếu độc lập.
+
+
+\section{Lý do chọn OAEP thay cho PKCS\#1 v1.5}
+
+
+RSA không padding là tất định và có thể bị thao túng. Padding mã hóa PKCS\#1 v1.5 cũng không còn là lựa chọn phù hợp cho thiết kế mới vì các phản hồi lỗi khác nhau có thể tạo padding oracle và dẫn tới tấn công giải mã thích nghi Bleichenbacher. OAEP ngẫu nhiên hóa bản mã bằng seed và cấu trúc băm/MGF1. Trong mô hình random-oracle, RSA-OAEP cung cấp tính bảo mật IND-CCA2 khi được dùng đúng với RSA và tham số an toàn. Nhãn gắn ngữ cảnh vào phép biến đổi và cũng được kiểm tra trong quá trình giải mã.
+
+
+Cấu trúc EME-OAEP với \texttt{hLen = 32}:
+
+
+\begin{lstlisting}
+lHash   = SHA-256(label)
+DB      = lHash || PS || 0x01 || M
+dbMask  = MGF1(seed, k - hLen - 1)
+seedMask= MGF1(maskedDB, hLen)
+EM      = 0x00 || (seed XOR seedMask) || (DB XOR dbMask)
+\end{lstlisting}
+
+
+Khi giải mã, thư viện kiểm tra byte đầu \texttt{0x00}, tách seed/maskedDB, unmask, so sánh \texttt{lHash}, tìm \texttt{0x01} và trả lỗi chung nếu bất kỳ bước nào sai. Đường manual của bài mô phỏng đúng các bước này (§3.8).
+
+
+\section{Giới hạn kích thước bản rõ}
+
+
+Với mô-đun có độ dài \texttt{k} byte và \texttt{hLen = 32}, OAEP trực tiếp chấp nhận:
+
+
+\begin{lstlisting}
+mLen <= k - 2*hLen - 2
+\end{lstlisting}
+
+
+Do đó, RSA-3072 (\texttt{k = 384}) có giới hạn 318 byte, còn RSA-4096 (\texttt{k = 512}) có giới hạn 446 byte. CLI kiểm tra đúng biên này trước khi mã hóa và chuyển sang chế độ lai khi bản rõ lớn hơn. RSA không phù hợp để mã hóa tệp lớn trực tiếp vì mỗi phép toán RSA làm việc trên một số nguyên có kích thước cố định, trong khi OAEP đã sử dụng phần lớn không gian đó cho padding và seed.
+
+
+Biên 318 byte từng là nguồn lỗi lệch một byte; test hiện kiểm tra đúng 318 byte thành công và 319 byte chuyển sang hybrid. Đây là ví dụ điển hình của “off-by-one ở trust boundary”.
+
+
+\section{Gói mã hóa lai}
+
+
+Định dạng gói hiện tại:
+
+
+\begin{lstlisting}
+RSAENV1\n
+{"version":1,"mode":"RSA-OAEP-AES-GCM","rsa_modulus":3072,"hash":"SHA-256",
+ "label":"...","wrapped_key":"...","iv":"...","payload_len":N,"tag":"..."}\n
+<bản mã AES-GCM nhị phân>
+\end{lstlisting}
+
+
+Quy trình mã hóa sinh khóa AES 32 byte và IV 12 byte ngẫu nhiên, bọc khóa bằng RSA-OAEP với nhãn tùy chọn, rồi mã hóa dữ liệu bằng AES-256-GCM. Phần header chuẩn hóa, không gồm \texttt{tag}, được dùng làm AAD. Vì vậy mọi thay đổi đối với mode, mô-đun, hàm băm, nhãn, khóa đã bọc, IV hoặc độ dài payload đều làm xác thực GCM thất bại. Tag được kiểm tra trước khi ghi bất kỳ bản rõ nào. Định dạng có phiên bản và tự mô tả; khi giải mã không đoán chế độ trực tiếp/lai chỉ dựa trên độ dài.
+
+
+Mô hình này tương tự TLS và PGP: mật mã bất đối xứng chỉ bảo vệ khóa phiên, trong khi mật mã đối xứng xử lý dữ liệu. Thiết kế hiện tại không có tính bí mật chuyển tiếp; nếu khóa RSA dài hạn bị lộ, các khóa phiên đã bọc có thể bị giải ra. Hệ thống thực tế có thể bổ sung ECDHE hoặc KEM như ML-KEM, nhưng việc đó ngoài phạm vi Lab 3.
+
+
+\section{Định dạng khóa và metadata}
+
+
+\texttt{keygen} ghi:
+
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{<pub>.pem} — SubjectPublicKeyInfo (SPKI), PEM.
+\item \texttt{<priv>.pem} — PKCS\#8 private key, PEM.
+\item \texttt{<pub>.der} — SPKI, DER.
+\item \texttt{<priv>.der} — PKCS\#1 private key, DER.
+\item \texttt{<priv>.json} — metadata gồm \texttt{creation\_time}, \texttt{modulus\_bits}, \texttt{hash} và đường dẫn của bốn tệp khóa.
+\end{itemize}
+
+
+Các đường dẫn có thể override bằng \texttt{--pub-der}, \texttt{--priv-der}, \texttt{--metadata}. Khóa dưới 3072 bit bị từ chối khi load, không chỉ khi generate. Điều này quan trọng vì kẻ tấn công có thể đưa một khóa yếu vào CLI; kiểm tra ở trust boundary ngăn trường hợp đó.
+
+
+Private key hiện được ghi ở dạng không mã hóa. Công cụ không tự đặt quyền \texttt{0600}; người dùng phải tự bảo vệ tệp. Đây là giới hạn của bài lab, không phải thiết kế production.
+
+
+\section{Xử lý lỗi và fail-closed}
+
+
+\texttt{decrypt} kiểm tra encoding, cấu trúc gói, kích thước khóa, nhãn, phép giải bọc RSA và tag GCM, sau đó chỉ báo lỗi chung \texttt{error: decryption failed}. Khi giải mã thất bại, tệp đầu ra không được tạo hoặc ghi đè. Cách xử lý này hạn chế việc biến các kiểm tra riêng lẻ thành padding oracle hoặc tag oracle. So sánh tag được thực hiện bởi thư viện OpenSSL; không có phép so sánh tag thủ công trên đường chạy mặc định.
+
+
+Các trường hợp fail-closed:
+
+
+\begin{itemize}[leftmargin=*]
+\item Ciphertext RSA bị sửa → OAEP decode lỗi.
+\item Ciphertext/tag AES-GCM bị sửa → tag fail.
+\item Sai private key → OAEP decode lỗi.
+\item Sai nhãn → \texttt{lHash} không khớp.
+\item Header bị sửa → AAD khác, tag fail.
+\item Envelope truncated/version/mode/hash lạ/payload\_len không nhất quán → parse lỗi.
+\item Hex lẻ, base64 sai padding → decode lỗi.
+\item Khóa < 3072 bit → từ chối.
+\end{itemize}
+
+
+\texttt{encrypt}/\texttt{keygen} báo lỗi đầu vào rõ hơn vì chúng không xử lý ciphertext do kẻ tấn công kiểm soát. \texttt{decrypt} là bề mặt nhạy cảm nên chỉ trả một thông báo chung.
+
+
+\section{Phần thưởng: OAEP thủ công}
+
+
+CLI vẫn dùng đường OAEP của OpenSSL làm mặc định. Hai hàm \texttt{rsa::oaepEncryptManual} và \texttt{rsa::oaepDecryptManual} hiện thực trực tiếp phép biến đổi EME-OAEP theo RFC 8017:
+
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{lHash = SHA-256(label)};
+\item \texttt{DB = lHash || PS || 0x01 || M};
+\item \texttt{dbMask = MGF1(seed, k - hLen - 1)} và \texttt{seedMask = MGF1(maskedDB, hLen)};
+\item \texttt{EM = 0x00 || (seed XOR seedMask) || (DB XOR dbMask)}.
+\end{itemize}
+
+
+OpenSSL cung cấp SHA-256, seed ngẫu nhiên và phép lũy thừa RSA thô (\texttt{RSA\_NO\_PADDING}). Kiểm thử chứng minh khả năng tương tác hai chiều: bản mã được mã hóa thủ công giải mã được bằng OAEP của OpenSSL và ngược lại. Các biên 318 byte, nhãn sai, bản mã bị sửa và đầu vào ngắn cũng được kiểm thử.
+
+
+Bộ giải mã không trả về ngay khi gặp lỗi padding. Nó so sánh \texttt{lHash} bằng \texttt{CRYPTO\_memcmp}, quét toàn bộ \texttt{DB} để tìm byte phân cách \texttt{0x01}, rồi gom lỗi trước khi ném một lỗi chung. Đây chỉ là triển khai constant-time ở mức cố gắng: phép RSA thô và việc sao chép bản rõ vẫn có thể phụ thuộc dữ liệu. Vì vậy đường thủ công chỉ nhằm minh họa cấu trúc, không thay thế đường OAEP đã được thư viện kiểm thử.
+
+
+\section{Phần thưởng tùy chọn: AES-CTR kết hợp HMAC}
+
+
+\texttt{hybrid::aesCtrHmacEncrypt} và \texttt{aesCtrHmacDecrypt} dùng khóa 64 byte, chia thành khóa AES-256 và khóa HMAC-SHA256, mỗi phần 32 byte. Tag bao phủ IV, độ dài AAD, AAD và ciphertext. Khi giải mã, tag được tính lại và so sánh bằng \texttt{CRYPTO\_memcmp}; chỉ sau khi tag hợp lệ mới chạy AES-CTR.
+
+
+\begin{longtable}{p{0.30\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\toprule
+Thuộc tính & AES-256-GCM & AES-256-CTR + HMAC-SHA256 \\
+\midrule
+\endfirsthead
+\toprule
+Thuộc tính & AES-256-GCM & AES-256-CTR + HMAC-SHA256 \\
+\midrule
+\endhead
+Số lượt quét dữ liệu & Một lượt AEAD & Một lượt CTR và một lượt HMAC \\
+Tag / phần mở rộng & Tag 16 byte & Tag 32 byte \\
+Vật liệu khóa & Một khóa 32 byte & Hai khóa 32 byte độc lập \\
+IV/nonce & Nonce 12 byte; tái sử dụng rất nghiêm trọng & Khối đếm 16 byte; tái sử dụng rất nghiêm trọng \\
+AAD & Được hỗ trợ trực tiếp & Được đưa tường minh vào dữ liệu MAC \\
+Kiểm tra lỗi & Thư viện kiểm tra tag & So sánh HMAC constant-time \\
+Hiệu năng trong bài & Có benchmark & Chưa benchmark \\
+\bottomrule
+\end{longtable}
+
+
+GCM là chế độ mặc định vì xác thực trực tiếp header dưới dạng AAD, dùng một primitive đã được kiểm thử rộng rãi và thường nhanh hơn. CTR+HMAC cần hai khóa, tag lớn hơn và hai lượt xử lý. Phần so sánh đã được cài đặt và kiểm thử nhưng không mở thành chế độ CLI, chưa có nghiên cứu phương sai thời gian khi tag sai, nên báo cáo không đưa ra kết luận timing.
+
+
+\section{Những quyết định thiết kế đáng chú ý}
+
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{OpenSSL thay vì Crypto++.} Crypto++ 8.9.0 trong môi trường không có PEM helper, buộc phải tự viết ASN.1/PEM; OpenSSL cung cấp OAEP, label, GCM, PEM/DER và kiểm tra khóa. Đề bài cho phép OpenSSL.
+\item \textbf{Header canonicalization.} Header được serialize theo thứ tự trường cố định trước khi làm AAD; thứ tự JSON tương đương về ngữ nghĩa không làm thay đổi AAD. Điều này tránh việc hai envelope “giống nhau” lại có tag khác nhau.
+\item \textbf{Không đoán mode bằng độ dài.} Envelope có magic/version; ciphertext trực tiếp không có header. Người dùng phải biết mình đang giải mã loại nào.
+\item \textbf{Không tự động fallback khi giải mã.} Nếu envelope lỗi, không thử giải mã như ciphertext trực tiếp; làm vậy sẽ tạo oracle và che giấu lỗi.
+\item \textbf{Không thêm abstraction.} \texttt{rsa} và \texttt{hybrid} là hai module rõ ràng; CLI không có plugin/option thừa.
+\end{enumerate}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Kiểm chứng tính đúng đắn}
+
+
+\section{Known Answer Tests}
+
+
+\texttt{kat/oaep\_vectors.json} có hai vector RSA-OAEP-SHA256:
+
+
+\begin{longtable}{p{0.18\textwidth}p{0.18\textwidth}p{0.18\textwidth}p{0.18\textwidth}p{0.18\textwidth}}
+\toprule
+Vector & Nhãn & Khóa & Plaintext & Nguồn \\
+\midrule
+\endfirsthead
+\toprule
+Vector & Nhãn & Khóa & Plaintext & Nguồn \\
+\midrule
+\endhead
+\texttt{oaep-sha256-empty-label} & rỗng & RSA-3072 & \texttt{Lab 3 OAEP KAT vector} & OpenSSL 4.0.2 \texttt{pkeyutl} \\
+\texttt{oaep-sha256-nonempty-label} & \texttt{nt219-lab3} & RSA-3072 & \texttt{Lab 3 OAEP KAT vector} & OpenSSL 4.0.2 \texttt{pkeyutl} \\
+\bottomrule
+\end{longtable}
+
+
+Hai vector được tạo độc lập bằng \texttt{openssl pkeyutl} với \texttt{rsa\_padding\_mode:oaep}, \texttt{rsa\_oaep\_md:sha256}, \texttt{rsa\_mgf1\_md:sha256}, không sinh từ \texttt{rsatool}. Vì OAEP dùng seed ngẫu nhiên, hai ciphertext khác nhau dù cùng plaintext/khóa; KAT kiểm tra giải mã, không so sánh ciphertext cố định.
+
+
+Kết quả:
+
+
+\begin{longtable}{p{0.30\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\toprule
+Nền tảng & Tệp & Kết quả \\
+\midrule
+\endfirsthead
+\toprule
+Nền tảng & Tệp & Kết quả \\
+\midrule
+\endhead
+Ubuntu GCC 15.2 (05/11/2026) & \texttt{output/ubuntu/test\_results/kat\_gcc.txt} & 2 passed, 0 failed \\
+Ubuntu Clang 21.1.8 & \texttt{output/ubuntu/test\_results/kat\_clang.txt} & 2 passed, 0 failed \\
+Windows MSVC 19.51 (10/11/2026) & \texttt{output/windows/test\_results/kat\_msvc.txt} & 2 passed, 0 failed \\
+Windows MinGW GCC 16.2.0 (09/11/2026) & \texttt{output/windows/test\_results/kat\_mingw\_gcc.txt} & 2 passed, 0 failed \\
+\bottomrule
+\end{longtable}
+
+
+Lệnh:
+
+
+\begin{lstlisting}[language=bash]
+./build/ubuntu-gcc/rsatool --kat kat/oaep_vectors.json
+\end{lstlisting}
+
+
+\section{Kiểm thử đơn vị}
+
+
+\texttt{test\_oaep} kiểm tra:
+
+
+\begin{itemize}[leftmargin=*]
+\item Round-trip OAEP cho plaintext ngắn, nhãn rỗng/không rỗng và đúng biên 318 byte.
+\item Nhãn khác nhau tạo ciphertext khác nhau và giải mã đúng với nhãn gốc.
+\item Sai nhãn, sai khóa, ciphertext bị sửa, ciphertext sai độ dài đều ném lỗi.
+\item 319 byte không đi qua OAEP trực tiếp.
+\item PEM/DER round-trip; từ chối khóa 2048 bit.
+\item OAEP thủ công: MGF1, XOR, tương tác hai chiều với OpenSSL, biên 318 byte, nhãn sai, bản mã bị sửa, đầu vào ngắn.
+\end{itemize}
+
+
+\texttt{test\_hybrid} kiểm tra:
+
+
+\begin{itemize}[leftmargin=*]
+\item Envelope 1 KiB và 1 MiB round-trip.
+\item Sửa payload, tag, IV, khóa đã bọc, header đều fail.
+\item \texttt{payload\_len} không nhất quán fail.
+\item Label trong header được xác thực; label CLI phải khớp.
+\item AES-CTR+HMAC round-trip và fail khi sửa ciphertext/tag/AAD.
+\end{itemize}
+
+
+\texttt{test\_negative} kiểm tra:
+
+
+\begin{itemize}[leftmargin=*]
+\item Hex lẻ, hex ký tự lạ, base64 sai padding.
+\item \texttt{generateKey(1024)} và \texttt{generateKey(2048)} bị từ chối.
+\item Header sai version/mode/hash/payload\_len.
+\item Ciphertext trực tiếp bị cắt một byte hoặc toàn zero.
+\item Nhãn hybrid sai.
+\end{itemize}
+
+
+Kết quả:
+
+
+\begin{longtable}{p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}}
+\toprule
+Bộ test & Ubuntu & Windows MSVC & Windows MinGW GCC \\
+\midrule
+\endfirsthead
+\toprule
+Bộ test & Ubuntu & Windows MSVC & Windows MinGW GCC \\
+\midrule
+\endhead
+\texttt{test\_oaep} & Passed (ctest) & 36 assertion/9 case & 24 assertion/7 case (log cũ) \\
+\texttt{test\_hybrid} & Passed (ctest) & 36 assertion/6 case & 27 assertion/5 case (log cũ) \\
+\texttt{test\_negative} & Passed (ctest) & 20 assertion/5 case & 20 assertion/5 case (log cũ) \\
+\texttt{ctest} tổng & 5/5 & 5/5 & 5/5 \\
+\bottomrule
+\end{longtable}
+
+
+Log Ubuntu chỉ lưu tổng \texttt{ctest} 5/5, không lưu số assertion từng binary; các con số assertion lấy từ log MSVC 10/11/2026. Log MinGW GCC 09/11/2026 có ít case hơn vì được tạo trước khi bổ sung OAEP thủ công và CTR+HMAC. Không dùng log MinGW cũ để tuyên bố các bonus đã được kiểm thử trên MinGW.
+
+
+\section{Kiểm thử âm và các trường hợp biên}
+
+
+\begin{longtable}{p{0.30\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\toprule
+Trường hợp & Kỳ vọng & Bằng chứng \\
+\midrule
+\endfirsthead
+\toprule
+Trường hợp & Kỳ vọng & Bằng chứng \\
+\midrule
+\endhead
+Sửa ciphertext RSA & Giải mã thất bại, không tạo output & \texttt{test\_oaep}, \texttt{test\_negative} \\
+Sửa ciphertext AES-GCM & Tag fail, không tạo output & \texttt{test\_hybrid}, CLI \\
+Sửa tag & Tag fail & \texttt{test\_hybrid}, CLI \\
+Sai private key & OAEP fail & CLI \\
+Sai nhãn & OAEP fail & \texttt{test\_oaep}, CLI \\
+Sửa header & AAD khác, tag fail & \texttt{test\_negative}, CLI \\
+Envelope truncated & Parse fail & CLI \\
+Version/mode/hash lạ & Parse fail & \texttt{test\_negative} \\
+\texttt{payload\_len} không khớp & Parse fail & \texttt{test\_negative} \\
+Hex/base64 sai & Decode fail & \texttt{test\_negative}, CLI \\
+Khóa 2048 bit & Từ chối & \texttt{test\_negative}, CLI \\
+Biên 318/319 byte & 318 trực tiếp, 319 hybrid & \texttt{test\_oaep}, CLI \\
+\bottomrule
+\end{longtable}
+
+
+Điểm quan trọng: khi giải mã thất bại, CLI không tạo tệp rỗng và không ghi đè tệp cũ. Test CLI kiểm tra \texttt{[[ ! -e wrong.out ]]} cho trường hợp sai nhãn và các trường hợp sửa envelope. Đây là hành vi fail-closed ở mức tệp, không chỉ ở mức hàm.
+
+
+\section{Kiểm thử CLI}
+
+
+\texttt{tests/cli\_test.sh} / \texttt{cli\_test.cmake} chạy:
+
+
+\begin{enumerate}[leftmargin=*]
+\item \texttt{keygen --bits 3072}; kiểm tra \texttt{.pem}, \texttt{.der}, \texttt{.json} tồn tại và metadata có \texttt{modulus\_bits: 3072}.
+\item Mã hóa/giải mã trực tiếp với label \texttt{ctx}; so sánh byte-for-byte.
+\item Sai label phải fail và không tạo output.
+\item Dữ liệu 4096 byte tự chuyển hybrid; round-trip.
+\item Envelope base64 round-trip.
+\item Sửa payload, header, ciphertext ngắn đều fail.
+\item Sai private key fail.
+\item \texttt{keygen --bits 2048} bị từ chối.
+\item Hex lẻ bị từ chối.
+\item KAT 2/2.
+\item Nếu có OpenSSL CLI: kiểm tra PEM public/private và giải mã ciphertext OAEP do OpenSSL tạo.
+\end{enumerate}
+
+
+Kết quả Windows MSVC: \texttt{cli\_test.cmake: all Lab 3 cases passed} (10/11/2026). Ubuntu: \texttt{ctest} 5/5, trong đó test \texttt{cli} chạy script trên.
+
+
+\section{Bằng chứng Ubuntu và Windows}
+
+
+\textbf{Ubuntu 26.04.1 LTS, GCC 15.2.0, OpenSSL 4.0.2 (05/11/2026):}
+
+
+\begin{itemize}[leftmargin=*]
+\item KAT 2/2.
+\item \texttt{ctest} 5/5: oaep, hybrid, negative, kat, cli.
+\item Clang 21.1.8 cũng build và \texttt{ctest} 5/5.
+\item Benchmark log ghi rõ \texttt{threads=4, affinity=0-3, warmup=1.0s}.
+\end{itemize}
+
+
+\textbf{Windows:}
+
+
+\begin{itemize}[leftmargin=*]
+\item MSVC 19.51: \texttt{ctest} 5/5 và KAT 2/2 ngày 10/11/2026; log có số assertion đầy đủ.
+\item MinGW GCC 16.2.0: \texttt{ctest} 5/5 và KAT 2/2 ngày 09/11/2026; log cũ hơn, chưa có OAEP thủ công/CTR+HMAC.
+\item MinGW Clang: chưa chạy lại cho Lab 3; không có log trong \texttt{output/windows/}.
+\item Không có run-time environment log cho benchmark Windows; CSV có cột \texttt{threads=4} nhưng không có affinity/power plan.
+\end{itemize}
+
+
+Lệnh tái lập Ubuntu:
+
+
+\begin{lstlisting}[language=bash]
+cd lab03
+scripts/build_linux.sh gcc
+(cd build/ubuntu-gcc && ctest --output-on-failure)
+./build/ubuntu-gcc/rsatool --kat kat/oaep_vectors.json
+\end{lstlisting}
+
+
+\section{Đối chiếu yêu cầu kiểm thử của học phần}
+
+
+\begin{longtable}{p{0.30\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\toprule
+Yêu cầu & Cách đáp ứng & Trạng thái \\
+\midrule
+\endfirsthead
+\toprule
+Yêu cầu & Cách đáp ứng & Trạng thái \\
+\midrule
+\endhead
+Altered RSA ciphertext → fail & \texttt{test\_oaep}, \texttt{test\_negative}, CLI & Đạt \\
+Altered AES-GCM ciphertext/tag → fail & \texttt{test\_hybrid}, CLI & Đạt \\
+Wrong private key → fail & CLI & Đạt \\
+Wrong OAEP label → fail & \texttt{test\_oaep}, CLI & Đạt \\
+Tampered envelope header → fail & \texttt{test\_negative}, CLI & Đạt \\
+Automated unit tests & Catch2, 3 binary + KAT + CLI & Đạt \\
+Clear, non-leaky error & \texttt{error: decryption failed} & Đạt \\
+Fail closed on parsing & Parser + no output on failure & Đạt \\
+KAT & 2 vector độc lập & Đạt \\
+Cross-check với OpenSSL CLI & PEM + OAEP interop khi có CLI & Đạt trên Ubuntu/MSVC; không phải byte-for-byte mọi ciphertext \\
+\bottomrule
+\end{longtable}
+
+
+\section{Hạn chế của phần kiểm chứng}
+
+
+\begin{itemize}[leftmargin=*]
+\item Chưa có thư viện mật mã thứ hai để so sánh ciphertext byte-for-byte trên toàn bộ không gian; OpenSSL CLI chỉ kiểm tra một số trường hợp.
+\item KAT chỉ có 2 vector; không phủ hết các tổ hợp label/độ dài.
+\item Chưa có fuzz test tự động cho parser envelope; các ca âm là hữu hạn.
+\item Log MinGW GCC cũ hơn code hiện tại; MinGW Clang chưa chạy lại.
+\item Chưa có timing study cho đường OAEP thủ công hoặc CTR+HMAC khi xác thực thất bại.
+\item Chưa có kiểm thử với khóa RSA 8192 bit hoặc modulus không chuẩn; ngoài phạm vi yêu cầu.
+\end{itemize}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Phương pháp đo hiệu năng}
+
+
+\section{Mô hình đo}
+
+
+\texttt{rsatool bench} chạy ma trận ca đo với 4 worker thread. Mỗi worker thực hiện các thao tác độc lập và ghi một dòng CSV cho mỗi thao tác:
+
+
+\begin{lstlisting}
+case,bits,size_bytes,threads,run,elapsed_ms,mbps
+\end{lstlisting}
+
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{rsa\_keygen}: sinh khóa 3072/4096, mỗi mẫu một lần.
+\item \texttt{rsa\_encrypt}/\texttt{rsa\_decrypt}: thông điệp 32 byte, OAEP-SHA256.
+\item \texttt{aes\_gcm}/\texttt{aes\_gcm\_decrypt}: AES-256-GCM trên 1 KiB/1 MiB/100 MiB.
+\item \texttt{hybrid\_encrypt}/\texttt{hybrid\_decrypt}: envelope RSA-3072 + AES-256-GCM trên 1 KiB/1 MiB/100 MiB.
+\end{itemize}
+
+
+Mỗi case có warm-up 1 giây mỗi worker trước khi đo. Số lần: RSA 1000; AES/hybrid 1 KiB và 1 MiB 1000; 100 MiB 100. \texttt{elapsed\_ms} là thời gian một thao tác dưới 4-way concurrency, không phải tổng thời gian của cả 4 worker. Vì vậy throughput aggregate = per-op MB/s × 4.
+
+
+Điểm cần nói rõ: với 1 KiB, thời gian một thao tác có thể xuống 0.002 ms; độ phân giải timer và overhead vòng lặp chiếm tỷ lệ lớn. Với 100 MiB, mỗi thao tác giữ cả plaintext/ciphertext trong bộ nhớ và 4 worker chạy đồng thời, nên latency per-op tăng do tranh băng thông bộ nhớ; aggregate vẫn cao hơn.
+
+
+\section{Công thức thống kê}
+
+
+\begin{lstlisting}
+mean   = (1/n) * sum(t_i)
+median = giá trị giữa sau khi sắp xếp
+sd     = sqrt( sum((t_i - mean)^2) / (n - 1) )
+ci95   = 1.96 * sd / sqrt(n)
+mbps   = (size_bytes / 1e6) / (elapsed_ms / 1000)     # per-op, MB thập phân
+aggregate = mbps * threads
+\end{lstlisting}
+
+
+\texttt{summary\_*.csv} ghi mean, median, SD mẫu, CI 95\% và aggregate. Với RSA keygen, \texttt{mbps = 0} vì \texttt{size\_bytes = 0}; chỉ dùng \texttt{elapsed\_ms}.
+
+
+Lưu ý đơn vị: Lab 3 dùng MB thập phân (\texttt{size\_bytes / 1e6}), khác Lab 2 dùng MiB (\texttt{/ 1024\textasciicircum{}2}). Báo cáo giữ nhãn MB/s cho Lab 3 và không so sánh trực tiếp con số tuyệt đối với Lab 2.
+
+
+\section{Ma trận đo}
+
+
+\begin{longtable}{p{0.18\textwidth}p{0.18\textwidth}p{0.18\textwidth}p{0.18\textwidth}p{0.18\textwidth}}
+\toprule
+Case & Bits & Kích thước & Runs & Ghi chú \\
+\midrule
+\endfirsthead
+\toprule
+Case & Bits & Kích thước & Runs & Ghi chú \\
+\midrule
+\endhead
+\texttt{rsa\_keygen} & 3072, 4096 & — & 1000 & Prime search, SD lớn \\
+\texttt{rsa\_encrypt} & 3072, 4096 & 32 B & 1000 & Public exponent \\
+\texttt{rsa\_decrypt} & 3072, 4096 & 32 B & 1000 & Private exponent/CRT \\
+\texttt{aes\_gcm} & 256 & 1 KiB, 1 MiB & 1000 & Mã hóa \\
+\texttt{aes\_gcm} & 256 & 100 MiB & 100 & Mã hóa \\
+\texttt{aes\_gcm\_decrypt} & 256 & 1 KiB, 1 MiB & 1000 & Giải mã \\
+\texttt{aes\_gcm\_decrypt} & 256 & 100 MiB & 100 & Giải mã \\
+\texttt{hybrid\_encrypt} & 3072 & 1 KiB, 1 MiB & 1000 & RSA wrap + AES-GCM \\
+\texttt{hybrid\_encrypt} & 3072 & 100 MiB & 100 & RSA wrap + AES-GCM \\
+\texttt{hybrid\_decrypt} & 3072 & 1 KiB, 1 MiB & 1000 & AES-GCM + RSA unwrap \\
+\texttt{hybrid\_decrypt} & 3072 & 100 MiB & 100 & AES-GCM + RSA unwrap \\
+\bottomrule
+\end{longtable}
+
+
+Không có case CTR+HMAC trong ma trận; đây là bonus tùy chọn, chỉ được unit test.
+
+
+\section{Môi trường đo}
+
+
+\textbf{Ubuntu (07/11/2026):}
+
+
+\begin{longtable}{p{0.46\textwidth}p{0.46\textwidth}}
+\toprule
+Thành phần & Giá trị \\
+\midrule
+\endfirsthead
+\toprule
+Thành phần & Giá trị \\
+\midrule
+\endhead
+Host & \texttt{han-sui-Vostro-3500} \\
+OS & Ubuntu 26.04 LTS, kernel 7.0.0-42-generic x86\_64 \\
+CPU & 11th Gen Intel Core i5-1135G7 @ 2.40 GHz, 4 cores / 8 threads \\
+Compiler & GCC 15.2.0, \texttt{-O3 -Wall -Wextra} \\
+OpenSSL & 4.0.2 (\texttt{libcrypto.so.4}, custom prefix) \\
+CMake & 4.2.3 \\
+Affinity & \texttt{taskset -c 0-3} \\
+Threads & 4 worker \\
+Warm-up & 1 giây mỗi worker \\
+Runs & RSA 1000; AES/hybrid ≤1 MiB 1000; 100 MiB 100 \\
+Log & \texttt{output/ubuntu/benchmarks/bench\_gcc.log} \\
+\bottomrule
+\end{longtable}
+
+
+\textbf{Windows (10/11/2026):}
+
+
+\begin{longtable}{p{0.46\textwidth}p{0.46\textwidth}}
+\toprule
+Thành phần & Giá trị \\
+\midrule
+\endfirsthead
+\toprule
+Thành phần & Giá trị \\
+\midrule
+\endhead
+OS & Windows 11 host; không có Lab 3 run-time log \\
+Compiler & MSVC 19.51 (\texttt{build/windows-msvc}) \\
+OpenSSL & 4.0.x (host install; không có version log cho Lab 3) \\
+Threads & 4 (từ cột \texttt{threads} trong CSV) \\
+Affinity / power & Script mặc định CPU 0-3, High performance; không được ghi log \\
+Runs & Cùng ma trận 1000/1000/100 \\
+Log & Không có; CSV/summary/plots là bằng chứng \\
+\bottomrule
+\end{longtable}
+
+
+Hai host không phải cùng một máy được kiểm soát. Ubuntu có log affinity/warmup; Windows chỉ có CSV. Vì vậy mọi so sánh Windows/Ubuntu là quan sát.
+
+
+\section{Các yếu tố gây nhiễu}
+
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Keygen vốn ngẫu nhiên:} thời gian tìm số nguyên tố dao động lớn; SD 117.5 ms trên mean 180.2 ms (Ubuntu 3072) và 413.8 ms trên mean 606.1 ms (4096). Không nên dùng mean keygen để so sánh compiler.
+\item \textbf{Timer resolution ở 1 KiB:} 0.002 ms là quá nhỏ so với độ phân giải \texttt{high\_resolution\_clock} trên một số hệ thống; CV có thể cao.
+\item \textbf{4-way concurrency:} 4 worker chia sẻ cache/băng thông; latency per-op không phải latency đơn luồng.
+\item \textbf{Memory:} 100 MiB × 4 worker × (plaintext + ciphertext) tạo áp lực bộ nhớ; kết quả 100 MiB phụ thuộc cấu hình RAM.
+\item \textbf{OpenSSL build:} Ubuntu dùng custom prefix 4.0.2; Windows dùng host install không rõ build flags. AES-NI/GCM có thể khác.
+\item \textbf{Power/affinity Windows:} không có log, nên không thể quy chênh lệch cho compiler/OS.
+\item \textbf{Thứ tự case:} các case chạy tuần tự; thermal và cache state có thể ảnh hưởng case sau.
+\end{enumerate}
+
+
+\section{Cách tái lập}
+
+
+Ubuntu:
+
+
+\begin{lstlisting}[language=bash]
+cd lab03
+PIN_CPU=0-3 THREADS=4 RUNS_RSA=1000 RUNS_SMALL=1000 RUNS_LARGE=100 \
+  WARMUP=1 scripts/run_benchmarks.sh gcc
+\end{lstlisting}
+
+
+Windows:
+
+
+\begin{lstlisting}[language=DosBatch]
+cd lab03
+set "OPENSSL_ROOT_DIR=D:\cryptolibrary"
+scripts\run_benchmarks.bat msvc
+\end{lstlisting}
+
+
+Hoặc chạy trực tiếp:
+
+
+\begin{lstlisting}[language=DosBatch]
+build\windows-msvc\Release\rsatool.exe bench --runs-rsa 1000 --runs-small 1000 ^
+  --runs-large 100 --threads 4 --warmup 1 ^
+  --out output\windows\benchmarks\bench_windows_msvc_rsa_hybrid.csv --verbose
+\end{lstlisting}
+
+
+Tóm tắt và vẽ:
+
+
+\begin{lstlisting}[language=bash]
+python3 scripts/summarize_bench.py \
+  --input output/ubuntu/benchmarks/bench_ubuntu_gcc_rsa_hybrid.csv \
+  --out output/ubuntu/benchmarks/summary_gcc.csv
+python3 scripts/plot_bench.py \
+  --input output/ubuntu/benchmarks/bench_ubuntu_gcc_rsa_hybrid.csv \
+  --out-dir output/ubuntu/benchmarks/graph --platform ubuntu-gcc
+\end{lstlisting}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Kết quả và so sánh hiệu năng}
+
+
+\section{RSA trên Ubuntu}
+
+
+Nguồn: \texttt{output/ubuntu/benchmarks/summary\_gcc.csv}; 4 thread, 1000 runs.
+
+
+\begin{longtable}{p{0.15\textwidth}p{0.15\textwidth}p{0.15\textwidth}p{0.15\textwidth}p{0.15\textwidth}p{0.15\textwidth}}
+\toprule
+Case & Bits & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) \\
+\midrule
+\endfirsthead
+\toprule
+Case & Bits & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) \\
+\midrule
+\endhead
+keygen & 3072 & 180.157 & 155.273 & 117.502 & 7.283 \\
+keygen & 4096 & 606.081 & 512.946 & 413.817 & 25.649 \\
+encrypt & 3072 & 0.053 & 0.052 & 0.004 & 0.000 \\
+encrypt & 4096 & 0.097 & 0.091 & 0.014 & 0.001 \\
+decrypt & 3072 & 1.217 & 1.139 & 0.349 & 0.022 \\
+decrypt & 4096 & 2.659 & 2.524 & 0.473 & 0.029 \\
+\bottomrule
+\end{longtable}
+
+
+RSA-4096/3072 theo mean: keygen 3.36×, encrypt 1.83×, decrypt 2.19×. Keygen có SD lớn nhất vì phụ thuộc việc tìm số nguyên tố; mean và median lệch nhau đáng kể (180.2 vs 155.3 ms).
+
+
+\section{RSA trên Windows MSVC}
+
+
+Nguồn: \texttt{output/windows/benchmarks/summary\_msvc.csv}.
+
+
+\begin{longtable}{p{0.15\textwidth}p{0.15\textwidth}p{0.15\textwidth}p{0.15\textwidth}p{0.15\textwidth}p{0.15\textwidth}}
+\toprule
+Case & Bits & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) \\
+\midrule
+\endfirsthead
+\toprule
+Case & Bits & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) \\
+\midrule
+\endhead
+keygen & 3072 & 369.274 & 309.459 & 238.596 & 14.788 \\
+keygen & 4096 & 1081.614 & 901.519 & 721.901 & 44.744 \\
+encrypt & 3072 & 0.107 & 0.106 & 0.015 & 0.001 \\
+encrypt & 4096 & 0.180 & 0.177 & 0.046 & 0.003 \\
+decrypt & 3072 & 2.229 & 2.189 & 0.393 & 0.024 \\
+decrypt & 4096 & 4.710 & 4.541 & 0.658 & 0.041 \\
+\bottomrule
+\end{longtable}
+
+
+RSA-4096/3072 theo mean: keygen 2.93×, encrypt 1.68×, decrypt 2.11×. Cùng xu hướng với Ubuntu; số tuyệt đối cao hơn nhưng không phải so sánh có kiểm soát.
+
+
+\section{AES-256-GCM}
+
+
+\textbf{Ubuntu:}
+
+
+\begin{longtable}{p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}}
+\toprule
+Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
+\midrule
+\endfirsthead
+\toprule
+Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
+\midrule
+\endhead
+aes\_gcm & 1 KiB & 1000 & 0.002 & 0.002 & 0.001 & 0.000 & 531.035 & 2124.142 \\
+aes\_gcm & 1 MiB & 1000 & 0.369 & 0.339 & 0.189 & 0.012 & 3021.524 & 12086.095 \\
+aes\_gcm & 100 MiB & 100 & 150.492 & 146.686 & 21.751 & 4.263 & 708.125 & 2832.500 \\
+aes\emph{gcm}decrypt & 1 KiB & 1000 & 0.002 & 0.002 & 0.001 & 0.000 & 613.850 & 2455.399 \\
+aes\emph{gcm}decrypt & 1 MiB & 1000 & 0.196 & 0.187 & 0.021 & 0.001 & 5395.621 & 21582.485 \\
+aes\emph{gcm}decrypt & 100 MiB & 100 & 81.777 & 80.274 & 5.129 & 1.005 & 1287.031 & 5148.125 \\
+\bottomrule
+\end{longtable}
+
+
+\textbf{Windows:}
+
+
+\begin{longtable}{p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}}
+\toprule
+Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
+\midrule
+\endfirsthead
+\toprule
+Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
+\midrule
+\endhead
+aes\_gcm & 1 KiB & 1000 & 0.005 & 0.004 & 0.010 & 0.001 & 249.829 & 999.315 \\
+aes\_gcm & 1 MiB & 1000 & 1.590 & 1.474 & 0.456 & 0.028 & 691.486 & 2765.945 \\
+aes\_gcm & 100 MiB & 100 & 174.884 & 174.810 & 15.537 & 3.045 & 604.329 & 2417.314 \\
+aes\emph{gcm}decrypt & 1 KiB & 1000 & 0.003 & 0.003 & 0.001 & 0.000 & 314.057 & 1256.227 \\
+aes\emph{gcm}decrypt & 1 MiB & 1000 & 0.893 & 0.845 & 0.213 & 0.013 & 1226.992 & 4907.969 \\
+aes\emph{gcm}decrypt & 100 MiB & 100 & 105.640 & 105.602 & 9.063 & 1.776 & 1001.265 & 4005.060 \\
+\bottomrule
+\end{longtable}
+
+
+AES-GCM đạt hàng GB/s nhờ AES-NI và GCM hardware. Con số 1 MiB Ubuntu 12.1 GB/s aggregate là throughput của 4 worker; không phải một luồng. Ở 100 MiB, throughput giảm do memory bandwidth và tranh cache.
+
+
+\section{Chế độ lai trên Ubuntu}
+
+
+Nguồn: \texttt{summary\_gcc.csv}; RSA-3072 + AES-256-GCM.
+
+
+\begin{longtable}{p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}}
+\toprule
+Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
+\midrule
+\endfirsthead
+\toprule
+Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
+\midrule
+\endhead
+hybrid\_encrypt & 1 KiB & 1000 & 0.070 & 0.066 & 0.011 & 0.001 & 14.835 & 59.338 \\
+hybrid\_encrypt & 1 MiB & 1000 & 1.817 & 1.728 & 0.272 & 0.017 & 586.263 & 2345.052 \\
+hybrid\_encrypt & 100 MiB & 100 & 219.221 & 217.102 & 13.365 & 2.620 & 480.055 & 1920.221 \\
+hybrid\_decrypt & 1 KiB & 1000 & 1.297 & 1.237 & 0.201 & 0.012 & 0.802 & 3.206 \\
+hybrid\_decrypt & 1 MiB & 1000 & 1.674 & 1.578 & 0.260 & 0.016 & 637.455 & 2549.820 \\
+hybrid\_decrypt & 100 MiB & 100 & 152.524 & 150.847 & 10.226 & 2.004 & 690.429 & 2761.716 \\
+\bottomrule
+\end{longtable}
+
+
+\section{Chế độ lai trên Windows MSVC}
+
+
+\begin{longtable}{p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}}
+\toprule
+Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
+\midrule
+\endfirsthead
+\toprule
+Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
+\midrule
+\endhead
+hybrid\_encrypt & 1 KiB & 1000 & 0.161 & 0.159 & 0.063 & 0.004 & 6.500 & 25.999 \\
+hybrid\_encrypt & 1 MiB & 1000 & 2.805 & 2.701 & 0.504 & 0.031 & 383.780 & 1535.120 \\
+hybrid\_encrypt & 100 MiB & 100 & 248.051 & 248.589 & 8.298 & 1.626 & 423.197 & 1692.790 \\
+hybrid\_decrypt & 1 KiB & 1000 & 2.419 & 2.326 & 0.396 & 0.025 & 0.430 & 1.720 \\
+hybrid\_decrypt & 1 MiB & 1000 & 4.579 & 3.688 & 2.403 & 0.149 & 258.377 & 1033.506 \\
+hybrid\_decrypt & 100 MiB & 100 & 161.401 & 161.691 & 6.079 & 1.191 & 650.593 & 2602.374 \\
+\bottomrule
+\end{longtable}
+
+
+\section{Nhận xét: RSA so với hybrid}
+
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{RSA giải mã chậm hơn mã hóa:} Ubuntu 3072: 1.217 ms so với 0.053 ms (23×); 4096: 2.659 ms so với 0.097 ms (27×). Windows: 20.8× và 26.2×. Nguyên nhân là phép mũ bí mật/CRT, trong khi mã hóa dùng public exponent nhỏ.
+\item \textbf{RSA-4096 chậm hơn 3072:} keygen 3.36× (Ubuntu) / 2.93× (Windows), encrypt 1.83× / 1.68×, decrypt 2.19× / 2.11×. Đổi 3072 → 4096 tăng giới hạn trực tiếp từ 318 lên 446 byte nhưng tăng chi phí đáng kể; 3072 là lựa chọn hợp lý cho bài.
+\item \textbf{Ở 1 KiB, hybrid bị chi phối bởi RSA:} mã hóa 0.070 ms (Ubuntu) so với AES thuần 0.002 ms, khoảng 35×; giải mã 1.297 ms so với 0.002 ms, khoảng 648×. Con số giải mã gần bằng RSA decrypt 1.217 ms cộng AES.
+\item \textbf{Ở 1 MiB, AES bắt đầu chiếm ưu thế:} hybrid mã hóa 1.817 ms so với AES 0.369 ms (4.9×); giải mã 1.674 ms so với 0.196 ms (8.5×). Chênh lệch còn lại là một lần RSA wrap/unwrap cộng overhead envelope.
+\item \textbf{Ở 100 MiB, gần như chỉ còn AES:} hybrid mã hóa 219.221 ms so với AES 150.492 ms (1.46×); giải mã 152.524 ms so với 81.777 ms (1.87×). Đây là lý do thực tế dùng hybrid: RSA chỉ bảo vệ khóa, dữ liệu do AES xử lý.
+\item \textbf{Aggregate không phải latency đơn luồng:} 4 worker tăng throughput nhưng latency per-op ở 100 MiB tăng do tranh bộ nhớ. Báo cáo dùng per-op cho phân tích độ trễ và aggregate cho throughput hệ thống.
+\end{itemize}
+
+
+\section{Vì sao symmetric crypto chiếm ưu thế}
+
+
+AES-GCM dùng AES-NI và GHASH hardware, xử lý nhiều block song song; RSA chỉ xử lý một số nguyên nhỏ mỗi thao tác và private operation rất tốn kém. Ở 100 MiB, một lần RSA unwrap (khoảng 1.2 ms) không đáng kể so với 150 ms AES; ở 1 KiB, một lần RSA unwrap lại lớn hơn toàn bộ AES. Đây là điểm giao nhau (crossover) giữa hai chi phí, và là lý do envelope encryption là thiết kế chuẩn.
+
+
+\section{Windows và Ubuntu}
+
+
+Cùng xu hướng: RSA private > public, hybrid bị RSA chi phối ở 1 KiB và AES chi phối ở 100 MiB. Số tuyệt đối khác:
+
+
+\begin{itemize}[leftmargin=*]
+\item AES-GCM 1 MiB mã hóa: 3021.5 MB/s (Ubuntu) so với 691.5 MB/s (Windows).
+\item RSA-3072 keygen: 180.2 ms (Ubuntu) so với 369.3 ms (Windows).
+\item Hybrid 1 MiB mã hóa: 1.817 ms (Ubuntu) so với 2.805 ms (Windows).
+\end{itemize}
+
+
+Khác OS, compiler, OpenSSL build và power plan; Windows thiếu run-time log. Vì vậy không kết luận “Ubuntu nhanh hơn Windows” cho mọi cấu hình. Báo cáo chỉ dùng dữ liệu để kiểm tra tính nhất quán của xu hướng.
+
+
+\section{Biểu đồ}
+
+
+Ubuntu có ba biểu đồ trong \texttt{output/ubuntu/benchmarks/graph/}:
+
+
+\begin{itemize}[leftmargin=*]
+\item \texttt{rsa\_latency.png} — latency keygen/encrypt/decrypt cho 3072/4096.
+\item \texttt{hybrid\_latency.png} — latency AES-GCM và hybrid encrypt/decrypt theo 1 KiB/1 MiB/100 MiB.
+\item \texttt{hybrid\_throughput.png} — throughput aggregate của AES-GCM và hybrid theo cùng kích thước.
+\end{itemize}
+
+
+Windows có bộ tương ứng trong \texttt{output/windows/benchmarks/graph/}. Biểu đồ dùng grouped bars với 95\% CI; trục thời gian nên đọc theo log nếu có nhiều bậc độ lớn. Báo cáo không suy diễn từ hình ảnh khi CSV đã có số; hình chỉ để trình bày. Lệnh tạo ở §5.
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{output/ubuntu/benchmarks/graph/rsa_latency.png}
+\caption{Hình 6.1 — Ubuntu: latency RSA keygen/encrypt/decrypt}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{output/ubuntu/benchmarks/graph/hybrid_latency.png}
+\caption{Hình 6.2 — Ubuntu: latency AES-GCM và hybrid}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{output/ubuntu/benchmarks/graph/hybrid_throughput.png}
+\caption{Hình 6.3 — Ubuntu: throughput aggregate của AES-GCM và hybrid}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{output/windows/benchmarks/graph/rsa_latency.png}
+\caption{Hình 6.4 — Windows: latency RSA keygen/encrypt/decrypt}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{output/windows/benchmarks/graph/hybrid_latency.png}
+\caption{Hình 6.5 — Windows: latency AES-GCM và hybrid}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{output/windows/benchmarks/graph/hybrid_throughput.png}
+\caption{Hình 6.6 — Windows: throughput aggregate của AES-GCM và hybrid}
+\end{figure}
+
+
+\section{Độ ổn định}
+
+
+\begin{itemize}[leftmargin=*]
+\item RSA keygen có SD/mean lớn (65\% ở 3072 Ubuntu; 68\% ở 4096), phản ánh prime search; không nên so sánh mean keygen giữa hai lần chạy mà không có khoảng tin cậy.
+\item AES-GCM/hybrid ở 1 KiB có thời gian rất nhỏ; CV có thể cao nhưng sai số tuyệt đối nhỏ.
+\item 100 MiB có SD thấp hơn tương đối; đây là điểm ổn định nhất để so sánh.
+\item Không có outlier được đánh dấu riêng trong summary Lab 3; báo cáo dùng mean/median/SD/CI như CSV cung cấp, không thêm ngưỡng outlier tự tạo.
+\end{itemize}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Phân tích bảo mật}
+
+
+\section{Mô hình mối đe dọa}
+
+
+Báo cáo xét:
+
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Kẻ tấn công có ciphertext/envelope:} muốn đọc plaintext hoặc sửa dữ liệu.
+\item \textbf{Kẻ tấn công chọn ciphertext:} gửi ciphertext bị sửa để quan sát lỗi (padding/tag oracle).
+\item \textbf{Kẻ tấn công có public key:} có thể tạo ciphertext hợp lệ nhưng không giải mã được.
+\item \textbf{Kẻ tấn công có private key:} phá toàn bộ confidentiality của các envelope đã ghi; không có forward secrecy.
+\item \textbf{Người dùng sai:} dùng lại khóa, lưu khóa không an toàn, dùng nhãn sai, bỏ qua lỗi.
+\end{enumerate}
+
+
+Ngoài phạm vi: tấn công vật lý, side-channel timing trên OpenSSL, tấn công vào RNG của OS, và phân tích hình thức IND-CCA2. Báo cáo chỉ giải thích mô hình bảo mật ở mức thiết kế.
+
+
+\section{Vì sao OAEP an toàn (IND-CCA2)}
+
+
+RSA thô là hàm tất định: cùng plaintext luôn cho cùng ciphertext, và có thể bị tấn công bằng cách kiểm tra đoán. OAEP biến RSA thành lược đồ xác suất:
+
+
+\begin{itemize}[leftmargin=*]
+\item Seed ngẫu nhiên làm ciphertext khác nhau mỗi lần.
+\item MGF1 trộn seed với \texttt{DB}, khiến quan hệ giữa plaintext và \texttt{EM} không tuyến tính.
+\item \texttt{lHash} ràng buộc label vào plaintext đã pad.
+\item Khi giải mã, mọi bước kiểm tra được gộp thành một lỗi chung.
+\end{itemize}
+
+
+Trong mô hình random-oracle, RSA-OAEP đạt IND-CCA2 với giả thiết RSA là hàm một chiều. Đây là lý do OAEP là lựa chọn mặc định cho mã hóa bất đối xứng; báo cáo không tuyên bố mạnh hơn mô hình này (ví dụ không tuyên bố an toàn trong mô hình chuẩn).
+
+
+\section{Vì sao PKCS\#1 v1.5 không còn phù hợp}
+
+
+PKCS\#1 v1.5 dùng padding tất định \texttt{00 02 || PS || 00 || M}. Các vấn đề:
+
+
+\begin{itemize}[leftmargin=*]
+\item Cấu trúc padding có thể bị phân biệt qua lỗi giải mã, tạo padding oracle.
+\item Bleichenbacher (1998) chỉ ra tấn công giải mã thích nghi khi kẻ tấn công phân biệt được “padding hợp lệ” và “padding sai”.
+\item Các biến thể như ROBOT cho thấy lỗi triển khai vẫn tái diễn trong thực tế.
+\item OAEP không loại bỏ hoàn toàn rủi ro triển khai, nhưng thiết kế và kiểm tra lỗi đồng nhất làm giảm bề mặt tấn công.
+\end{itemize}
+
+
+Bài này không cài đặt PKCS\#1 v1.5; chỉ dùng nó làm so sánh để giải thích lựa chọn OAEP.
+
+
+\section{Envelope và xác thực}
+
+
+Envelope dùng AES-256-GCM, một AEAD:
+
+
+\begin{itemize}[leftmargin=*]
+\item Header canonical (không gồm tag) là AAD. Sửa bất kỳ trường nào — mode, modulus, hash, label, wrapped key, IV, payload\_len — làm tag fail.
+\item Tag 128 bit được kiểm tra trước khi ghi plaintext.
+\item Khóa AES 256 bit và IV 96 bit sinh mới cho mỗi thông điệp.
+\item Không có nonce reuse trong một lần mã hóa; mỗi envelope có IV riêng.
+\end{itemize}
+
+
+Điểm cần lưu ý: AAD bảo vệ header khỏi sửa đổi, nhưng không bảo vệ tính bí mật của header. Header chứa \texttt{label}, \texttt{modulus\_bits}, \texttt{wrapped\_key}, \texttt{iv}, \texttt{payload\_len}, \texttt{tag} — tất cả đều công khai, đúng thiết kế. Không đặt secret trong header.
+
+
+\section{Xử lý lỗi và oracle}
+
+
+\texttt{decrypt} chỉ trả \texttt{error: decryption failed} cho mọi lỗi. Đây là biện pháp chống oracle ở mức thông báo, nhưng không đủ để chống timing oracle:
+
+
+\begin{itemize}[leftmargin=*]
+\item Thời gian giải mã OAEP phụ thuộc vào vị trí lỗi padding.
+\item Thời gian giải mã GCM phụ thuộc vào độ dài ciphertext, không phụ thuộc nội dung tag (tag được so sánh constant-time bởi thư viện).
+\item Đường manual OAEP cố gắng quét toàn bộ \texttt{DB} và gom lỗi, nhưng phép RSA thô và copy plaintext vẫn có thể phụ thuộc dữ liệu.
+\end{itemize}
+
+
+Báo cáo không tuyên bố chống timing oracle tuyệt đối. Trong môi trường thật, cần thêm constant-time ở tầng thư viện, giới hạn tần suất lỗi, và không để kẻ tấn công đo thời gian phản hồi chính xác.
+
+
+\section{Quản lý khóa}
+
+
+\begin{itemize}[leftmargin=*]
+\item Private key được ghi PEM/DER không mã hóa; công cụ không đặt quyền \texttt{0600}.
+\item Không có password-based encryption cho private key.
+\item OpenSSL quản lý bộ nhớ của \texttt{EVP\_PKEY}; các buffer tạm trong manual OAEP và khóa AES trong hybrid được \texttt{OPENSSL\_cleanse} trước khi giải phóng. Đây là best-effort, không chống được core dump/swap.
+\item Không log private key hay khóa AES.
+\item Metadata JSON chứa đường dẫn khóa, không chứa key material.
+\end{itemize}
+
+
+Khuyến nghị production: dùng KMS/HSM, mã hóa private key bằng passphrase, đặt quyền tệp hạn chế, và không đưa khóa qua argv.
+
+
+\section{Forward secrecy, TLS và hướng PQC}
+
+
+Thiết kế hiện tại là RSA thuần + AES-GCM:
+
+
+\begin{itemize}[leftmargin=*]
+\item Nếu private key RSA bị lộ, mọi envelope đã ghi có thể bị giải mã.
+\item Không có forward secrecy vì khóa phiên được bọc bằng khóa dài hạn.
+\item TLS 1.3 dùng (EC)DHE để thỏa thuận khóa phiên, chứng chỉ chỉ dùng xác thực; nhờ vậy lộ khóa dài hạn không làm lộ phiên cũ.
+\item Hướng nâng cấp: ECDHE + AES-GCM, hoặc KEM lai (ML-KEM + X25519) theo hướng PQC. Lab 6 sẽ đề cập ML-KEM; Lab 3 không cài đặt.
+\end{itemize}
+
+
+Bài này mô phỏng đúng phần “envelope encryption” của TLS/PGP ở mức khái niệm, nhưng thiếu handshake và forward secrecy. Báo cáo nêu rõ để không tạo cảm giác an toàn sai.
+
+
+\section{So sánh GCM và CTR+HMAC}
+
+
+\begin{longtable}{p{0.30\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\toprule
+Tiêu chí & AES-256-GCM & AES-256-CTR + HMAC-SHA256 \\
+\midrule
+\endfirsthead
+\toprule
+Tiêu chí & AES-256-GCM & AES-256-CTR + HMAC-SHA256 \\
+\midrule
+\endhead
+Mô hình & AEAD một primitive & Encrypt-then-MAC \\
+Số khóa & 1 khóa 32 byte & 2 khóa 32 byte \\
+Tag & 16 byte & 32 byte \\
+AAD & Hỗ trợ trực tiếp & Phải đưa vào MAC \\
+Rủi ro nonce & Tái sử dụng nonce phá cả confidentiality và authenticity & Tái sử dụng counter phá confidentiality; HMAC vẫn có thể phát hiện sửa nếu MAC đúng \\
+Constant-time & Thư viện đã kiểm thử & \texttt{CRYPTO\_memcmp} \\
+Hiệu năng & Có hardware acceleration & Chậm hơn, hai lượt \\
+Trạng thái trong bài & Mặc định, có benchmark & Bonus, unit test, chưa benchmark \\
+\bottomrule
+\end{longtable}
+
+
+GCM được chọn vì đơn giản, nhanh và đã được kiểm thử rộng rãi. CTR+HMAC là phương án dễ hiểu hơn về mặt cấu trúc, nhưng cần quản lý hai khóa và có bề mặt triển khai lớn hơn. Báo cáo không kết luận cái nào “an toàn hơn” tuyệt đối; cả hai đều phụ thuộc triển khai và cách dùng nonce.
+
+
+\section{Kịch bản sử dụng sai}
+
+
+\begin{longtable}{p{0.30\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\toprule
+Kịch bản & Hậu quả & Biện pháp \\
+\midrule
+\endfirsthead
+\toprule
+Kịch bản & Hậu quả & Biện pháp \\
+\midrule
+\endhead
+Dùng lại IV GCM & Mất confidentiality và authenticity & IV ngẫu nhiên 96 bit mỗi thông điệp \\
+Dùng lại counter CTR+HMAC & Lộ keystream & Counter duy nhất, không quay vòng \\
+Bỏ qua tag & Trả plaintext đã bị sửa & Luôn xác thực trước khi ghi \\
+Dùng khóa 2048 bit & Yếu hơn yêu cầu & Từ chối < 3072 \\
+Log private key & Lộ khóa & Không log secret \\
+Dùng cùng khóa cho nhiều mục đích & Tăng bề mặt tấn công & Tách khóa wrap/data/MAC \\
+Tin header là đáng tin & Sửa modulus/label & AAD bao phủ header \\
+Dùng RSA trực tiếp cho file lớn & Không thể hoặc phải chunk thủ công & Hybrid envelope \\
+\bottomrule
+\end{longtable}
+
+
+\section{Khuyến nghị cho môi trường thật}
+
+
+\begin{enumerate}[leftmargin=*]
+\item Dùng TLS 1.3 hoặc envelope với ECDHE/ML-KEM để có forward secrecy.
+\item Mã hóa private key bằng passphrase/KMS; không lưu plaintext trên đĩa.
+\item Dùng AEAD (GCM/ChaCha20-Poly1305) và kiểm tra tag trước khi dùng dữ liệu.
+\item Giới hạn kích thước input và stream để tránh memory exhaustion.
+\item Ghi log lỗi chung, nhưng vẫn giám sát tần suất lỗi để phát hiện tấn công.
+\item Kiểm thử negative/fuzz cho parser envelope trước khi triển khai.
+\item Không dùng lại khóa/nonce giữa các phiên; có registry hoặc counter an toàn.
+\end{enumerate}
+
+
+\section{So sánh với Lab 1 và Lab 2}
+
+
+\begin{itemize}[leftmargin=*]
+\item Lab 1 dùng Crypto++ cho AEAD và có registry nonce; Lab 3 dùng OpenSSL cho RSA/OAEP và tự thiết kế envelope.
+\item Lab 2 cài đặt AES/CTR thủ công; Lab 3 dùng AES-GCM của OpenSSL, nên không minh hoạ lại primitive mà tập trung vào composition.
+\item Lab 3 là bài đầu tiên trong chuỗi có asymmetric crypto; các lab sau có thể mở rộng sang chữ ký, TLS, PKI.
+\end{itemize}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Đối chiếu yêu cầu, rubric và tự chấm điểm}
+
+
+\section{Rubric của Lab 3}
+
+
+Rubric từ \texttt{docs/blueprint/labs/lab3.md}: 100 điểm core + 15 điểm bonus.
+
+
+\begin{longtable}{p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}}
+\toprule
+Tiêu chí & Tối đa & Tự chấm & Bằng chứng \\
+\midrule
+\endfirsthead
+\toprule
+Tiêu chí & Tối đa & Tự chấm & Bằng chứng \\
+\midrule
+\endhead
+RSA-OAEP đúng (SHA-256) & 20 & 20 & OAEP/MGF1-SHA256, nhãn, kiểm thử giới hạn, KAT 2/2 \\
+Envelope lai đúng & 20 & 20 & Tự chuyển mode, AES-256-GCM, IV 96 bit, khóa bọc, giải mã có xác thực \\
+Quản lý và định dạng khóa & 15 & 15 & PEM + DER + metadata cho 3072/4096; từ chối khóa yếu \\
+Kiểm thử âm và xử lý lỗi an toàn & 15 & 15 & Các ca âm, không tạo output khi lỗi, thông báo giải mã chung \\
+Nghiên cứu hiệu năng & 15 & 15 & Hai nền tảng, 4 luồng, 1000/100 lần đo, CI, CSV, đồ thị \\
+Build và tài liệu đa nền tảng & 5 & 5 & Linux GCC/Clang, Windows MSVC/MinGW GCC; MinGW Clang chưa chạy lại \\
+Chất lượng báo cáo & 10 & 9 & Báo cáo Markdown đầy đủ; PDF/DOCX và archive chưa có \\
+\textbf{Tổng phần chính} & \textbf{100} & \textbf{99} &  \\
+Bonus: OAEP thủ công & +5 & 5 & MGF1/XOR, giải mã thủ công, tương tác hai chiều, biên và fail-closed \\
+Bonus: phân tích bảo mật lai & +10 & 8 & Phân tích TLS/envelope/forward secrecy và CTR+HMAC; chưa có timing study \\
+\textbf{Tổng cộng} & \textbf{115} & \textbf{112} & 99 phần chính + 13 bonus \\
+\bottomrule
+\end{longtable}
+
+
+Lý do trừ điểm:
+
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{Report −1:} chưa xuất PDF/DOCX và chưa có archive nộp bài.
+\item \textbf{Bonus phân tích −2:} phân tích đã bao phủ TLS/forward secrecy/PQC và CTR+HMAC, nhưng chưa có đo timing khi xác thực thất bại; bonus yêu cầu “deeper hybrid study”, báo cáo chỉ ở mức định tính cho phần timing.
+\item \textbf{Cross-platform 5/5:} MSVC và MinGW GCC có log; MinGW Clang chưa chạy lại nhưng không phải yêu cầu bắt buộc của rubric. Nếu giảng viên yêu cầu đủ ba toolchain Windows, điểm này có thể bị trừ.
+\end{itemize}
+
+
+\section{Checklist nộp bài}
+
+
+\begin{longtable}{p{0.46\textwidth}p{0.46\textwidth}}
+\toprule
+Hạng mục & Trạng thái \\
+\midrule
+\endfirsthead
+\toprule
+Hạng mục & Trạng thái \\
+\midrule
+\endhead
+Mã nguồn + CMake & Có \\
+README & Có; đã cập nhật \\
+Báo cáo & Có; tệp này \\
+Unit test Catch2 & Có; 3 binary + KAT + CLI \\
+KAT & Có; 2/2 trên Ubuntu GCC/Clang, Windows MSVC/MinGW GCC \\
+Negative tests & Có; parser, header, key, label, ciphertext \\
+Benchmark CSV & Có; Ubuntu GCC + Windows MSVC \\
+Đồ thị & Có; RSA latency, hybrid latency/throughput \\
+Windows binary & Có trên môi trường Windows; không commit binary \\
+Linux binary & Đã build trên Ubuntu; không commit binary \\
+Sinh viên/MSSV/Lớp & Đã điền trong \texttt{REPORT.md} \\
+PDF/DOCX & Chưa xuất \\
+Self-grade & Có; §8.1 \\
+Academic integrity & Có; Phụ lục C \\
+Gói nộp & Chưa tạo archive cho Lab 3 \\
+\bottomrule
+\end{longtable}
+
+
+\section{Đối chiếu yêu cầu chung của học phần}
+
+
+\begin{longtable}{p{0.46\textwidth}p{0.46\textwidth}}
+\toprule
+Yêu cầu & Trạng thái \\
+\midrule
+\endfirsthead
+\toprule
+Yêu cầu & Trạng thái \\
+\midrule
+\endhead
+CMake, build ngoài source & Đạt \\
+Ubuntu LTS & Đạt; GCC 15.2 + Clang 21.1.8, ctest 5/5 \\
+Windows MSVC & Đạt; ctest 5/5, KAT 2/2 \\
+Windows MinGW64 & Đạt; GCC 16.2.0, ctest 5/5 (log cũ); Clang chưa chạy lại \\
+README dependency/version & Đạt; OpenSSL 4.0.x \\
+README cài đặt Windows/Linux & Đạt \\
+README build commands & Đạt \\
+README ví dụ CLI & Đạt \\
+README known limitations & Đạt \\
+CLI thống nhất & Đạt; keygen/encrypt/decrypt/bench/--kat \\
+UTF-8 input/output & Đạt ở mức C++/filesystem; không có test tiếng Việt riêng cho Lab 3 \\
+Fail closed & Đạt \\
+Không dùng \texttt{rand()}/\texttt{std::random} & Đạt; OpenSSL RNG \\
+RSA ≥ 3072 & Đạt \\
+OAEP SHA-256/MGF1 & Đạt \\
+Hybrid AES-256-GCM & Đạt \\
+KAT JSON + PASS/FAIL & Đạt \\
+Negative tests & Đạt \\
+Catch2/ctest & Đạt; 5/5 \\
+Benchmark RSA + hybrid & Đạt \\
+Thống kê mean/median/SD/CI95 & Đạt \\
+So sánh Windows/Linux & Đạt; có cảnh báo \\
+Phân tích RSA vs symmetric & Đạt; §6.6–6.7 \\
+Threat model & Đạt; §7.1 \\
+Misuse scenarios & Đạt; §7.9 \\
+Forward secrecy/PQC & Đạt; §7.7 \\
+Limitations & Đạt; §9.2 \\
+\bottomrule
+\end{longtable}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Bài học rút ra và kết luận}
+
+
+\section{Bài học kỹ thuật}
+
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Biên kích thước OAEP là trust boundary.} Sai một byte dẫn tới hoặc từ chối dữ liệu hợp lệ, hoặc gửi dữ liệu quá lớn vào OAEP. Test đúng 318/319 byte là cần thiết.
+\item \textbf{AAD phải bao phủ toàn bộ header có ý nghĩa.} Bỏ \texttt{payload\_len} hoặc \texttt{label} khỏi AAD tạo lỗ hổng sửa header. Canonical JSON giúp AAD ổn định.
+\item \textbf{Fail-closed ở mức tệp.} Không tạo output khi lỗi quan trọng hơn chỉ ném exception; test \texttt{[[ ! -e output ]]} kiểm tra đúng hành vi người dùng thấy.
+\item \textbf{Không đoán mode khi giải mã.} Envelope có magic/version; ciphertext trực tiếp không có header. Đoán bằng độ dài sẽ tạo oracle và lỗi khó debug.
+\item \textbf{Benchmark phải tách latency và aggregate.} 4 worker tăng throughput nhưng tăng latency per-op; báo cáo cần nói rõ đơn vị và cách tính.
+\item \textbf{Keygen không phù hợp để so sánh compiler bằng mean.} Prime search có phân bố rộng; cần median/CI và nhiều mẫu.
+\end{enumerate}
+
+
+\section{Bài học bảo mật}
+
+
+\begin{itemize}[leftmargin=*]
+\item OAEP giải quyết tính tất định và padding oracle ở mức thiết kế, nhưng lỗi triển khai vẫn có thể tạo oracle.
+\item Mã hóa lai là bắt buộc vì RSA không xử lý dữ liệu lớn; AES-GCM cung cấp confidentiality + integrity với chi phí thấp.
+\item AAD là cách ràng buộc metadata vào AEAD; không được bỏ qua.
+\item Không có forward secrecy nếu khóa dài hạn bọc khóa phiên; cần ECDHE/KEM.
+\item Private key không mã hóa là giới hạn lớn nhất của bài lab.
+\item So sánh GCM và CTR+HMAC cho thấy không có lựa chọn “miễn phí”: GCM nhanh nhưng phụ thuộc thư viện; CTR+HMAC rõ ràng nhưng cần hai khóa và hai lượt.
+\end{itemize}
+
+
+\section{Kết luận}
+
+
+RSA-OAEP với SHA-256 phù hợp cho dữ liệu ngắn trong giới hạn kích thước nghiêm ngặt. Dữ liệu thực tế cần mã hóa lai: AES-256-GCM cung cấp tốc độ và xác thực, trong khi RSA-OAEP chỉ bảo vệ khóa phiên. Envelope hiện tại có phiên bản, tự mô tả, xác thực header và fail-closed trên các đường lỗi chính. Hai phần thưởng minh họa cấu trúc OAEP và phương án encrypt-then-MAC mà không thay đổi đường CLI mặc định.
+
+
+Điểm mạnh: thiết kế envelope rõ ràng, kiểm thử âm phủ các đường sửa đổi, KAT độc lập, benchmark đủ RSA và hybrid, phân tích bảo mật có chiều sâu. Điểm yếu: private key không mã hóa, không streaming, thiếu oracle thứ hai, Windows thiếu log, CTR+HMAC chưa benchmark. Các điểm yếu này được nêu rõ và có hướng khắc phục.
+
+
+\section{Việc còn lại}
+
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Mã hóa private key} bằng passphrase và đặt quyền tệp.
+\item \textbf{Streaming envelope} để giảm peak memory.
+\item \textbf{Oracle thứ hai} (Crypto++ hoặc implementation độc lập) để so sánh byte-for-byte.
+\item \textbf{Windows run-time log} cho benchmark.
+\item \textbf{MinGW Clang} chạy lại và lưu log.
+\item \textbf{Benchmark + timing study} cho CTR+HMAC khi tag sai.
+\item \textbf{Fuzz parser} envelope/CLI.
+\item \textbf{PDF/archive} nộp bài.
+\end{enumerate}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Tài liệu tham khảo}
+
+
+\begin{enumerate}[leftmargin=*]
+\item J. Jonsson, B. Kaliski, \emph{RFC 8017 — PKCS \#1: RSA Cryptography Specifications Version 2.2}, 2016.
+\item NIST, \emph{SP 800-38D — Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC}, 2007.
+\item NIST, \emph{FIPS 197 — Advanced Encryption Standard (AES)}, 2001 (updated 2023).
+\item NIST, \emph{SP 800-57 Part 1 Rev. 5 — Recommendation for Key Management}, 2020.
+\item D. Bleichenbacher, “Chosen Ciphertext Attacks Against Protocols Based on the RSA Encryption Standard PKCS \#1,” CRYPTO 1998.
+\item V. Shoup, “OAEP Reconsidered,” CRYPTO 2001.
+\item E. Rescorla, \emph{RFC 8446 — The Transport Layer Security (TLS) Protocol Version 1.3}, 2018.
+\item NIST, \emph{FIPS 203 — Module-Lattice-Based Key-Encapsulation Mechanism Standard (ML-KEM)}, 2024.
+\item OpenSSL 4.0 documentation, https://docs.openssl.org/.
+\item Catch2 v2.13.10, https://github.com/catchorg/Catch2.
+\item \texttt{docs/Lab3.txt}, \texttt{docs/blueprint/labs/lab3.md}, \texttt{lab03/README.md}, \texttt{lab03/BENCHMARKS.md}.
+\end{enumerate}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\chapter{Phụ lục}
+
+
+\section{Phụ lục A — Tỉ lệ dẫn xuất}
+
+
+Tính từ mean trong \texttt{summary\_gcc.csv} và \texttt{summary\_msvc.csv}.
+
+
+\begin{longtable}{p{0.30\textwidth}p{0.30\textwidth}p{0.30\textwidth}}
+\toprule
+Tỉ lệ & Ubuntu & Windows \\
+\midrule
+\endfirsthead
+\toprule
+Tỉ lệ & Ubuntu & Windows \\
+\midrule
+\endhead
+RSA-4096 / 3072 keygen & 3.36× & 2.93× \\
+RSA-4096 / 3072 encrypt & 1.83× & 1.68× \\
+RSA-4096 / 3072 decrypt & 2.19× & 2.11× \\
+RSA decrypt / encrypt (3072) & 22.96× & 20.83× \\
+RSA decrypt / encrypt (4096) & 27.41× & 26.17× \\
+Hybrid enc 1 KiB / AES enc 1 KiB & 35.0× & 32.2× \\
+Hybrid enc 1 MiB / AES enc 1 MiB & 4.92× & 1.76× \\
+Hybrid enc 100 MiB / AES enc 100 MiB & 1.46× & 1.42× \\
+Hybrid dec 1 KiB / AES dec 1 KiB & 648.5× & 806.3× \\
+Hybrid dec 1 MiB / AES dec 1 MiB & 8.54× & 5.13× \\
+Hybrid dec 100 MiB / AES dec 100 MiB & 1.87× & 1.53× \\
+\bottomrule
+\end{longtable}
+
+
+Các tỉ lệ dùng mean, không phải median; với keygen/1 KiB nên đọc kèm SD/CI.
+
+
+\section{Phụ lục B — Danh mục bằng chứng}
+
+
+\begin{longtable}{p{0.46\textwidth}p{0.46\textwidth}}
+\toprule
+Đường dẫn & Nội dung \\
+\midrule
+\endfirsthead
+\toprule
+Đường dẫn & Nội dung \\
+\midrule
+\endhead
+\texttt{kat/oaep\_vectors.json} & 2 vector OAEP-SHA256 độc lập \\
+\texttt{output/ubuntu/test\_results/kat\_gcc.txt} & KAT 2/2 \\
+\texttt{output/ubuntu/test\_results/kat\_clang.txt} & KAT 2/2 \\
+\texttt{output/ubuntu/test\_results/ctest\_gcc.txt} & CTest 5/5 \\
+\texttt{output/ubuntu/test\_results/ctest\_clang.txt} & CTest 5/5 \\
+\texttt{output/ubuntu/test\_results/environment.txt} & Môi trường Ubuntu, OpenSSL 4.0.2 \\
+\texttt{output/ubuntu/test\_results/build\_gcc.log} & Build GCC \\
+\texttt{output/ubuntu/test\_results/build\_clang.log} & Build Clang \\
+\texttt{output/windows/test\_results/ctest\_msvc.txt} & CTest 5/5 + assertion counts \\
+\texttt{output/windows/test\_results/kat\_msvc.txt} & KAT 2/2 \\
+\texttt{output/windows/test\_results/ctest\_mingw\_gcc.txt} & CTest 5/5 (log cũ) \\
+\texttt{output/windows/test\_results/kat\_mingw\_gcc.txt} & KAT 2/2 (log cũ) \\
+\texttt{output/ubuntu/benchmarks/bench\_gcc.log} & Log benchmark Ubuntu \\
+\texttt{output/ubuntu/benchmarks/bench\_ubuntu\_gcc\_rsa\_hybrid.csv} & CSV per-run Ubuntu \\
+\texttt{output/ubuntu/benchmarks/summary\_gcc.csv} & Thống kê Ubuntu \\
+\texttt{output/ubuntu/benchmarks/graph/*.png} & 3 biểu đồ Ubuntu \\
+\texttt{output/windows/benchmarks/bench\_windows\_msvc\_rsa\_hybrid.csv} & CSV per-run Windows \\
+\texttt{output/windows/benchmarks/summary\_msvc.csv} & Thống kê Windows \\
+\texttt{output/windows/benchmarks/graph/*.png} & 3 biểu đồ Windows \\
+\bottomrule
+\end{longtable}
+
+
+\section{Phụ lục C — Cam kết liêm chính học thuật}
+
+
+\textbf{Tuyên bố tính nguyên bản:} Em/tôi chịu trách nhiệm về mã nguồn và nội dung báo cáo này; không sao chép bài của sinh viên khác hoặc implementation RSA/OAEP/envelope bên ngoài. Phần thiết kế envelope, CLI, kiểm thử và phân tích trong bài được viết cho Lab 3. OpenSSL 4.0.x được dùng trong phạm vi đề cho phép; Catch2 2.13.10 được vendored; các vector KAT OAEP được tạo độc lập bằng \texttt{openssl pkeyutl} như đã mô tả.
+
+
+\textbf{Khai báo hỗ trợ của AI/công cụ:} Báo cáo được soạn với sự hỗ trợ của trợ lý AI (OpenCode/DeepSeek V4.1 Flash) trong việc tổng hợp số liệu từ CSV, diễn đạt và rà soát tài liệu. Tác giả đã kiểm tra mã nguồn, chạy lại KAT và \texttt{ctest}, và chịu trách nhiệm về nội dung. Không có số liệu hiệu năng nào được tạo tự động; mọi con số đều truy vết được về CSV hoặc nhật ký trong \texttt{output/}.
+
+
+\textbf{Phạm vi an toàn:} Các minh chứng tấn công/demo chỉ dùng dữ liệu test do bài tạo, chạy offline; không thử nghiệm với dữ liệu, mạng hay dịch vụ của bên thứ ba. Mọi khóa và secret trong repo là khóa test. Em/tôi hiểu ranh giới giữa minh chứng lỗ hổng và khai thác độc hại, và chỉ dùng kiến thức này cho mục đích học tập.
+
+
+\textbf{Trích dẫn:} Tài liệu tham khảo ở §10; nguồn KAT ghi trong \texttt{kat/oaep\_vectors.json} và §4.1.
+
+\clearpage
+\end{document}
