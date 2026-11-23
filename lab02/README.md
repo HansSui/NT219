@@ -1,17 +1,19 @@
 # Lab 2 — AES-128 Implementation in Pure C++ (CTR Mode)
 
 `aestool` is a pure C++17 implementation of AES (128/192/256) and the NIST
-SP 800-38A CTR mode. CTR is the required Lab 2 mode; XTS is implemented as
-Bonus B. No external cryptographic library is linked into `aes_core` or
-`aestool`; OpenSSL is used only by the test-only `test_crossval` and
-`bench_openssl` targets.
+SP 800-38A CTR mode. CTR is the required Lab 2 mode; XTS is Bonus B and the
+AES-NI fast path is Bonus C. No external cryptographic library is linked into
+`aes_core` or `aestool`; OpenSSL is used only by the test-only `test_crossval`
+and `bench_openssl` targets. AES-NI uses compiler intrinsics (`wmmintrin.h`)
+and is compiled per function, so the library still builds on CPUs without it.
 
 > **Status:** the code, Ubuntu KAT/CTest logs and benchmarks are current.
 > Ubuntu GCC 15.2 KAT/CTest logs and the 1000/100/30 benchmark (4 threads,
-> CPUs 0-3) were refreshed on 2026-11-05. Windows KAT/unit logs are valid, but
-> the Windows CTest/cross-validation logs predate the OpenSSL switch and need a
-> rerun. The script is console-only, so the Ubuntu run has no environment log.
-> No benchmark numbers are fabricated.
+> CPUs 0-3) were refreshed on 2026-11-05. Windows KAT/unit logs are valid; the
+> Windows benchmark and OpenSSL throughput were rerun on 2026-11-10, but the
+> CTest/cross-validation logs and `environment.txt` still predate the OpenSSL
+> switch. The scripts are console-only, so neither benchmark has an environment
+> log. No benchmark numbers are fabricated.
 
 ---
 
@@ -25,6 +27,7 @@ lab02/
 ├── BENCHMARKS.md               benchmark matrix, protocol and CSV format
 ├── src/
 │   ├── AES.hpp / AES.cpp       pure C++ FIPS-197 AES core
+│   ├── aesni.hpp / aesni.cpp   AES-NI CTR fast path (bonus C)
 │   ├── modes.hpp / modes.cpp   CTR (required) + XTS (bonus B)
 │   ├── minijson.hpp            zero-dependency JSON parser
 │   └── main.cpp                aestool CLI
@@ -92,8 +95,9 @@ import library and DLL are found by CMake, and `bin` is added to `PATH` for
 CTest. Override `OPENSSL_ROOT_DIR` if your install differs.
 
 Windows evidence: MSVC, MinGW GCC and MinGW Clang each passed `9/9` KAT and
-`4/4` CTest in the pre-OpenSSL run. Rebuild and rerun after the oracle switch;
-see `output/windows/test_results/`.
+`4/4` CTest in the pre-OpenSSL run. The MSVC benchmark and OpenSSL throughput
+were rerun on 2026-11-10; the CTest/cross-validation logs still need a rerun
+after the oracle switch. See `output/windows/test_results/`.
 
 ---
 
@@ -142,6 +146,22 @@ The XTS key is `K1 || K2` (32/48/64 bytes); `--iv` is the 16-byte data unit.
 
 Sizes that are not a multiple of 16 bytes use IEEE P1619 ciphertext stealing.
 
+### AES-NI (Bonus C)
+
+`aesni::available()` checks the CPU at run time (`__builtin_cpu_supports` on
+GCC/Clang, `__cpuid` on MSVC). AES-128 CTR automatically uses the AES-NI path
+when it is available; AES-192/256 and non-x86 hosts fall back to table-based
+AES. The fast path reuses the existing 128-bit key schedule and encrypts four
+counter blocks per iteration. To compare both implementations single-threaded:
+
+```bash
+THREADS=1 RUNS_1MB=1000 RUNS_100MB=20 RUNS_1GB=3 IMPL=soft \
+  OUT_DIR=output/ubuntu/benchmarks/aesni/1t/soft scripts/run_benchmarks.sh gcc
+THREADS=1 RUNS_1MB=1000 RUNS_100MB=20 RUNS_1GB=3 IMPL=ni \
+  OUT_DIR=output/ubuntu/benchmarks/aesni/1t/ni scripts/run_benchmarks.sh gcc
+python3 scripts/plot_aesni.py
+```
+
 ### KAT
 
 ```bash
@@ -160,7 +180,12 @@ and make the command exit nonzero.
 
 `--warmup` is wall-clock seconds on a cache-resident prefix; `--threads` only
 applies to `bench` and defaults to 4 in the benchmark scripts (`THREADS=1`
-gives the single-thread baseline). Unknown bench options are rejected. `--verbose` prints a
+gives the single-thread baseline). `--impl auto|soft|ni` selects the AES
+implementation for the benchmark: `auto` uses AES-NI when the CPU supports it
+and a 128-bit key is used, `soft` forces table-based AES, and `ni` fails on
+unsupported CPUs or non-128-bit keys. The benchmark scripts default to
+`IMPL=soft` so re-running them reproduces the report's software baseline;
+use `IMPL=ni` for the comparison. Unknown bench options are rejected. `--verbose` prints a
 `progress:` line to **stderr** with runs completed, percentage, elapsed time
 and ETA, plus a final `bench: completed ... in ...` line; the CSV on stdout or
 `--out` is unchanged. The benchmark scripts enable `--verbose` automatically.
@@ -177,6 +202,9 @@ and ETA, plus a final `bench: completed ... in ...` line; the CSV on stdout or
   the round keys with volatile writes.
 - The S-box table is not constant-time; `AES::sbox_computed()` provides a
   table-free reference for analysis but is not used on the main path.
+- AES-NI CTR is constant-time with respect to the data (table-free `aesenc`);
+  the counter increment and XOR are data-independent. AES-192/256 stay on the
+  table-based path.
 - CTR has no authentication and is malleable; use an AEAD or
   Encrypt-then-MAC when integrity is required.
 - CTR/XTS IVs must be unique per key. The CLI cannot enforce this without
@@ -195,12 +223,13 @@ security analysis and self-grade.
 |---|---|
 | Windows MSVC / MinGW GCC / MinGW Clang KAT | 9/9 logged; valid (oracle-independent) |
 | Windows MSVC / MinGW GCC / MinGW Clang CTest + cross-validation | pre-OpenSSL logs; rerun with OpenSSL |
-| Windows MSVC benchmark | 1000/100/30 rows, summary + 6 plots, `AUDIT.md`; no run-time env log |
+| Windows MSVC benchmark | 1000/100/30 rows (2026-11-10), summary + comparison plots, `AUDIT.md`; no run-time env log |
 | Ubuntu test/KAT logs | committed, 9/9 KAT and 4/4 CTest on GCC 15.2 (2026-11-05) |
 | Ubuntu benchmark CSV | 1000/100/30 on GCC 15.2 with 4 threads and CPUs 0-3; no environment log; 1 MiB CV 14.4% |
-| OpenSSL throughput comparison | Ubuntu 4-thread data under `output/ubuntu/benchmarks/openssl/`; Windows not run |
-| Plots | Windows per-size plots; Ubuntu one combined summary plot (all sizes) |
-| PDF/DOCX report | not generated; identity fields blank; academic-integrity statement in `REPORT.md` Appendix A |
+| OpenSSL throughput comparison | Ubuntu data under `output/ubuntu/benchmarks/openssl/`; Windows data under `output/windows/benchmarks/openssl/` (partly noisy) |
+| Plots | Summary + own-vs-OpenSSL comparison per platform; Ubuntu summary (all sizes) |
+| AES-NI (bonus C) | Ubuntu GCC 15.2, 1 thread, `--impl soft` vs `--impl ni` under `output/ubuntu/benchmarks/aesni/`; no Windows AES-NI run |
+| PDF/archive | not generated; identity fields filled; academic-integrity statement in `REPORT.md` Appendix A |
 
 The Ubuntu run uses CPU pinning, 4 threads and the new time-based warm-up;
 cite the 1 MiB point with its 14.4% CV caveat. The Windows matrix uses the

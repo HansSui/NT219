@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "AES.hpp"
+#include "aesni.hpp"
 #include "modes.hpp"
 #include <algorithm>
 #include <vector>
@@ -221,4 +222,39 @@ TEST_CASE("CTR Mode - Negative Tests & Malleability Demonstration", "[ctr][negat
             REQUIRE(dec_tampered[i] == pt[i]);
         }
     }
+}
+
+TEST_CASE("AES-NI CTR matches the software path for AES-128", "[ctr][aesni]") {
+    if (!aesni::available()) {
+        SUCCEED("AES-NI not available on this CPU");
+        return;
+    }
+
+    std::vector<uint8_t> key(16);
+    for (size_t i = 0; i < key.size(); ++i) key[i] = static_cast<uint8_t>(0xA0 + i);
+    AES cipher(key, AES::AES_128);
+    Modes modes;
+
+    Block iv{};
+    for (size_t i = 0; i < iv.size(); ++i) iv[i] = static_cast<uint8_t>(0xF0 + i);
+
+    // Sizes cover partial blocks, the 64-byte AES-NI group and a tail.
+    for (size_t size : {size_t{1}, size_t{15}, size_t{16}, size_t{17},
+                        size_t{63}, size_t{64}, size_t{65}, size_t{1000}, size_t{65537}}) {
+        std::vector<uint8_t> pt(size);
+        for (size_t i = 0; i < size; ++i) pt[i] = static_cast<uint8_t>(i * 31 + 7);
+
+        const auto soft = modes.ctr_encrypt(cipher, pt, iv, false);
+        const auto accelerated = modes.ctr_encrypt(cipher, pt, iv, true);
+        INFO("size = " << size);
+        REQUIRE(accelerated == soft);
+        REQUIRE(modes.ctr_decrypt(cipher, accelerated, iv, false) == pt);
+    }
+
+    // Counter wrap before the last block must still throw, not reuse keystream.
+    Block max_counter;
+    max_counter.fill(0xFF);
+    const std::vector<uint8_t> two_blocks(32, 0x42);
+    REQUIRE_THROWS_AS(modes.ctr_encrypt(cipher, two_blocks, max_counter, true),
+                      std::runtime_error);
 }

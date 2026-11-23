@@ -144,8 +144,9 @@ independent RSA-OAEP-SHA256 vectors generated with OpenSSL `pkeyutl` (empty
 label and non-empty label); `tests/cli_test.sh` additionally cross-checks PEM
 format and OAEP interop with the OpenSSL CLI when it is installed.
 
-The library also carries the optional bonus primitives, covered by the unit
-tests but not exposed as CLI flags:
+The library also carries the optional bonus primitives, covered by the current
+Ubuntu/MSVC unit tests but not exposed as CLI flags (the committed MinGW GCC log
+predates these additions):
 
 - `rsa::oaepEncryptManual` / `rsa::oaepDecryptManual` — hand-written MGF1,
   XOR masking and OAEP padding validation, interoperable with OpenSSL OAEP.

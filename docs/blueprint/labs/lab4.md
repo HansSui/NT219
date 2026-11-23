@@ -2,7 +2,9 @@
 
 > **Normative source:** `docs/Lab4.txt`
 > **Course core:** `docs/course-objectives.txt`, `docs/GradingSystem.txt`; toolchain: `docs/lab requirement.md`
-> **Existing implementation:** none (`lab04/` does not exist yet)
+> **Existing implementation:** `lab04/` (`hashtool`) — implemented 2026-11-18;
+> Ubuntu GCC/Clang verified. TLS, Windows evidence and the full chosen-prefix
+> +10 remain open.
 > **Tool:** `hashtool` plus offline demo material
 >
 > **Ethics:** defensive education only. Use offline files you own in an isolated
@@ -181,20 +183,22 @@ After this lab you should be able to:
 
 ### Definition of done (grader evidence)
 
-- [ ] `hashtool` builds on Ubuntu and Windows and supports all required
-      algorithms and SHAKE output lengths.
-- [ ] KATs pass for every algorithm; `ctest` passes on both OSes.
-- [ ] Streaming mode hashes a multi-GB file without loading it into memory.
-- [ ] Certificate parser extracts every required field and verifies or fails
-      closed.
+- [x] `hashtool` builds on Ubuntu and supports all required algorithms and
+      SHAKE output lengths; the Windows scripts are present but unrun.
+- [x] KATs pass for every algorithm; `ctest` 5/5 on Ubuntu GCC and Clang
+      (Windows evidence still open).
+- [x] Streaming mode hashes 1 GiB in the benchmark without loading it into
+      memory.
+- [x] Certificate parser extracts every required field and verifies or fails
+      closed (one-link only).
 - [ ] TLS deployment evidence includes screenshot/log, config snippet, and
-      trust-chain explanation.
-- [ ] MD5 collision demo includes both files, digest, and explanation.
-- [ ] Length-extension demo includes original/forged message, MAC, padding
+      trust-chain explanation (config snippet and explanation exist; no host).
+- [x] MD5 collision demo includes both files, digest, and explanation.
+- [x] Length-extension demo includes original/forged message, MAC, padding
       diagram, and mitigation.
-- [ ] Benchmarks cover all four hashes at the required sizes with plots.
-- [ ] README documents CLI, build, dependencies, and limitations.
-- [ ] Self-grade rubric and academic-integrity statement included.
+- [x] Benchmarks cover all four hashes at the required sizes with plots.
+- [x] README documents CLI, build, dependencies, and limitations.
+- [x] Self-grade rubric and academic-integrity statement included.
 
 ## 4. Rubric (100 + 15 bonus)
 
@@ -211,7 +215,7 @@ After this lab you should be able to:
 
 ## 5. Infrastructure
 
-### Proposed layout (`lab04/`, not yet present)
+### Implemented layout (`lab04/`)
 
 ```
 lab04/
@@ -219,9 +223,11 @@ lab04/
   README.md
   BENCHMARKS.md
   src/
-    hash_core.hpp/.cpp     SHA-2, SHA-3, SHAKE wrappers/implementation
-    x509_inspect.hpp/.cpp  certificate parse, fields, verify
-    main.cpp               CLI: hash, cert, bench, --kat
+    hash_core.hpp/.cpp     SHA-2, SHA-3, SHAKE wrappers, stream/mmap, KAT
+    sha256_ext.hpp/.cpp    minimal SHA-256 + length extension
+    x509_inspect.hpp/.cpp  certificate parse, fields, one-link verify
+    io.hpp                 read-only mmap (POSIX/Windows)
+    main.cpp               CLI: hash, cert, lenext, bench, --kat
   tests/
     catch.hpp
     test_hashes.cpp
@@ -230,15 +236,18 @@ lab04/
   kat/
     hash_vectors.json
   demos/
-    md5_collision/         two inputs + digest + README
+    md5_collision/         two PNGs + digest + README
     length_extension/      original/forged message + MAC + padding diagram
-    tls/                   config snippet + logs/screenshot
+    chosen_prefix_cert/    identical-prefix fallback (not the +10 attack)
+    tls/                   config snippets + evidence collector
   scripts/
     build_linux.sh
     build_windows.bat
     run_benchmarks.sh / .bat
     summarize_bench.py
     plot_bench.py
+  analysis/
+    benchmark_analysis.ipynb  interactive table, ranking and plots
   output/
     ubuntu/test_results/
     ubuntu/benchmarks/
@@ -296,11 +305,29 @@ Compare streaming vs memory-mapped I/O. Record the hardware/OS/compiler table.
 
 ### Risks / gaps
 
-- No code exists; commands are proposed.
-- `hashclash` and `hashpump` may not be installed; the +5 option allows a
-  custom length-extension implementation, but the collision demo still needs a
-  tool or a prepared pair.
+- Implementation exists on Ubuntu; Windows evidence and a real TLS host are
+  still missing.
+- The collision demo uses the static HashClash v1.2b release; `hashpump` is not
+  needed because the +5 custom length-extension implementation is included.
 - The TLS task depends on a trusted certificate and a reachable host; start it
   early and keep logs.
 - A chosen-prefix certificate demo is optional and sandbox-only; do not let it
   delay the required deliverables.
+
+## 6. Implementation status (2026-11-18)
+
+| Item | State | Evidence |
+|---|---|---|
+| Hash CLI + KAT | Done | `lab04/src/hash_core.*`, `kat/hash_vectors.json` (31/31) |
+| Stream/mmap | Done | `src/hash_core.cpp`, `src/io.hpp`, benchmark CSV |
+| X.509 parse/verify | Done (one link) | `src/x509_inspect.*`, `tests/test_x509.cpp` |
+| TLS deployment | **Blocked** | snippets + `demos/tls/collect_evidence.sh`; needs a real host |
+| MD5 PNG collision | Done | `demos/md5_collision/`, digest `c1a8659e…` |
+| Length extension (+5) | Done | `src/sha256_ext.*`, `tests/test_lenext.cpp` |
+| Chosen-prefix (+10) | **Not achieved** | identical-prefix fallback only, documented in `demos/chosen_prefix_cert/` |
+| Benchmarks | Done | `lab04/BENCHMARKS.md`, `output/ubuntu/benchmarks/` |
+| Windows | **Not run here** | scripts ready; no MSVC/MinGW logs committed |
+
+The chosen-prefix fallback deliberately does not claim the +10: it collides two
+certificate TBS values with the same prefix. A real chosen-prefix attack costs
+about 2^39 MD5 work and was not practical on this host.

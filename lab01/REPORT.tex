@@ -1,82 +1,132 @@
-\documentclass[12pt,a4paper]{report}
-\usepackage[a4paper,top=2.54cm,bottom=2.54cm,left=2.54cm,right=2.54cm]{geometry}
-\usepackage[utf8]{inputenc}
-\usepackage[T5]{fontenc}
-\usepackage[vietnamese,english]{babel}
-\usepackage{lmodern}
-\usepackage{amsmath,amssymb}
-\usepackage{array}
+\documentclass[12pt,a4paper,oneside]{report}
+
+% XeLaTeX is required here: the reports preserve Unicode box-drawing
+% characters and Vietnamese text inside code listings. pdfLaTeX cannot
+% typeset those bytes without altering the preserved source.
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{vietnamese}
+\setotherlanguage{english}
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{FreeMono}
+
+\usepackage[
+    a4paper,
+    top=2.54cm,
+    bottom=2.54cm,
+    left=2.54cm,
+    right=2.54cm,
+    headheight=15pt,
+    headsep=0.5cm
+]{geometry}
+
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{1cm}
+\setlength{\parskip}{0.25em}
+
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{float}
 \usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
 \usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{fvextra}
+\usepackage{seqsplit}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
-\usepackage{float}
-\usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{longtable}
-\usepackage{xcolor}
-\usepackage{listings}
-\usepackage{microtype}
+\usepackage{etoolbox}
 
-\definecolor{codegray}{gray}{0.95}
-\lstset{
-  basicstyle=\ttfamily\small,
-  backgroundcolor=\color{codegray},
-  breaklines=true,
-  columns=fullflexible,
-  frame=single,
-  keepspaces=true,
-  showstringspaces=false
-}
-\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
-\setcounter{tocdepth}{2}
+% Long file paths are common in this report; allow them to wrap instead of
+% running into the margin.
+\let\origtexttt\texttt
+\renewcommand{\texttt}[1]{\origtexttt{\seqsplit{#1}}}
+\setlength{\tabcolsep}{2pt}
 \setlength{\emergencystretch}{3em}
+\AtBeginEnvironment{longtable}{\footnotesize}
+
+\usepackage[
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+]{hyperref}
+
+\captionsetup{font=small,labelfont=bf,labelsep=period}
+\fvset{
+    fontsize=\small,
+    breaklines=true,
+    breakanywhere=true,
+    frame=single,
+    numbers=left
+}
+
+\newcommand{\ReportNumber}{1}
+\newcommand{\ReportTitle}{MÃ HOÁ ĐỐI XỨNG VỚI CRYPTO++}
+\newcommand{\ReportCourse}{NT219 -- An toàn thông tin}
+\newcommand{\ReportInstructor}{[Tên giảng viên]}
+\newcommand{\GroupNumber}{[XX]}
+\newcommand{\ReportStudent}{Nguyễn Công Tuấn}
+\newcommand{\ReportId}{25522012}
+\newcommand{\ReportClass}{NT219.R11.ANTT}
+\newcommand{\ReportRole}{Trưởng nhóm}
+\newcommand{\ReportStart}{[Bắt đầu]}
+\newcommand{\ReportEnd}{15/11/2026}
+
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Báo cáo Lab NT219}
-\fancyhead[R]{\ReportTitleShort}
+\fancyhead[L]{\small Báo cáo Lab \ReportNumber\ -- \ReportCourse}
+\fancyhead[R]{\small Nhóm \GroupNumber}
 \fancyfoot[C]{\thepage}
-\setlength{\headheight}{15pt}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
 \renewcommand{\chaptername}{Chương}
 \renewcommand{\thechapter}{\Roman{chapter}}
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}.}
+\setcounter{tocdepth}{2}
 
-\newcommand{\ReportTitleShort}{\ReportTitle}
-\newcommand{\ReportTitle}{}
-\newcommand{\ReportStudent}{}
-\newcommand{\ReportId}{}
-\newcommand{\ReportClass}{}
-\newcommand{\ReportDate}{}
-
-\renewcommand{\ReportTitle}{BÁO CÁO LAB 1 -- MÃ HOÁ ĐỐI XỨNG VỚI CRYPTO++}
-\renewcommand{\ReportStudent}{Nguyễn Công Tuấn}
-\renewcommand{\ReportId}{25522012}
-\renewcommand{\ReportClass}{NT219.R11.ANTT}
-\renewcommand{\ReportDate}{15/11/2026}
 \begin{document}
 \begin{titlepage}
 \thispagestyle{empty}
 \begin{center}
 {\large\bfseries TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN, ĐHQG-HCM\par}
-\vspace{0.4cm}
+\vspace{0.3cm}
 {\large\bfseries KHOA MẠNG MÁY TÍNH VÀ TRUYỀN THÔNG\par}
-\vspace{2.2cm}
-{\Large\bfseries BÁO CÁO LAB\par}
+\vspace{2.0cm}
+{\Large\bfseries BÁO CÁO LAB \ReportNumber\par}
 \vspace{0.8cm}
-{\LARGE\bfseries \ReportTitle\par}
-\vfill
+{\LARGE\bfseries ĐỀ TÀI\par}
+\vspace{0.3cm}
+{\Large\bfseries \ReportTitle\par}
+\vspace{1.5cm}
 \begin{tabular}{rl}
-Học phần: & NT219 -- An toàn thông tin\\
-Sinh viên: & \ReportStudent\\
-MSSV: & \ReportId\\
-Lớp: & \ReportClass\\
+Môn học: & \ReportCourse\\
+Giảng viên hướng dẫn: & \ReportInstructor\\
 \end{tabular}
+\vspace{1.2cm}
+
+{\bfseries Thực hiện bởi nhóm \GroupNumber, bao gồm:}\\[0.4cm]
+\begin{tabular}{rll}
+1. & \ReportStudent & \ReportId \\
+   & \multicolumn{2}{l}{\ReportRole} \\
+\end{tabular}
+
 \vfill
-\ReportDate\par
+Thời gian thực hiện: \ReportStart\ -- \ReportEnd\par
 \end{center}
 \end{titlepage}
 \pagenumbering{arabic}
 \tableofcontents
 \clearpage
+
 
 
 \begin{quote}
@@ -87,7 +137,7 @@ Báo cáo này được viết bằng tiếng Việt. Toàn bộ số liệu hi�
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Tóm tắt điều hành}
+\chapter{TÓM TẮT ĐIỀU HÀNH}
 
 
 Lab 1 yêu cầu xây dựng một công cụ dòng lệnh mã hoá đối xứng bằng Crypto++, hỗ trợ tám chế độ AES (ECB, CBC, OFB, CFB, CTR, XTS, CCM, GCM), xử lý IV/nonce đúng cách, ngăn các lỗi sử dụng phổ biến, kiểm chứng bằng vector NIST/RFC, và đánh giá hiệu năng có so sánh giữa các nền tảng.
@@ -112,7 +162,7 @@ Kết quả chính:
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Mục tiêu và phạm vi}
+\chapter{MỤC TIÊU VÀ PHẠM VI}
 
 
 \section{Mục tiêu của Lab 1}
@@ -135,37 +185,37 @@ Theo đề bài và mục tiêu học phần, Lab 1 hướng tới các năng l�
 \section{Yêu cầu kỹ thuật và cách đáp ứng}
 
 
-\begin{longtable}{p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}p{0.08\textwidth}}
+\begin{longtable}{p{0.19\textwidth}p{0.31\textwidth}p{0.34\textwidth}p{0.065\textwidth}}
 \toprule
-Yêu cầu & Cài đặt trong bài & Bằng chứng & Trạng thái &  &  &  &  &  &  &  \\
+Yêu cầu & Cài đặt trong bài & Bằng chứng & Trạng thái \\
 \midrule
 \endfirsthead
 \toprule
-Yêu cầu & Cài đặt trong bài & Bằng chứng & Trạng thái &  &  &  &  &  &  &  \\
+Yêu cầu & Cài đặt trong bài & Bằng chứng & Trạng thái \\
 \midrule
 \endhead
-Chỉ dùng Crypto++ cho primitive & Toàn bộ AES, GHASH, CBC-MAC, RNG, SHA-256 đều gọi Crypto++ & \texttt{src/aescore.cpp}, \texttt{src/cryptopp\_all.hpp} & Đạt &  &  &  &  &  &  &  \\
-AES-128/192/256 & Kiểm tra độ dài khoá 16/24/32 byte; XTS nhận 32/64 byte & \texttt{aescore.cpp::checkKey} & Đạt &  &  &  &  &  &  &  \\
-Tám chế độ chọn lúc chạy & `--mode ecb\textbackslash{} & cbc\textbackslash{} & ofb\textbackslash{} & cfb\textbackslash{} & ctr\textbackslash{} & xts\textbackslash{} & ccm\textbackslash{} & gcm` & \texttt{parseMode}, \texttt{modeName} & Đạt \\
-AEAD có AAD và tag & \texttt{--aead}, \texttt{--aad FILE}, \texttt{--aad-text STRING}; xác thực khi giải mã & \texttt{aeadEncrypt}, \texttt{aeadDecrypt} & Đạt &  &  &  &  &  &  &  \\
-Cảnh báo ECB và chặn > 16 KiB & In cảnh báo; chặn nếu thiếu \texttt{--allow-ecb} & \texttt{enforceEcbPolicy} & Đạt &  &  &  &  &  &  &  \\
-IV đúng độ dài, tự sinh, lưu lại & Kiểm tra theo mode; \texttt{AutoSeededRandomPool}; lưu trong header & \texttt{checkIv}, \texttt{randomBytes}, \texttt{serialize} & Đạt &  &  &  &  &  &  &  \\
-Chống tái sử dụng nonce & Registry cục bộ đồng bộ lock đa tiến trình (\texttt{.aestool\_nonces.lock}), kiểm tra header file đích và sidecar JSON & \texttt{checkAndRecordNonce} & Đạt &  &  &  &  &  &  &  \\
-Xoá bộ nhớ khoá (zeroize) & \texttt{CryptoPP::SecureWipeBuffer} và RAII \texttt{ScopedWipe} xoá sạch khoá khi rời phạm vi & \texttt{secureWipe}, \texttt{ScopedWipe} & Đạt &  &  &  &  &  &  &  \\
-Hỗ trợ sidecar JSON & \texttt{--sidecar [FILE]} ghi/đọc metadata JSON (\texttt{alg}, \texttt{mode}, \texttt{iv}, \texttt{aad}, \texttt{tag}) chuẩn & \texttt{writeSidecar}, \texttt{readSidecar} & Đạt &  &  &  &  &  &  &  \\
-Khoá từ file hoặc hex & \texttt{--key}, \texttt{--key-hex}; file raw hoặc \texttt{hex:} & \texttt{readKey}, \texttt{loadKeyFile} & Đạt &  &  &  &  &  &  &  \\
-Input file hoặc text & \texttt{--in}, \texttt{--text}; file nhị phân an toàn, \texttt{--text} UTF-8 trên Windows & \texttt{readInput}, \texttt{readAll} & Đạt &  &  &  &  &  &  &  \\
-Output raw/hex/base64 & `--encode hex\textbackslash{} & base64\textbackslash{} & raw`; màn hình mặc định hex cho ciphertext & \texttt{encodeBytes} & Đạt &  &  &  &  &  \\
-Header tự mô tả & Magic, version, mode, IV length, tag length, AAD length, IV, tag, AAD & \texttt{serialize}, \texttt{parseRecord} & Đạt &  &  &  &  &  &  &  \\
-KAT bằng JSON & \texttt{--kat vectors.json}; PASS/FAIL và tổng kết & \texttt{runKat}, \texttt{kat/vectors.json} & Đạt &  &  &  &  &  &  &  \\
-Kiểm thử âm & Sai khoá, sai IV, sửa ciphertext/tag, IV sai độ dài, ECB lớn, nonce reuse & \texttt{output/windows/neg\_results/}, \texttt{output/ubuntu/neg\_results/} & Đạt &  &  &  &  &  &  &  \\
-Benchmark 6 kích thước & 1 KB, 4 KB, 16 KB, 256 KB, 1 MB, 8 MB & 96 CSV & Đạt &  &  &  &  &  &  &  \\
-Thống kê mean/median/SD/CI95 & \texttt{summary.csv} và báo cáo & \texttt{summarize\_bench.py} & Đạt &  &  &  &  &  &  &  \\
-So sánh Windows/Linux, stream/block, AEAD/non-AEAD, tag overhead & Các bảng và đồ thị trong mục 6 & \texttt{output/compare/}, \texttt{output/*/benchmarks/graph/} & Đạt &  &  &  &  &  &  &  \\
-CMake, build ngoài source & \texttt{CMakeLists.txt}; thư mục build riêng & \texttt{README.md} & Đạt &  &  &  &  &  &  &  \\
-Catch2/ctest trên Windows và Linux & Catch2 vendored; Windows MSVC 2/2, Ubuntu GCC/Clang 2/2 (Catch2 + CLI), log đã lưu & \texttt{tests/test\_core.cpp}, \texttt{tests/cli\_test.*}, \texttt{output/*/test\_results/} & Đạt &  &  &  &  &  &  &  \\
-Thư viện chia sẻ (bonus) & \texttt{BUILD\_SHARED\_LIBS=ON} tạo \texttt{aescore.dll} / \texttt{libaescore.so}; C ABI trong \texttt{src/aesgui.h} & \texttt{CMakeLists.txt}, \texttt{src/aesgui.*} & Đạt &  &  &  &  &  &  &  \\
-GUI (bonus) & Tkinter gọi thư viện qua \texttt{ctypes}; đã self-test 8 mode trên Windows và Ubuntu & \texttt{gui/aestool\_gui.py}, \texttt{gui/README.md} & Đạt &  &  &  &  &  &  &  \\
+Chỉ dùng Crypto++ cho primitive & Toàn bộ AES, GHASH, CBC-MAC, RNG, SHA-256 đều gọi Crypto++ & \texttt{src/aescore.cpp}, \texttt{src/cryptopp\_all.hpp} & Đạt \\
+AES-128/192/256 & Kiểm tra độ dài khoá 16/24/32 byte; XTS nhận 32/64 byte & \texttt{aescore.cpp::checkKey} & Đạt \\
+Tám chế độ chọn lúc chạy & \texttt{--mode ecb\textbar{}cbc\textbar{}ofb\textbar{}cfb\textbar{}ctr\textbar{}xts\textbar{}ccm\textbar{}gcm} & \texttt{parseMode}, \texttt{modeName} & Đạt \\
+AEAD có AAD và tag & \texttt{--aead}, \texttt{--aad FILE}, \texttt{--aad-text STRING}; xác thực khi giải mã & \texttt{aeadEncrypt}, \texttt{aeadDecrypt} & Đạt \\
+Cảnh báo ECB và chặn > 16 KiB & In cảnh báo; chặn nếu thiếu \texttt{--allow-ecb} & \texttt{enforceEcbPolicy} & Đạt \\
+IV đúng độ dài, tự sinh, lưu lại & Kiểm tra theo mode; \texttt{AutoSeededRandomPool}; lưu trong header & \texttt{checkIv}, \texttt{randomBytes}, \texttt{serialize} & Đạt \\
+Chống tái sử dụng nonce & Registry cục bộ đồng bộ lock đa tiến trình (\texttt{.aestool\_nonces.lock}), kiểm tra header file đích và sidecar JSON & \texttt{checkAndRecordNonce} & Đạt \\
+Xoá bộ nhớ khoá (zeroize) & \texttt{CryptoPP::SecureWipeBuffer} và RAII \texttt{ScopedWipe} xoá sạch khoá khi rời phạm vi & \texttt{secureWipe}, \texttt{ScopedWipe} & Đạt \\
+Hỗ trợ sidecar JSON & \texttt{--sidecar [FILE]} ghi/đọc metadata JSON (\texttt{alg}, \texttt{mode}, \texttt{iv}, \texttt{aad}, \texttt{tag}) chuẩn & \texttt{writeSidecar}, \texttt{readSidecar} & Đạt \\
+Khoá từ file hoặc hex & \texttt{--key}, \texttt{--key-hex}; file raw hoặc \texttt{hex:} & \texttt{readKey}, \texttt{loadKeyFile} & Đạt \\
+Input file hoặc text & \texttt{--in}, \texttt{--text}; file nhị phân an toàn, \texttt{--text} UTF-8 trên Windows & \texttt{readInput}, \texttt{readAll} & Đạt \\
+Output raw/hex/base64 & \texttt{--encode hex\textbar{}base64\textbar{}raw}; màn hình mặc định hex cho ciphertext & \texttt{encodeBytes} & Đạt \\
+Header tự mô tả & Magic, version, mode, IV length, tag length, AAD length, IV, tag, AAD & \texttt{serialize}, \texttt{parseRecord} & Đạt \\
+KAT bằng JSON & \texttt{--kat vectors.json}; PASS/FAIL và tổng kết & \texttt{runKat}, \texttt{kat/vectors.json} & Đạt \\
+Kiểm thử âm & Sai khoá, sai IV, sửa ciphertext/tag, IV sai độ dài, ECB lớn, nonce reuse & \texttt{output/windows/neg\_results/}, \texttt{output/ubuntu/neg\_results/} & Đạt \\
+Benchmark 6 kích thước & 1 KB, 4 KB, 16 KB, 256 KB, 1 MB, 8 MB & 96 CSV & Đạt \\
+Thống kê mean/median/SD/CI95 & \texttt{summary.csv} và báo cáo & \texttt{summarize\_bench.py} & Đạt \\
+So sánh Windows/Linux, stream/block, AEAD/non-AEAD, tag overhead & Các bảng và đồ thị trong mục 6 & \texttt{output/compare/}, \texttt{output/*/benchmarks/graph/} & Đạt \\
+CMake, build ngoài source & \texttt{CMakeLists.txt}; thư mục build riêng & \texttt{README.md} & Đạt \\
+Catch2/ctest trên Windows và Linux & Catch2 vendored; Windows MSVC 2/2, Ubuntu GCC/Clang 2/2 (Catch2 + CLI), log đã lưu & \texttt{tests/test\_core.cpp}, \texttt{tests/cli\_test.*}, \texttt{output/*/test\_results/} & Đạt \\
+Thư viện chia sẻ (bonus) & \texttt{BUILD\_SHARED\_LIBS=ON} tạo \texttt{aescore.dll} / \texttt{libaescore.so}; C ABI trong \texttt{src/aesgui.h} & \texttt{CMakeLists.txt}, \texttt{src/aesgui.*} & Đạt \\
+GUI (bonus) & Tkinter gọi thư viện qua \texttt{ctypes}; đã self-test 8 mode trên Windows và Ubuntu & \texttt{gui/aestool\_gui.py}, \texttt{gui/README.md} & Đạt \\
 \bottomrule
 \end{longtable}
 
@@ -179,7 +229,7 @@ Báo cáo tập trung vào Lab 1. Các so sánh hiệu năng chỉ có giá tr�
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Thiết kế và cài đặt}
+\chapter{THIẾT KẾ VÀ CÀI ĐẶT}
 
 
 \section{Kiến trúc mã nguồn}
@@ -321,7 +371,11 @@ Với CTR, CCM và GCM, cơ chế phát hiện và ngăn chặn tái sử dụng
 
 \begin{enumerate}[leftmargin=*]
 \item \textbf{Kiểm tra trực tiếp tệp đầu ra:} Nếu \texttt{--out} trỏ tới một tệp đã tồn tại và tệp đó chứa header container \texttt{AESL1} hoặc sidecar JSON hợp lệ có cùng chế độ và IV/nonce, thao tác mã hoá bị từ chối ngay lập tức: \texttt{nonce reuse rejected: output file header indicates same nonce already used}.
-\item \textbf{Registry cục bộ đồng bộ đa tiến trình:} Trước và trong khi ghi, CLI sử dụng khoá liên tiến trình nguyên tử (\texttt{.aestool\_nonces.lock} qua \texttt{std::filesystem::create\_directory}) để kiểm tra và ghi nhận cặp: ``\texttt{ SHA-256(key) || ' ' || hex(nonce) }`\texttt{ vào tệp }.aestool\_nonces`. Thao tác kiểm tra và ghi được gộp nguyên tử trong cùng một phiên lock, loại bỏ hoàn toàn lỗi tranh chấp race condition (TOCTOU) khi nhiều tiến trình chạy đồng thời.
+\item \textbf{Registry cục bộ đồng bộ đa tiến trình:} Trước và trong khi ghi, CLI sử dụng khoá liên tiến trình nguyên tử (\texttt{.aestool\_nonces.lock} qua \texttt{std::filesystem::create\_directory}) để kiểm tra và ghi nhận cặp:
+\begin{Verbatim}
+SHA-256(key) || ' ' || hex(nonce)
+\end{Verbatim}
+vào tệp \texttt{.aestool\_nonces}. Thao tác kiểm tra và ghi được gộp nguyên tử trong cùng một phiên lock, loại bỏ hoàn toàn lỗi tranh chấp race condition (TOCTOU) khi nhiều tiến trình chạy đồng thời.
 \end{enumerate}
 
 
@@ -363,9 +417,9 @@ Với chế độ không AEAD, không có cơ chế phát hiện sửa đổi. C
 Khi chọn ECB, chương trình luôn in:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 WARNING: ECB mode has no semantic security and leaks plaintext structure.
-\end{lstlisting}
+\end{Verbatim}
 
 
 Nếu payload lớn hơn 16 KiB và không có \texttt{--allow-ecb}, chương trình dừng với lỗi. Đây là biện pháp phòng ngừa chứ không phải "làm ECB an toàn": ECB vẫn không an toàn với dữ liệu nhỏ, và 16 KiB chỉ là ngưỡng chính sách.
@@ -377,7 +431,7 @@ Nếu payload lớn hơn 16 KiB và không có \texttt{--allow-ecb}, chương tr
 Cú pháp chính:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 aestool encrypt --mode MODE [--in FILE | --text STRING] [--out FILE]
                 (--key FILE | --key-hex HEX) [--iv FILE|HEX] [--nonce FILE|HEX]
                 [--aead] [--aad FILE | --aad-text STRING]
@@ -394,7 +448,7 @@ aestool bench --mode MODE (--key FILE | --key-hex HEX) [--size BYTES]
               [--allow-ecb]
 
 aestool --kat vectors.json
-\end{lstlisting}
+\end{Verbatim}
 
 
 Các điểm cần lưu ý:
@@ -418,9 +472,9 @@ Các điểm cần lưu ý:
 GUI nằm trong \texttt{gui/aestool\_gui.py}, viết bằng Python + Tkinter (thư viện chuẩn, không cần pip). Kiến trúc:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 Tkinter (Python) -> ctypes -> aesgui_* (C ABI) -> aescore -> Crypto++
-\end{lstlisting}
+\end{Verbatim}
 
 
 GUI \textbf{không} gọi CLI và không tự cài đặt lại thuật toán. Mọi thao tác mã hoá, giải mã, sinh IV và đọc header container đều đi qua thư viện chia sẻ \texttt{aescore.dll} / \texttt{libaescore.so}, đúng yêu cầu bonus "GUI must call compiled library". C ABI nằm trong \texttt{src/aesgui.h}:
@@ -462,12 +516,12 @@ Tính năng GUI:
 Bằng chứng trên Windows:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 > python gui\aestool_gui.py --self-test
 self-test OK: E:\NT219\lab01\build\windows-msvc-shared\Release\aescore.dll
   modes tested: ECB CBC OFB CFB CTR XTS CCM GCM
   round-trip, header mode check and wrong-key rejection passed
-\end{lstlisting}
+\end{Verbatim}
 
 
 Nhật ký: \texttt{output/windows/test\_results/gui\_selftest.txt}.
@@ -476,12 +530,12 @@ Nhật ký: \texttt{output/windows/test\_results/gui\_selftest.txt}.
 Bằng chứng trên Ubuntu:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 $ python3 gui/aestool_gui.py --self-test
 self-test OK: .../build/ubuntu-gcc-shared/libaescore.so
   modes tested: ECB CBC OFB CFB CTR XTS CCM GCM
   round-trip, header mode check and wrong-key rejection passed
-\end{lstlisting}
+\end{Verbatim}
 
 
 Nhật ký: \texttt{output/ubuntu/test\_results/gui\_selftest.txt}.
@@ -493,17 +547,17 @@ Self-test chạy cả tám mode qua thư viện, kiểm tra round-trip, kiểm t
 Build:
 
 
-\begin{lstlisting}[language=DosBatch]
+\begin{Verbatim}
 gui\build_gui.bat
 gui\run_gui.bat
-\end{lstlisting}
+\end{Verbatim}
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 sudo apt install -y python3-tk libcryptopp-dev
 ./gui/build_gui.sh
 ./gui/run_gui.sh
-\end{lstlisting}
+\end{Verbatim}
 
 
 \textbf{Hạn chế:} GUI lưu khoá trong tiến trình Python và widget Tk, không zeroize, không có key store. Cả đường Windows (MSVC 19.51 x64, \texttt{aescore.dll}) và Linux (\texttt{libaescore.so}) đã build và self-test đủ tám mode.
@@ -514,17 +568,17 @@ sudo apt install -y python3-tk libcryptopp-dev
 
 \begin{enumerate}[leftmargin=*]
 \item \textbf{Container nhị phân thay vì sidecar JSON.} Đề bài cho phép header hoặc sidecar. Container nhị phân giữ mọi thứ trong một tệp, tránh mất sidecar và tránh lỗi đồng bộ. Đổi lại, header không đọc được bằng mắt và không được xác thực riêng.
-\item \textbf{Mode nằm trong header và phải khớp @@LATEX0@@.} Ngăn downgrade từ AEAD sang non-AEAD.
+\item \textbf{Mode nằm trong header và phải khớp \texttt{--mode}.} Ngăn downgrade từ AEAD sang non-AEAD.
 \item \textbf{Registry nonce cục bộ.} Đơn giản, không cần database; phù hợp bài lab nhưng không dùng được cho hệ thống nhiều tiến trình.
 \item \textbf{CCM tag 8 byte.} Giảm overhead nhưng giảm mức an toàn so với 16 byte; là lựa chọn có chủ ý và được ghi rõ.
-\item \textbf{KAT dùng @@LATEX0@@.} Cần thiết để so khớp vector NIST; CLI vẫn dùng padding PKCS \#7.
+\item \textbf{KAT dùng \texttt{pkcs7=false}.} Cần thiết để so khớp vector NIST; CLI vẫn dùng padding PKCS \#7.
 \end{enumerate}
 
 
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Kiểm chứng tính đúng đắn}
+\chapter{KIỂM CHỨNG TÍNH ĐÚNG ĐẮN}
 
 
 \section{Known Answer Tests (KAT)}
@@ -581,7 +635,7 @@ Hai vector CCM AES-256 lấy từ cùng một nhóm CAVP nên dùng chung key/no
 Log chạy trên Windows MSVC (\texttt{build/windows-msvc}, 29/29):
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 PASS NIST SP 800-38A AES-128 ECB
 PASS NIST SP 800-38A AES-128 CBC
 PASS NIST SP 800-38A AES-128 CFB128
@@ -612,7 +666,7 @@ PASS NIST CAVP GCM AES-256 Count 0 (PT 128, AAD 0)
 PASS NIST CAVP GCM AES-256 Count 0 (PT 128, AAD 128)
 PASS NIST CAVP GCM AES-256 Count 0 (PT 256, AAD 160)
 29 passed, 0 failed
-\end{lstlisting}
+\end{Verbatim}
 
 
 Nhật ký Windows: \texttt{output/windows/test\_results/kat\_msvc.txt}, \texttt{kat\_mingw\_gcc.txt} và \texttt{kat\_mingw\_clang.txt} (29/29). Log Ubuntu \texttt{output/ubuntu/test\_results/kat\_gcc.txt} và \texttt{kat\_clang.txt} đã được chạy lại ngày 05/11/2026 và ghi 29/29.
@@ -674,7 +728,7 @@ Key file & File raw và file \texttt{hex:} \\
 Trên Windows MSVC (\texttt{build/windows-msvc}, 2/2):
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 Test project E:/NT219/lab01/build/windows-msvc
     Start 1: aescore
 1/2 Test #1: aescore ..........................   Passed    0.04 sec
@@ -682,7 +736,7 @@ Test project E:/NT219/lab01/build/windows-msvc
 2/2 Test #2: cli ..............................   Passed    0.67 sec
 
 100% tests passed, 0 tests failed out of 2
-\end{lstlisting}
+\end{Verbatim}
 
 
 Nhật ký: \texttt{output/windows/test\_results/ctest\_msvc.txt}.
@@ -691,14 +745,14 @@ Nhật ký: \texttt{output/windows/test\_results/ctest\_msvc.txt}.
 Trên Ubuntu GCC và Clang:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 Test project .../build/ubuntu-gcc
     Start 1: aescore
 1/2 Test #1: aescore ..........................   Passed
     Start 2: cli
 2/2 Test #2: cli ..............................   Passed
 100% tests passed, 0 tests failed out of 2
-\end{lstlisting}
+\end{Verbatim}
 
 
 Nhật ký: \texttt{output/ubuntu/test\_results/ctest\_gcc.txt} và \texttt{ctest\_clang.txt}.
@@ -797,7 +851,7 @@ Fail-closed & AEAD không tạo output khi tag sai \\
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phương pháp đo hiệu năng}
+\chapter{PHƯƠNG PHÁP ĐO HIỆU NĂNG}
 
 
 \section{Mô hình đo}
@@ -920,7 +974,7 @@ Hai bộ dữ liệu không được thu trong cùng một phiên có kiểm so�
 Từ \texttt{lab01/}:
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 # Ubuntu
 scripts/build_linux.sh gcc
 sudo cpupower frequency-set -g performance
@@ -937,7 +991,7 @@ python scripts/plot_compare.py --dir output/ubuntu/benchmarks --out-dir output/u
 python scripts/summarize_bench.py --dir output/windows/benchmarks
 python scripts/plot_compare.py --dir output/windows/benchmarks --out-dir output/windows/benchmarks/graph
 python scripts/plot_crossplatform.py
-\end{lstlisting}
+\end{Verbatim}
 
 
 \texttt{scripts/run\_benchmarks.sh} ghi \texttt{bench\_environment.txt} cạnh CSV (CPU, governor, \texttt{PIN\_CPUS}, số runs). Trên Windows, tệp cùng tên được tạo bởi lệnh \texttt{powercfg} trong khối lệnh trên. Các số liệu hiện tại trong báo cáo vẫn là lần chạy chưa kiểm soát; sau khi chạy lại cần cập nhật bảng và kết luận.
@@ -946,7 +1000,7 @@ python scripts/plot_crossplatform.py
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Kết quả và so sánh hiệu năng}
+\chapter{KẾT QUẢ VÀ SO SÁNH HIỆU NĂNG}
 
 
 \section{Tổng quan theo mode và compiler}
@@ -1095,7 +1149,7 @@ Bảng dưới đây dùng nhóm mode như \texttt{summarize\_bench.py}:
 Lưu ý: nhóm block bị "thổi phồng" bởi ECB. ECB nhanh nhưng không an toàn; không được dùng nó để kết luận "block mode nói chung nhanh hơn stream".
 
 
-\begin{longtable}{p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}}
+\begin{longtable}{p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}}
 \toprule
 Kích thước & Nhóm & Ubuntu enc & Ubuntu dec & Windows enc & Windows dec & Win/Linux enc & Win/Linux dec \\
 \midrule
@@ -1238,7 +1292,7 @@ Phân tích:
 Bảng dưới đây là thông lượng \textbf{mã hoá} trung bình (MB/s) theo kích thước, cho GCC và MSVC. Bảng giải mã tương ứng nằm ở Phụ lục B.
 
 
-\begin{longtable}{p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}}
+\begin{longtable}{p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}}
 \toprule
 Platform & Mode & 1 KB & 4 KB & 16 KB & 256 KB & 1 MB & 8 MB \\
 \midrule
@@ -1404,15 +1458,15 @@ Diễn giải:
 Để tách riêng chi phí syscall/I/O, \texttt{scripts/bench\_io.py} chạy CLI thật end-to-end: ghi plaintext ra tệp, \texttt{encrypt --in … --out …}, rồi \texttt{decrypt} ngược, đo wall-clock bằng \texttt{perf\_counter}. Chi phí syscall/I/O được tính bằng:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 io_ms = end2end_ms − startup_ms − crypto_ms
-\end{lstlisting}
+\end{Verbatim}
 
 
 trong đó \texttt{crypto\_ms} lấy từ \texttt{summary.csv} (cùng mode, cùng kích thước) và \texttt{startup\_ms} là trung bình thời gian chạy \texttt{aestool help} (10 lần) — baseline cho process startup + dynamic linking. Bảng dưới đây là kết quả trên Ubuntu GCC, mode CBC (chi phí I/O không phụ thuộc mode), 10 lần/kích thước:
 
 
-\begin{longtable}{p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}}
+\begin{longtable}{p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}}
 \toprule
 Kích thước & Startup (ms) & Enc end-to-end (ms) & Enc crypto (ms) & Enc I/O (ms) & Dec end-to-end (ms) & Dec crypto (ms) & Dec I/O (ms) \\
 \midrule
@@ -1452,7 +1506,7 @@ Giới hạn: phép đo dùng page cache (không \texttt{fsync}, không đĩa l�
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phân tích bảo mật}
+\chapter{PHÂN TÍCH BẢO MẬT}
 
 
 \section{Mô hình mối đe dọa}
@@ -1647,7 +1701,7 @@ Side-channel & Mọi chế độ & Kẻ tấn công đo thời gian/cache & Cons
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Đối chiếu yêu cầu, rubric và tự chấm điểm}
+\chapter{ĐỐI CHIẾU YÊU CẦU, RUBRIC VÀ TỰ CHẤM ĐIỂM}
 
 
 \section{Rubric của Lab 1}
@@ -1768,7 +1822,7 @@ Bonus GUI & Đạt trên Windows và Linux; self-test 8 mode cả hai \\
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Bài học rút ra và kết luận}
+\chapter{BÀI HỌC RÚT RA VÀ KẾT LUẬN}
 
 
 \section{Bài học kỹ thuật}
@@ -1809,7 +1863,7 @@ Về hiệu năng, trong cấu hình đo, Ubuntu GCC cho thông lượng cao hơ
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Tài liệu tham khảo}
+\chapter{NGUỒN THAM KHẢO}
 
 
 \begin{enumerate}[leftmargin=*]
@@ -1829,7 +1883,7 @@ Về hiệu năng, trong cấu hình đo, Ubuntu GCC cho thông lượng cao hơ
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phụ lục}
+\chapter{PHỤ LỤC}
 
 
 \section{Phụ lục A — Thống kê chi tiết tại 16 KB}
@@ -1867,7 +1921,7 @@ Windows MSVC & GCM & 32,182 & 30,800 & 7,512 & 0,466 & 0,2334 & 35,936 & 19,292 
 \section{Phụ lục B — Thông lượng giải mã theo kích thước}
 
 
-\begin{longtable}{p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}}
+\begin{longtable}{p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}p{0.115\textwidth}}
 \toprule
 Platform & Mode & 1 KB & 4 KB & 16 KB & 256 KB & 1 MB & 8 MB \\
 \midrule

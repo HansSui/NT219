@@ -25,8 +25,8 @@
   negative tests fail closed, the report contains tables/plots with 95% CIs,
   and the self-grade rubric is filled in.
 - **Out of scope:** production key management, live targets, third-party data,
-  and malicious exploitation. Labs 4-6 have specifications but no code in the
-  repo yet.
+  and malicious exploitation. Labs 5-6 have specifications but no code in the
+  repo yet; Lab 4 is implemented on Ubuntu (TLS/Windows evidence open).
 
 ## Document map
 
@@ -126,10 +126,10 @@ without a requirement.
 
 | Milestone | Scope | Exit gate | Status |
 |---|---|---|---|
-| M1 | Lab 1 `aestool` | KAT 8 modes, `ctest`, negative tests, benchmark CSVs, report section | Done in `lab01/`; report refresh noted in README |
-| M2 | Lab 2 `aestool` | FIPS-197/SP 800-38A KAT, oracle parity, `ctest`, 1 MiB/100 MiB/1 GiB benchmarks | Core/tests/report done; Ubuntu KAT 9/9, CTest 4/4, OpenSSL cross-validation and 1000/100/30 benchmark committed. Windows KAT/unit logs valid; Windows CTest/cross-validation need a rerun after the OpenSSL switch. Open: Windows run-time environment log, Windows OpenSSL throughput, PDF/identity (`lab02/REPORT.md`, `docs/missing/lab2.md`) |
-| M3 | Lab 3 `rsatool` | OAEP + hybrid KAT, negative tests, 3072/4096 benchmarks | Done in `lab03/`: OpenSSL 4.0.2 + GCC 15.2, KAT 2/2, CTest 5/5, CPU-pinned 4-thread benchmark (1000/100 runs) and grouped-bar plots. Regrade 97/100 core + 6 bonus; see `docs/missing/lab3.md`. Windows build scripts present, not run on this host. |
-| M4 | Lab 4 `hashtool` | Hash KAT, X.509 parse/verify, both attack demos, benchmarks | Not started |
+| M1 | Lab 1 `aestool` | KAT 8 modes, `ctest`, negative tests, benchmark CSVs, report section | Done in `lab01/`; PDF/archive remains |
+| M2 | Lab 2 `aestool` | FIPS-197/SP 800-38A KAT, oracle parity, `ctest`, 1 MiB/100 MiB/1 GiB benchmarks | Core/tests/report done; Ubuntu KAT 9/9, CTest 4/4, OpenSSL cross-validation and 1000/100/30 benchmark committed. Windows KAT/unit logs valid; benchmark and OpenSSL throughput rerun 2026-11-10. Open: Windows CTest/cross-validation logs after the OpenSSL switch, Windows run-time environment log, PDF/archive (`lab02/REPORT.md`, `docs/missing/lab2.md`) |
+| M3 | Lab 3 `rsatool` | OAEP + hybrid KAT, negative tests, 3072/4096 benchmarks | Done in `lab03/`: OpenSSL 4.0.2/4.0.x, KAT 2/2, CTest 5/5, CPU-pinned 4-thread benchmarks on Ubuntu and Windows MSVC, grouped-bar plots, manual OAEP and CTR+HMAC tests. Regrade 99/100 core + 13 bonus; PDF/archive remains. See `docs/missing/lab3.md`. |
+| M4 | Lab 4 `hashtool` | Hash KAT, X.509 parse/verify, both attack demos, benchmarks | Done in `lab04/`: OpenSSL EVP hashing, KAT 31/31, CTest 5/5 (GCC/Clang, OpenSSL 4.0.2), X.509 one-link verify, MD5 PNG collision, own SHA-256 length extension, benchmarks/plots and an executed Jupyter analysis notebook. TLS deployment, Windows evidence and full chosen-prefix +10 remain open. See `docs/blueprint/labs/lab4.md`. |
 | M5 | Lab 5 `sigtool` | ECDSA/RSA-PSS vectors, negative tests, benchmarks | Not started |
 | M6 | Lab 6 `pqtool` | ML-DSA/ML-KEM vectors, PQ certificate verify/tamper test, benchmarks | Not started |
 
@@ -142,7 +142,7 @@ Non-blocking assumptions are recorded here so a later session can reverse them.
 
 | ID | Assumption / gap | Why it matters | Default |
 |---|---|---|---|
-| A-01 | Labs 4-6 code does not exist yet; their docs describe the target, not current state. | Prevents treating a plan as evidence. | Build each lab from its brief. |
+| A-01 | Labs 5-6 code does not exist yet; Lab 4 is implemented on Ubuntu but its TLS and Windows evidence are open. Docs describe the target, not current state. | Prevents treating a plan as evidence. | Build each lab from its brief; keep status tables current. |
 | A-02 | Lab 4 does not say whether hashes must be from scratch. | From-scratch SHA-2/SHA-3 is a large scope increase. | Use OpenSSL/Crypto++ implementations; document the choice. |
 | A-03 | Lab 4 demo tools may not be installed. | Blocks the controlled offline demonstrations. | Confirm tool availability before the lab; keep demonstrations to owned artifacts. |
 | A-04 | Lab 5 RFC 6979 support depends on the chosen library. | Random ECDSA nonces are a fail condition. | Use library RFC 6979 support or implement the derivation; state which. |
@@ -153,6 +153,9 @@ Non-blocking assumptions are recorded here so a later session can reverse them.
 
 ## Changes
 
+- 2026-11-10 — Synced Labs 2-3 status with the committed Windows benchmark,
+  OpenSSL-throughput, manual-OAEP and CTR+HMAC evidence; refreshed the M2/M3
+  rows.
 - 2026-11-09 — Corrected the implementation status, randomness guidance for
   Lab 6, and the unresolved archive-binary requirement; see per-lab notes for
   corrected certificate-validation and ML-KEM test semantics.

@@ -89,24 +89,24 @@ all four worker threads.
 
 | Case | Bits | Size | Threads | Runs | Mean ms | Median ms | SD ms | 95% CI ms | Mean MB/s | Aggregate MB/s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| rsa_keygen | 3072 | — | 4 | 1000 | 186.407 | 155.079 | 123.569 | 7.659 | — | — |
-| rsa_keygen | 4096 | — | 4 | 1000 | 604.706 | 519.984 | 392.837 | 24.348 | — | — |
-| rsa_encrypt | 3072 | 32 B | 4 | 1000 | 0.052 | 0.052 | 0.003 | 0.000 | 0.6 | 2.4 |
-| rsa_encrypt | 4096 | 32 B | 4 | 1000 | 0.105 | 0.093 | 0.020 | 0.001 | 0.3 | 1.3 |
-| rsa_decrypt | 3072 | 32 B | 4 | 1000 | 1.198 | 1.140 | 0.199 | 0.012 | 0.0 | 0.1 |
-| rsa_decrypt | 4096 | 32 B | 4 | 1000 | 2.637 | 2.535 | 0.384 | 0.024 | 0.0 | 0.0 |
-| aes_gcm | 256 | 1 KiB | 4 | 1000 | 0.002 | 0.002 | 0.000 | 0.000 | 601.8 | 2407.2 |
-| aes_gcm | 256 | 1 MiB | 4 | 1000 | 0.281 | 0.272 | 0.028 | 0.002 | 3756.7 | 15026.8 |
-| aes_gcm | 256 | 100 MiB | 4 | 100 | 159.752 | 158.424 | 8.089 | 1.585 | 658.0 | 2631.9 |
-| aes_gcm_decrypt | 256 | 1 KiB | 4 | 1000 | 0.001 | 0.001 | 0.001 | 0.000 | 709.6 | 2838.5 |
-| aes_gcm_decrypt | 256 | 1 MiB | 4 | 1000 | 0.186 | 0.184 | 0.009 | 0.001 | 5659.3 | 22637.2 |
-| aes_gcm_decrypt | 256 | 100 MiB | 4 | 100 | 97.500 | 98.542 | 6.665 | 1.306 | 1080.4 | 4321.7 |
-| hybrid_encrypt | 3072 | 1 KiB | 4 | 1000 | 0.065 | 0.063 | 0.023 | 0.001 | 16.1 | 64.3 |
-| hybrid_encrypt | 3072 | 1 MiB | 4 | 1000 | 1.772 | 1.771 | 0.217 | 0.013 | 614.4 | 2457.7 |
-| hybrid_encrypt | 3072 | 100 MiB | 4 | 100 | 251.621 | 249.409 | 17.730 | 3.475 | 418.8 | 1675.1 |
-| hybrid_decrypt | 3072 | 1 KiB | 4 | 1000 | 1.316 | 1.264 | 0.207 | 0.013 | 0.8 | 3.2 |
-| hybrid_decrypt | 3072 | 1 MiB | 4 | 1000 | 1.774 | 1.585 | 0.417 | 0.026 | 612.7 | 2450.7 |
-| hybrid_decrypt | 3072 | 100 MiB | 4 | 100 | 171.222 | 170.623 | 13.572 | 2.660 | 616.3 | 2465.2 |
+| rsa_keygen | 3072 | — | 4 | 1000 | 180.157 | 155.273 | 117.502 | 7.283 | — | — |
+| rsa_keygen | 4096 | — | 4 | 1000 | 606.081 | 512.946 | 413.817 | 25.649 | — | — |
+| rsa_encrypt | 3072 | 32 B | 4 | 1000 | 0.053 | 0.052 | 0.004 | 0.000 | 0.6 | 2.4 |
+| rsa_encrypt | 4096 | 32 B | 4 | 1000 | 0.097 | 0.091 | 0.014 | 0.001 | 0.3 | 1.3 |
+| rsa_decrypt | 3072 | 32 B | 4 | 1000 | 1.217 | 1.139 | 0.349 | 0.022 | 0.0 | 0.1 |
+| rsa_decrypt | 4096 | 32 B | 4 | 1000 | 2.659 | 2.524 | 0.473 | 0.029 | 0.0 | 0.0 |
+| aes_gcm | 256 | 1 KiB | 4 | 1000 | 0.002 | 0.002 | 0.001 | 0.000 | 531.0 | 2124.1 |
+| aes_gcm | 256 | 1 MiB | 4 | 1000 | 0.369 | 0.339 | 0.189 | 0.012 | 3021.5 | 12086.1 |
+| aes_gcm | 256 | 100 MiB | 4 | 100 | 150.492 | 146.686 | 21.751 | 4.263 | 708.1 | 2832.5 |
+| aes_gcm_decrypt | 256 | 1 KiB | 4 | 1000 | 0.002 | 0.002 | 0.001 | 0.000 | 613.9 | 2455.4 |
+| aes_gcm_decrypt | 256 | 1 MiB | 4 | 1000 | 0.196 | 0.187 | 0.021 | 0.001 | 5395.6 | 21582.5 |
+| aes_gcm_decrypt | 256 | 100 MiB | 4 | 100 | 81.777 | 80.274 | 5.129 | 1.005 | 1287.0 | 5148.1 |
+| hybrid_encrypt | 3072 | 1 KiB | 4 | 1000 | 0.070 | 0.066 | 0.011 | 0.001 | 14.8 | 59.3 |
+| hybrid_encrypt | 3072 | 1 MiB | 4 | 1000 | 1.817 | 1.728 | 0.272 | 0.017 | 586.3 | 2345.1 |
+| hybrid_encrypt | 3072 | 100 MiB | 4 | 100 | 219.221 | 217.102 | 13.365 | 2.620 | 480.1 | 1920.2 |
+| hybrid_decrypt | 3072 | 1 KiB | 4 | 1000 | 1.297 | 1.237 | 0.201 | 0.012 | 0.8 | 3.2 |
+| hybrid_decrypt | 3072 | 1 MiB | 4 | 1000 | 1.674 | 1.578 | 0.260 | 0.016 | 637.5 | 2549.8 |
+| hybrid_decrypt | 3072 | 100 MiB | 4 | 100 | 152.524 | 150.847 | 10.226 | 2.004 | 690.4 | 2761.7 |
 
 ## Measured results (Windows MSVC)
 
@@ -115,42 +115,42 @@ Sources: `output/windows/benchmarks/bench_windows_msvc_rsa_hybrid.csv`,
 
 | Case | Bits | Size | Threads | Runs | Mean ms | Median ms | SD ms | 95% CI ms | Mean MB/s | Aggregate MB/s |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| rsa_keygen | 3072 | — | 4 | 1000 | 330.932 | 277.948 | 218.385 | 13.536 | — | — |
-| rsa_keygen | 4096 | — | 4 | 1000 | 829.217 | 703.324 | 550.214 | 34.103 | — | — |
-| rsa_encrypt | 3072 | 32 B | 4 | 1000 | 0.079 | 0.079 | 0.003 | 0.000 | 0.4 | 1.6 |
-| rsa_encrypt | 4096 | 32 B | 4 | 1000 | 0.109 | 0.109 | 0.003 | 0.000 | 0.3 | 1.2 |
-| rsa_decrypt | 3072 | 32 B | 4 | 1000 | 1.765 | 1.702 | 0.306 | 0.019 | 0.0 | 0.1 |
-| rsa_decrypt | 4096 | 32 B | 4 | 1000 | 3.409 | 3.184 | 0.528 | 0.033 | 0.0 | 0.0 |
-| aes_gcm | 256 | 1 KiB | 4 | 1000 | 0.003 | 0.003 | 0.001 | 0.000 | 371.3 | 1485.1 |
-| aes_gcm | 256 | 1 MiB | 4 | 1000 | 1.199 | 1.106 | 0.319 | 0.020 | 917.2 | 3668.6 |
-| aes_gcm | 256 | 100 MiB | 4 | 100 | 123.306 | 122.613 | 6.866 | 1.346 | 853.1 | 3412.3 |
-| aes_gcm_decrypt | 256 | 1 KiB | 4 | 1000 | 0.003 | 0.003 | 0.000 | 0.000 | 397.9 | 1591.5 |
-| aes_gcm_decrypt | 256 | 1 MiB | 4 | 1000 | 0.638 | 0.570 | 0.452 | 0.028 | 1803.8 | 7215.4 |
-| aes_gcm_decrypt | 256 | 100 MiB | 4 | 100 | 76.504 | 77.150 | 9.813 | 1.923 | 1402.9 | 5611.7 |
-| hybrid_encrypt | 3072 | 1 KiB | 4 | 1000 | 0.113 | 0.114 | 0.006 | 0.000 | 9.1 | 36.3 |
-| hybrid_encrypt | 3072 | 1 MiB | 4 | 1000 | 1.969 | 1.839 | 0.386 | 0.024 | 548.5 | 2194.1 |
-| hybrid_encrypt | 3072 | 100 MiB | 4 | 100 | 194.323 | 194.293 | 16.833 | 3.299 | 545.7 | 2182.7 |
-| hybrid_decrypt | 3072 | 1 KiB | 4 | 1000 | 1.865 | 1.825 | 0.300 | 0.019 | 0.6 | 2.2 |
-| hybrid_decrypt | 3072 | 1 MiB | 4 | 1000 | 2.915 | 2.805 | 0.382 | 0.024 | 364.6 | 1458.4 |
-| hybrid_decrypt | 3072 | 100 MiB | 4 | 100 | 136.146 | 137.209 | 12.499 | 2.450 | 779.0 | 3115.9 |
+| rsa_keygen | 3072 | — | 4 | 1000 | 369.274 | 309.459 | 238.596 | 14.788 | — | — |
+| rsa_keygen | 4096 | — | 4 | 1000 | 1081.614 | 901.519 | 721.901 | 44.744 | — | — |
+| rsa_encrypt | 3072 | 32 B | 4 | 1000 | 0.107 | 0.106 | 0.015 | 0.001 | 0.3 | 1.2 |
+| rsa_encrypt | 4096 | 32 B | 4 | 1000 | 0.180 | 0.177 | 0.046 | 0.003 | 0.2 | 0.7 |
+| rsa_decrypt | 3072 | 32 B | 4 | 1000 | 2.229 | 2.189 | 0.393 | 0.024 | 0.0 | 0.1 |
+| rsa_decrypt | 4096 | 32 B | 4 | 1000 | 4.710 | 4.541 | 0.658 | 0.041 | 0.0 | 0.0 |
+| aes_gcm | 256 | 1 KiB | 4 | 1000 | 0.005 | 0.004 | 0.010 | 0.001 | 249.8 | 999.3 |
+| aes_gcm | 256 | 1 MiB | 4 | 1000 | 1.590 | 1.474 | 0.456 | 0.028 | 691.5 | 2765.9 |
+| aes_gcm | 256 | 100 MiB | 4 | 100 | 174.884 | 174.810 | 15.537 | 3.045 | 604.3 | 2417.3 |
+| aes_gcm_decrypt | 256 | 1 KiB | 4 | 1000 | 0.003 | 0.003 | 0.001 | 0.000 | 314.1 | 1256.2 |
+| aes_gcm_decrypt | 256 | 1 MiB | 4 | 1000 | 0.893 | 0.845 | 0.213 | 0.013 | 1227.0 | 4908.0 |
+| aes_gcm_decrypt | 256 | 100 MiB | 4 | 100 | 105.640 | 105.602 | 9.063 | 1.776 | 1001.3 | 4005.1 |
+| hybrid_encrypt | 3072 | 1 KiB | 4 | 1000 | 0.161 | 0.159 | 0.063 | 0.004 | 6.5 | 26.0 |
+| hybrid_encrypt | 3072 | 1 MiB | 4 | 1000 | 2.805 | 2.701 | 0.504 | 0.031 | 383.8 | 1535.1 |
+| hybrid_encrypt | 3072 | 100 MiB | 4 | 100 | 248.051 | 248.589 | 8.298 | 1.626 | 423.2 | 1692.8 |
+| hybrid_decrypt | 3072 | 1 KiB | 4 | 1000 | 2.419 | 2.326 | 0.396 | 0.025 | 0.4 | 1.7 |
+| hybrid_decrypt | 3072 | 1 MiB | 4 | 1000 | 4.579 | 3.688 | 2.403 | 0.149 | 258.4 | 1033.5 |
+| hybrid_decrypt | 3072 | 100 MiB | 4 | 100 | 161.401 | 161.691 | 6.079 | 1.191 | 650.6 | 2602.4 |
 
 ## Interpretation
 
 - **RSA decryption is much slower than encryption** at the same key size
-  (1.198 ms vs 0.052 ms at 3072 under four-way concurrency). Encryption uses the
+  (1.217 ms vs 0.053 ms at 3072 under four-way concurrency). Encryption uses the
   public exponent; private operations use the secret exponent/CRT and are
   dominated by modular exponentiation.
-- **4096-bit RSA is roughly 2.0–3.2× slower** than 3072 for keygen, encrypt and
+- **4096-bit RSA is roughly 1.7–3.4× slower** than 3072 for keygen, encrypt and
   decrypt in this run. The larger modulus also raises the direct plaintext limit
   from 318 to 446 bytes, but the safety margin and performance cost favor 3072
   unless a longer lifetime is required.
 - **AES-GCM throughput is in the GB/s range** because AES-NI and GCM run in
-  hardware; four threads reach about 15.0 GB/s aggregate for 1 MiB encryption
-  and 22.6 GB/s for 1 MiB decryption on this host. RSA processes one small block
+  hardware; four threads reach about 12.1 GB/s aggregate for 1 MiB encryption
+  and 21.6 GB/s for 1 MiB decryption on this host. RSA processes one small block
   per operation. This is why bulk data uses a symmetric cipher.
-- **Hybrid overhead is dominated by RSA at small sizes** (1 KiB: ~65 µs encrypt,
-  ~1.32 ms decrypt) and by AES-GCM at large sizes (100 MiB: ~252 ms encrypt,
-  ~171 ms decrypt per op under four-way concurrency). The crossover is expected:
+- **Hybrid overhead is dominated by RSA at small sizes** (1 KiB: ~70 µs encrypt,
+  ~1.30 ms decrypt) and by AES-GCM at large sizes (100 MiB: ~219 ms encrypt,
+  ~153 ms decrypt per op under four-way concurrency). The crossover is expected:
   one RSA wrap/unwrap plus a fast symmetric pass.
 - **Four-way concurrency increases per-op latency for large payloads** because
   the workers share memory bandwidth; aggregate throughput still rises. The
@@ -161,7 +161,7 @@ Sources: `output/windows/benchmarks/bench_windows_msvc_rsa_hybrid.csv`,
   generation is the only CPU-expensive setup step.
 - **Windows MSVC vs Ubuntu GCC:** the same ordering holds (RSA private >
   public, hybrid dominated by RSA at small sizes and AES at large sizes), but
-  absolute numbers differ. At 1 MiB, AES-GCM encrypt is 917 MB/s on Windows and
-  3757 MB/s on Ubuntu; RSA-3072 keygen is 331 ms vs 186 ms. Different OS,
-  compiler and OpenSSL build mean these are observations, not a controlled
+  absolute numbers differ. At 1 MiB, AES-GCM encrypt is 691.5 MB/s on Windows
+  and 3021.5 MB/s on Ubuntu; RSA-3072 keygen is 369.3 ms vs 180.2 ms. Different
+  OS, compiler and OpenSSL build mean these are observations, not a controlled
   cross-platform comparison. The Windows run has no environment log.

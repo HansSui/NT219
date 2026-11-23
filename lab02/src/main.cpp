@@ -1,4 +1,5 @@
 #include "AES.hpp"
+#include "aesni.hpp"
 #include "modes.hpp"
 #include "minijson.hpp"
 
@@ -63,6 +64,7 @@ void printHelp(const char* prog) {
               << "  --runs <n>                            Number of iterations (default: 1000)\n"
               << "  --warmup <seconds>                    Time-based warm-up duration (default: 1.0)\n"
               << "  --threads <n>                         Worker threads for the benchmark (default: 1)\n"
+              << "  --impl auto|soft|ni                   AES implementation for bench (default: auto)\n"
               << "  --out <csv_file>                      Output CSV filename\n";
 }
 
@@ -259,10 +261,11 @@ Block addBlocks(Block counter, size_t blocks) {
 std::vector<uint8_t> ctrCryptThreaded(const AES& cipher,
                                       const std::vector<uint8_t>& data,
                                       Block counter,
-                                      int threads) {
+                                      int threads,
+                                      bool allow_aesni = true) {
     if (threads <= 1 || data.size() < 65536) {
         Modes modes;
-        return modes.ctr_encrypt(cipher, data, counter);
+        return modes.ctr_encrypt(cipher, data, counter, allow_aesni);
     }
 
     const size_t blocks = (data.size() + 15) / 16;
@@ -280,9 +283,9 @@ std::vector<uint8_t> ctrCryptThreaded(const AES& cipher,
         std::vector<uint8_t> chunk(data.begin() + static_cast<std::ptrdiff_t>(begin),
                                    data.begin() + static_cast<std::ptrdiff_t>(finish));
         const Block chunk_counter = addBlocks(counter, start_block);
-        workers.emplace_back([&cipher, &parts, t, chunk = std::move(chunk), chunk_counter]() mutable {
+        workers.emplace_back([&cipher, &parts, t, chunk = std::move(chunk), chunk_counter, allow_aesni]() mutable {
             Modes modes;
-            parts[static_cast<size_t>(t)] = modes.ctr_encrypt(cipher, chunk, chunk_counter);
+            parts[static_cast<size_t>(t)] = modes.ctr_encrypt(cipher, chunk, chunk_counter, allow_aesni);
         });
     }
     for (auto& worker : workers) worker.join();
@@ -402,6 +405,7 @@ int runBench(int argc, char* argv[]) {
     std::string keyHex = "000102030405060708090a0b0c0d0e0f";
     double warmupSeconds = 1.0;
     int threads = 1;
+    std::string impl = "auto";
     bool verbose = false;
 
     for (int i = 2; i < argc; ++i) {
@@ -412,6 +416,7 @@ int runBench(int argc, char* argv[]) {
         else if (arg == "--key-hex" && i + 1 < argc) keyHex = argv[++i];
         else if (arg == "--warmup" && i + 1 < argc) warmupSeconds = std::stod(argv[++i]);
         else if (arg == "--threads" && i + 1 < argc) threads = std::stoi(argv[++i]);
+        else if (arg == "--impl" && i + 1 < argc) impl = argv[++i];
         else if (arg == "--mode" && i + 1 < argc) {
             const std::string mode = argv[++i];
             if (mode != "ctr") {
@@ -433,8 +438,16 @@ int runBench(int argc, char* argv[]) {
     if (threads < 1 || threads > 256) {
         throw std::runtime_error("--threads must be between 1 and 256");
     }
+    if (impl != "auto" && impl != "soft" && impl != "ni") {
+        throw std::runtime_error("--impl must be auto, soft or ni");
+    }
 
     std::vector<uint8_t> key = hexToBytes(keyHex);
+    if (impl == "ni" && (key.size() != 16 || !aesni::available())) {
+        throw std::runtime_error(
+            "--impl ni requires a 16-byte key and a CPU with AES-NI");
+    }
+    const bool allow_aesni = impl != "soft";
     AES cipher(key, getKeyLength(key.size()));
 
     std::vector<uint8_t> payload(sizeBytes, 0x5A);
@@ -450,7 +463,7 @@ int runBench(int argc, char* argv[]) {
     size_t warmIterations = 0;
     do {
         counter.fill(0);
-        (void)ctrCryptThreaded(cipher, warmPayload, counter, threads);
+        (void)ctrCryptThreaded(cipher, warmPayload, counter, threads, allow_aesni);
         ++warmIterations;
     } while (warmupSeconds > 0.0 &&
              std::chrono::duration<double>(std::chrono::steady_clock::now() - warmStart).count() <
@@ -471,7 +484,7 @@ int runBench(int argc, char* argv[]) {
         std::cerr << "bench: size=" << sizeBytes << " runs=" << runs
                   << " warmup=" << warmupSeconds << "s (" << warmIterations
                   << " iterations) threads=" << threads
-                  << " key_bits=" << (key.size() * 8) << "\n";
+                  << " key_bits=" << (key.size() * 8) << " impl=" << impl << "\n";
     }
 
     *outStream << "run,mode,size_bytes,encrypt_us,decrypt_us,"
@@ -486,11 +499,11 @@ int runBench(int argc, char* argv[]) {
         counter[14] = static_cast<uint8_t>((r >> 8) & 0xFF);
 
         auto t0 = std::chrono::high_resolution_clock::now();
-        std::vector<uint8_t> ct = ctrCryptThreaded(cipher, payload, counter, threads);
+        std::vector<uint8_t> ct = ctrCryptThreaded(cipher, payload, counter, threads, allow_aesni);
         auto t1 = std::chrono::high_resolution_clock::now();
 
         auto t2 = std::chrono::high_resolution_clock::now();
-        std::vector<uint8_t> pt = ctrCryptThreaded(cipher, ct, counter, threads);
+        std::vector<uint8_t> pt = ctrCryptThreaded(cipher, ct, counter, threads, allow_aesni);
         auto t3 = std::chrono::high_resolution_clock::now();
 
         double encUs = std::chrono::duration<double, std::micro>(t1 - t0).count();

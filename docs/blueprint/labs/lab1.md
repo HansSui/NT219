@@ -138,19 +138,19 @@ After this lab you should be able to:
 
 ### Definition of done (grader evidence)
 
-- [ ] `aestool` builds on Ubuntu GCC/Clang and Windows MSVC/MinGW.
-- [ ] KAT log shows PASS for every vector and a summary.
-- [ ] `ctest` passes on both OSes.
-- [ ] Negative-test log covers every case in §2.3.
-- [ ] Benchmark CSVs exist for every mode and required size; statistics and
+- [x] `aestool` builds on Ubuntu GCC/Clang and Windows MSVC/MinGW.
+- [x] KAT log shows PASS for every vector and a summary.
+- [x] `ctest` passes on both OSes.
+- [x] Negative-test log covers every case in §2.3.
+- [x] Benchmark CSVs exist for every mode and required size; statistics and
       plots are generated.
-- [ ] README lists dependencies, install steps, build commands, CLI examples,
+- [x] README lists dependencies, install steps, build commands, CLI examples,
       and known limitations.
-- [ ] Header/sidecar format is documented, including nonce-reuse detection.
-- [ ] Report section covers correctness, performance, and the security topics
+- [x] Header/sidecar format is documented, including nonce-reuse detection.
+- [x] Report section covers correctness, performance, and the security topics
       in §2.6.
-- [ ] Self-grade rubric filled in.
-- [ ] Academic-integrity statement included.
+- [x] Self-grade rubric filled in.
+- [x] Academic-integrity statement included.
 
 ## 4. Rubric (100 + 5 bonus)
 
@@ -255,8 +255,8 @@ flags) with the data.
 
 ### Risks / gaps
 
-- The report is being refreshed for the latest Windows run; keep the number
-  consistent between `README.md`, `BENCHMARKS.md`, and `REPORT.md`.
+- The Vietnamese report is current for the committed Windows run; keep the
+  numbers consistent between `README.md`, `BENCHMARKS.md`, and `REPORT.md`.
 - Ubuntu Clang was built and tested but not benchmarked; say so in the report
   instead of mixing compiler results.
 - Nonce-reuse detection is only as good as the persisted history; document its

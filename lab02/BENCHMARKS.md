@@ -35,16 +35,16 @@ Benchmark suite for AES-128 CTR throughput and latency in pure C++.
 ### Actual committed data vs documented matrix
 
 Ubuntu CSVs were measured on 2026-11-05 with GCC 15.2; Windows CSVs were
-measured on 2026-11-05 with MSVC 19.51:
+measured on 2026-11-10 with MSVC 19.51:
 
 | Platform | Size | Committed rows | Blueprint nominal | Notes |
 |---|---|---:|---:|---|
 | Ubuntu GCC 15.2 | 1 MiB | 1000 | 1000 | 4 threads, CPUs 0-3, `performance`; CV 14.4% |
 | Ubuntu GCC 15.2 | 100 MiB | 100 | 500 | 4 threads, CPUs 0-3; CV 5.4% |
 | Ubuntu GCC 15.2 | 1 GiB | 30 | 50 | 4 threads, CPUs 0-3; CV 4.0% |
-| Windows MSVC 19.51 | 1 MiB | 1000 | 1000 | 4 threads |
-| Windows MSVC 19.51 | 100 MiB | 100 | 500 | 4 threads |
-| Windows MSVC 19.51 | 1 GiB | 30 | 50 | 4 threads |
+| Windows MSVC 19.51 | 1 MiB | 1000 | 1000 | 4 threads; CV 12.0% |
+| Windows MSVC 19.51 | 100 MiB | 100 | 500 | 4 threads; CV 6.4% |
+| Windows MSVC 19.51 | 1 GiB | 30 | 50 | 4 threads; CV 8.4% |
 
 The chosen matrix is 1000/100/30. Both 100 MiB/100 and 1 GiB/30 are inside
 the course's “N >= 30” band, so the data is usable for observation; the
@@ -53,9 +53,12 @@ the current warm-up/thread/pinning protocol. Windows has no run-time
 environment log, so treat power/affinity/thread details as unverified from the
 CSV alone. See `output/windows/benchmarks/AUDIT.md`.
 
-Committed Windows means: **6.741 / 7.016 / 7.085 MiB/s** encrypt and
-**6.801 / 7.012 / 7.083 MiB/s** decrypt for 1 MiB / 100 MiB / 1 GiB. CVs are
-6.3% / 1.3% / 0.7%; `summary_robust.csv` marks all three `ok`.
+Committed Windows means: **6.580 / 6.444 / 8.644 MiB/s** encrypt and
+**6.605 / 6.455 / 8.574 MiB/s** decrypt for 1 MiB / 100 MiB / 1 GiB. CVs are
+12.0% / 6.4% / 8.4% encrypt and 12.1% / 6.9% / 8.0% decrypt;
+`summary_robust.csv` marks all three `ok` with zero outliers. The 1 GiB point
+is faster than 100 MiB in this run, which is a host/affinity artifact rather
+than a code property; quote medians with the CV caveat.
 
 ## CSV format
 
@@ -106,6 +109,9 @@ THREADS=4 PIN_CPU=0-3 RUNS_100MB=500 RUNS_1GB=50 \
 python3 scripts/summarize_bench.py --dir output/ubuntu/benchmarks
 python3 scripts/plot_bench.py output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_*.csv \
   --out-dir output/ubuntu/benchmarks/graphs --platform ubuntu-gcc
+
+# Own vs OpenSSL median-throughput comparison (Ubuntu + Windows):
+python3 scripts/plot_compare.py
 ```
 
 The script tries `sudo -n cpupower frequency-set -g performance` and restores
@@ -155,6 +161,21 @@ This is the expected gap: OpenSSL uses AES-NI, while the required `aes_core`
 is table-based software AES. All three OpenSSL points are marked stable
 (CV 8.1–8.9% at 1 MiB, 4.0–4.9% at 100 MiB/1 GiB).
 
+Windows (MSVC 19.51, 4 threads, 2026-11-10):
+
+| Size | Pure C++ enc | OpenSSL enc | Ratio | Pure C++ dec | OpenSSL dec | Ratio |
+|---|---:|---:|---:|---:|---:|---:|
+| 1 MiB | 6.580 MiB/s | 870.0 MiB/s | 132x | 6.605 MiB/s | 889.9 MiB/s | 135x |
+| 100 MiB | 6.444 MiB/s | 1420.6 MiB/s | 220x | 6.455 MiB/s | 1421.1 MiB/s | 220x |
+| 1 GiB | 8.644 MiB/s | 1331.6 MiB/s | 154x | 8.574 MiB/s | 1320.3 MiB/s | 154x |
+
+The Windows OpenSSL run is partly noisy: `summary_robust.csv` marks 1 MiB
+encrypt/decrypt `noisy` (58.4%/55.7% CV), 100 MiB encrypt `noisy` (28.2% CV) and
+1 GiB decrypt `noisy` (26.2% CV). Use the medians (encrypt
+945.6 / 1482.8 / 1401.5 MiB/s; decrypt 970.5 / 1481.7 / 1368.7 MiB/s) or treat
+the ratios as order-of-magnitude, not precise. The pure C++ data are the
+report's evidence of record; the Windows OpenSSL comparison is supplementary.
+
 Regenerate on Ubuntu:
 
 ```bash
@@ -179,6 +200,30 @@ build\windows-msvc\Release\bench_openssl.exe --size 1073741824 --runs 30 --threa
 python scripts\summarize_bench.py --dir output\windows\benchmarks\openssl
 ```
 
+## AES-NI vs table-based AES (Bonus C)
+
+Command: `--impl soft` vs `--impl ni`, single thread pinned to CPU 2, warm-up
+1.0 s, runs 1000/20/3 for 1 MiB/100 MiB/1 GiB. Environment and raw CSVs:
+`output/ubuntu/benchmarks/aesni/` (`environment.txt`, `1t/soft/`, `1t/ni/`).
+The CPU reports the `aes` flag; the build is GCC 15.2 `-O3` and the governor
+stayed `powersave` (the script could not change it without sudo).
+
+| Size | soft enc | AES-NI enc | Speedup | soft dec | AES-NI dec | Speedup |
+|---|---:|---:|---:|---:|---:|---:|
+| 1 MiB | 16.779 MiB/s | 1466.603 MiB/s | 87.4x | 16.757 MiB/s | 1390.465 MiB/s | 83.0x |
+| 100 MiB | 17.085 MiB/s | 1148.157 MiB/s | 67.2x | 17.437 MiB/s | 1142.911 MiB/s | 65.5x |
+| 1 GiB | 15.410 MiB/s | 1195.220 MiB/s | 77.6x | 15.697 MiB/s | 1139.890 MiB/s | 72.6x |
+
+Medians are in each `summary_robust.csv`; the 1 GiB AES-NI point is the most
+stable (CV 2.0%/9.4%). The 100 MiB AES-NI point has CV 16.4%/15.0% because only
+20 runs were used and the host is a laptop on `powersave`.
+
+Single-thread numbers isolate the cipher. A 4-thread run also exists under
+`4t/`, but the threaded harness copies each worker chunk before and after the
+call; at AES-NI speed that copy dominates (1 GiB: 880 MiB/s at 4 threads vs
+1195 MiB/s at one), so this table uses one thread. AES-192/256 stay on the
+table-based path; the fast path is AES-128 only.
+
 ## Limitations
 
 - The Ubuntu run (2026-11-05) used 4 threads, CPUs 0-3 and the `performance`
@@ -187,12 +232,16 @@ python scripts\summarize_bench.py --dir output\windows\benchmarks\openssl
 - A single combined bar chart covers all three Ubuntu sizes and plots
   encrypt, decrypt and total (aggregate both directions) with 95% CI;
   `graphs/bench_ubuntu_gcc_ctr_summary.png`. The same 3-series summary is
-  generated for Windows at `output/windows/benchmarks/graphs/bench_windows_msvc_ctr_summary.png`;
-  the six older per-size Windows plots remain.
+  generated for Windows at `output/windows/benchmarks/graphs/bench_windows_msvc_ctr_summary.png`.
+  `scripts/plot_compare.py` writes the own-vs-OpenSSL log-scale comparison for
+  each platform (`graphs/compare_openssl_vs_own_<platform>.png`); the six older
+  per-size Windows plots were removed because the summary covers the same data.
 - The Windows benchmark uses the chosen 1000/100/30 counts but has no
   run-time environment log.
-- OpenSSL throughput was measured on Ubuntu only; Windows has no comparison
-  yet. OpenSSL is memory-bound here, so extra threads do not increase its
-  throughput at 100 MiB/1 GiB.
+- Windows OpenSSL throughput now exists under
+  `output/windows/benchmarks/openssl/`, but several points are flagged noisy.
+  The Ubuntu comparison remains the stable one.
+  OpenSSL is memory-bound here, so extra threads do not increase its throughput
+  at 100 MiB/1 GiB.
 - Pure C++ table-based AES is expected to be far slower than AES-NI; report
   the absolute numbers, not a claim of “fast AES”.

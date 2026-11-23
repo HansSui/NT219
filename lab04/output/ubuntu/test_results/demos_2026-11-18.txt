@@ -1,0 +1,46 @@
+# Lab 4 demos — Ubuntu GCC + OpenSSL 4.0.2
+2026-11-18T14:40:27Z
+
+## MD5 PNG collision (regenerated in a temp copy; each run has a new shared digest)
+MD5 collision generator v1.5
+by Marc Stevens (http://www.win.tue.nl/hashclash/)
+
+Generating first block: ..............
+Generating second block: S10.....................................
+585979b33fd13608c8d6fe768a3d48b3  png1.png
+585979b33fd13608c8d6fe768a3d48b3  png2.png
+png1.png valid PNG; md5 585979b33fd13608c8d6fe768a3d48b3
+png2.png valid PNG; md5 585979b33fd13608c8d6fe768a3d48b3
+
+## Length extension (in place, deterministic)
+original MAC: 8c916ae440302161253d96254dc9e19ce4944c076b400a84bf5bd83f0cdae780
+forged MAC:   082e543e7765551ed42a7390f266a5b239f325cb591c8c666b0479ba91add5fe
+verification: 082e543e7765551ed42a7390f266a5b239f325cb591c8c666b0479ba91add5fe
+
+## MD5 certificate fallback (regenerated in a temp copy; identical-prefix, not chosen-prefix)
+aligned with 43 pad bytes at TBS offset 512; MD5(TBS)=151e001c2f22399803a51e0e8f2d312e
+wrote certA.pem certB.pem demo_key.pem
+certA.pem MD5(TBS) = 151e001c2f22399803a51e0e8f2d312e signature = 436b46c8fcdc5b9ac6bb30e14e3041ec...
+certB.pem MD5(TBS) = 151e001c2f22399803a51e0e8f2d312e signature = 436b46c8fcdc5b9ac6bb30e14e3041ec...
+
+## Committed artifacts (not regenerated)
+$ md5sum demos/md5_collision/png1.png demos/md5_collision/png2.png
+c1a8659eeb61d1d1258f1a6e1e1b55e1  demos/md5_collision/png1.png
+c1a8659eeb61d1d1258f1a6e1e1b55e1  demos/md5_collision/png2.png
+
+$ hashtool cert --in demos/chosen_prefix_cert/certB.pem --issuer demos/chosen_prefix_cert/certA.pem --require-verified
+subject: O=NT219,CN=MD5 collision demo
+issuer: O=NT219,CN=MD5 collision demo
+spki_algorithm: RSA (rsaEncryption (1.2.840.113549.1.1.1))
+spki_parameters: modulus_bits=2048, exponent=65537
+signature_algorithm: md5WithRSAEncryption (1.2.840.113549.1.1.4)
+signature_parameters: NULL
+not_before: Jan  1 00:00:00 2026 GMT
+not_after: Jan  1 00:00:00 2027 GMT
+key_usage: (none)
+san: (none)
+tbs_signature_algorithm: md5WithRSAEncryption (1.2.840.113549.1.1.4)
+algorithm_consistency: match
+signature: verified against supplied issuer key
+issuer_name: match
+trust: signature verified; chain/root trust NOT evaluated

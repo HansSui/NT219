@@ -1,0 +1,27 @@
+sha256 1 MiB stream: 1000 runs
+sha256 1 MiB mmap: 1000 runs
+sha512 1 MiB stream: 1000 runs
+sha512 1 MiB mmap: 1000 runs
+sha3-256 1 MiB stream: 1000 runs
+sha3-256 1 MiB mmap: 1000 runs
+sha3-512 1 MiB stream: 1000 runs
+sha3-512 1 MiB mmap: 1000 runs
+sha256 100 MiB stream: 100 runs
+sha256 100 MiB mmap: 100 runs
+sha512 100 MiB stream: 100 runs
+sha512 100 MiB mmap: 100 runs
+sha3-256 100 MiB stream: 100 runs
+sha3-256 100 MiB mmap: 100 runs
+sha3-512 100 MiB stream: 100 runs
+sha3-512 100 MiB mmap: 100 runs
+sha256 1024 MiB stream: 30 runs
+sha256 1024 MiB mmap: 30 runs
+sha512 1024 MiB stream: 30 runs
+sha512 1024 MiB mmap: 30 runs
+sha3-256 1024 MiB stream: 30 runs
+sha3-256 1024 MiB mmap: 30 runs
+sha3-512 1024 MiB stream: 30 runs
+sha3-512 1024 MiB mmap: 30 runs
+wrote /home/han-sui/Downloads/NT219/lab04/output/ubuntu/benchmarks/summary_ubuntu_gcc.csv
+wrote plots to /home/han-sui/Downloads/NT219/lab04/output/ubuntu/benchmarks/graphs
+benchmarks written to /home/han-sui/Downloads/NT219/lab04/output/ubuntu/benchmarks

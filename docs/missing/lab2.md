@@ -1,19 +1,20 @@
 # Lab 2 - Missing / Lacking
 
-**Audit date:** 2026-11-02 (updated 2026-11-05; Ubuntu rerun and rubric audit 2026-11-05)
-**Implementation pass:** 2026-11-02; Windows benchmark audit 2026-11-05;
-Ubuntu test and benchmark evidence 2026-11-05
+**Audit date:** 2026-11-02 (updated 2026-11-15; Bonus C AES-NI implemented)
+**Implementation pass:** 2026-11-02; Windows benchmark audit 2026-11-10;
+Ubuntu test and benchmark evidence 2026-11-05; Bonus C 2026-11-15
 **Sources:** `docs/Lab2.txt`, `docs/lab2_reference.md`,
 `docs/lab requirement.md`, `docs/GradingSystem.txt`,
 `docs/blueprint/labs/lab2.md`, `lab02/`
 **Method:** inspected the existing Ubuntu artifacts, rebuilt and tested Lab 2
 on Windows with MSVC 19.51, MinGW GCC 16.2.0 and MinGW Clang 22.1.8, and
 reviewed the code, tests, scripts and committed benchmark CSVs. On
-2026-11-05 I validated the new Windows MSVC benchmark CSVs, generated summary
-and plots, and wrote `lab02/output/windows/benchmarks/AUDIT.md`. Ubuntu was
-rerun on 2026-11-05 with GCC 15.2 (KAT/CTest/OpenSSL cross-validation and the
-1000/100/30 benchmark); the Windows CTest/cross-validation logs still predate
-the OpenSSL switch.
+2026-11-05 I validated the first Windows MSVC benchmark CSVs, generated summary
+and plots, and wrote `lab02/output/windows/benchmarks/AUDIT.md`. On 2026-11-10
+the Windows benchmark and OpenSSL throughput were rerun and the audit was
+refreshed. Ubuntu was rerun on 2026-11-05 with GCC 15.2 (KAT/CTest/OpenSSL
+cross-validation and the 1000/100/30 benchmark); the Windows
+CTest/cross-validation logs still predate the OpenSSL switch.
 
 Status legend: **OK** = present and verified, **Partial** = present but
 incomplete, **Missing** = not present, **Not verified** = no evidence here.
@@ -21,21 +22,24 @@ incomplete, **Missing** = not present, **Not verified** = no evidence here.
 ## Verdict
 
 The required AES-128 core, CTR mode, KAT/cross-validation, CLI and benchmark
-evidence are in place. Bonus A (AES-192/256) and bonus B (XTS) work. Ubuntu was
-rerun on 2026-11-05 with 4 threads, CPUs 0-3 and a `performance` governor; one
-combined summary plot covers all three sizes. The 2026-11-05 audit scored the
-core at 100/100 (security is a discussion criterion, and `REPORT.md` §7 covers
-every listed topic) and assumed a 100 cap.
+evidence are in place. Bonus A (AES-192/256), bonus B (XTS) and bonus C
+(AES-NI for AES-128 CTR) work. Ubuntu was rerun on 2026-11-05 with 4 threads,
+CPUs 0-3 and a `performance` governor; one combined summary plot covers all
+three sizes. The 2026-11-05 audit scored the core at 100/100 (security is a
+discussion criterion, and `REPORT.md` §7 covers every listed topic) and assumed
+a 100 cap.
 
-**Superseded 2026-11-06 by the strict regrade at the end of this file:** core
-100/100, bonus +15, total 115 additive (100 if the course caps the final score).
-OpenSSL is an accepted oracle and a benchmark run-time log is not required, so
-neither is a deduction. The old "capped at 100" assumption is not stated in the
-source rubric. The C-16 academic-integrity statement was added on 2026-11-06.
+**Current result (2026-11-15 regrade at the end of this file):** core 100/100,
+bonus +20, total 120 additive (100 if the course caps the final score). OpenSSL
+is an accepted oracle and a benchmark run-time log is not required, so neither
+is a deduction. The old "capped at 100" assumption is not stated in the source
+rubric. The C-16 academic-integrity statement was added on 2026-11-06.
 
-The submission is **not final**: the Windows CTest/cross-validation logs still
-say Crypto++, Windows OpenSSL throughput has not been run, and identity/PDF/
-archive are missing. The benchmark run-time log is optional.
+The submission is **not final**: the Windows CTest/cross-validation logs and
+`environment.txt` still say Crypto++ (they predate the oracle switch), and the
+PDF/archive are missing. Windows OpenSSL throughput now exists but the run is
+partly noisy (1 MiB both directions, 100 MiB encrypt, 1 GiB decrypt). The
+benchmark run-time log is optional.
 
 ## Baseline before this pass
 
@@ -52,10 +56,11 @@ Chosen benchmark rows: 1 MiB = 1000, 100 MiB = 100, 1 GiB = 30. The
 blueprint's nominal 500/50 is a target, but the chosen 100/30 is within the
 course's N >= 30 band and is the accepted run for this submission.
 
-Current Windows benchmark (2026-11-05, MSVC): also 1000/100/30, throughput
-6.74 / 7.02 / 7.09 MiB/s, CV 6.3% / 1.3% / 0.7%, all `ok`. It has summary and
-six plots but no run-time environment log; see
-`lab02/output/windows/benchmarks/AUDIT.md`.
+Current Windows benchmark (2026-11-10, MSVC): also 1000/100/30, throughput
+6.58 / 6.44 / 8.64 MiB/s encrypt and 6.61 / 6.46 / 8.57 MiB/s decrypt, CV
+12.0% / 6.4% / 8.4% encrypt, all `ok` with zero outliers. It has summary, seven
+plots (six per-size plus the combined summary) but no run-time environment log;
+see `lab02/output/windows/benchmarks/AUDIT.md`.
 
 ## Implementation log - 2026-11-02
 
@@ -85,13 +90,13 @@ tests, docs and evidence are intended to be committed.
 
 | ID | Gap | Status | Evidence / remaining |
 |---|---|---|---|
-| L2-01 | Windows build/test/KAT evidence | **Partial** | KAT/unit logs valid; CTest/cross-validation logs predate the OpenSSL oracle switch; benchmark CSV/summary/plots exist |
+| L2-01 | Windows build/test/KAT evidence | **Partial** | KAT/unit logs valid; CTest/cross-validation logs still predate the OpenSSL oracle switch; 2026-11-10 benchmark CSV/summary/plots and OpenSSL throughput exist |
 | L2-02 | No committed Ubuntu test/KAT logs | **OK** | GCC 15.2: 9/9 KAT, 4/4 CTest, 351/22 assertions; logs under `output/ubuntu/test_results/` (2026-11-05) |
-| L2-03 | No final report | **Partial** | `lab02/REPORT.md` written; PDF/DOCX and identity fields missing; academic-integrity statement added 2026-11-06 |
+| L2-03 | No final report | **Partial** | `lab02/REPORT.md` written and identity filled; PDF/DOCX and archive missing; academic-integrity statement added 2026-11-06 |
 | L2-04 | Thin KAT coverage; skips hidden | **OK** | 9 KATs; unsupported mode counts as skip and exits nonzero |
 | L2-05 | Cross-validation optional | **OK** | CMake fails if `ENABLE_CROSSVAL=ON` and OpenSSL is missing |
 | L2-06 | Benchmark protocol not required | **OK** | Both platforms 1000/100/30; Ubuntu 2026-11-05 with 4 threads/CPUs 0-3/`performance`; console-only, no env log |
-| L2-07 | No Crypto++ performance or S-box analysis | **OK** | S-box computed/verified and analysis written; OpenSSL throughput measured on Ubuntu (Windows not run) |
+| L2-07 | No Crypto++ performance or S-box analysis | **OK** | S-box computed/verified and analysis written; OpenSSL throughput measured on Ubuntu and Windows (Windows run partly noisy) |
 | L2-08 | CLI not course-uniform | **OK** | `--encode`, `--decode`, `--nonce`, `--threads`, `--verbose`; conflicts and unknown bench options rejected; `bench --verbose` reports progress/ETA |
 | L2-09 | Windows UTF-8 paths/text broken | **OK** | `GetCommandLineW` + UTF-8 + `u8path`; Windows CLI test covers `thư mục` and Vietnamese text |
 | L2-10 | Whole-file buffering | **Partial** | Documented; CTR streaming not implemented |
@@ -116,10 +121,12 @@ All three compilers passed `9/9` KAT and `4/4` CTest, but those CTest logs
 include the pre-OpenSSL Crypto++ cross-validation target. The KAT and unit
 logs remain valid; rerun CTest and cross-validation with OpenSSL before citing
 Windows parity. `ctest` includes unit tests, KAT, CLI and cross-validation. The
-Windows MSVC benchmark now has
-three CSVs, `summary.csv`, `summary_robust.csv`, six plots and `AUDIT.md`
+Windows MSVC benchmark was rerun on 2026-11-10 and has three CSVs,
+`summary.csv`, `summary_robust.csv`, seven plots and a refreshed `AUDIT.md`
 under `output/windows/benchmarks/`. Row counts are 1000/100/30; the CSV schema
-does not record power plan, affinity or thread count.
+does not record power plan, affinity or thread count. Windows OpenSSL
+throughput is under `output/windows/benchmarks/openssl/`; 1 MiB both directions,
+100 MiB encrypt and 1 GiB decrypt are flagged noisy.
 
 ### L2-02 - Ubuntu test/KAT logs
 
@@ -233,7 +240,10 @@ table-vs-computed trade-off.
 Added `bench_openssl`, a test-only AES-128-CTR throughput oracle with the same
 payload sizes, run counts, warm-up and thread count. Ubuntu 4-thread means:
 62.8/46.9/45.6 MiB/s for the pure C++ core versus 2424.2/1251.4/1120.0 MiB/s
-for OpenSSL (AES-NI). Windows comparison is not run yet.
+for OpenSSL (AES-NI). Windows MSVC was measured on 2026-11-10:
+6.58/6.44/8.64 MiB/s pure C++ versus 870.0/1420.6/1331.6 MiB/s OpenSSL
+(132x/220x/154x). The Windows 1 MiB both directions, 100 MiB encrypt and 1 GiB
+decrypt are flagged noisy; use medians or order-of-magnitude ratios.
 
 ### L2-08 - CLI uniformity
 
@@ -318,9 +328,9 @@ Rubric: 100 core + 20 bonus (Bonus A +10, B +5, C +5).
 
 Previous self-grade (before the OpenSSL throughput comparison): **93/100
 core + 15 bonus = 108, capped at 100**. The OpenSSL comparison closes the
-performance deduction; the Windows OpenSSL rerun and PDF/identity package
-remain. The chosen 1000/100/30 matrix is accepted (N >= 30); the nominal
-500/50 is only a blueprint target.
+performance deduction; the Windows OpenSSL rerun and PDF/archive remain. The
+chosen 1000/100/30 matrix is accepted (N >= 30); the nominal 500/50 is only a
+blueprint target.
 
 ## Regrade 2026-11-05 (report excluded)
 
@@ -358,7 +368,7 @@ conservative engineering critique, not a missing rubric item.
 | FIPS-197 AES-128 core | 30 | 30 | Manual transformations, column-major state, 10-round schedule, FIPS-197 C.1 |
 | CTR mode correctness | 15 | 15 | Big-endian counter, partial final block, no padding, overflow fail-closed |
 | KATs and cross-validation | 15 | 15 | 9 KATs (FIPS-197 + SP 800-38A + XTS) and 3 OpenSSL parity tests; Ubuntu current; Windows logs stale but the test code is unchanged |
-| Engineering and documentation | 10 | 10 | CMake, modular core/CLI, fail-closed CLI, Catch2/CTest, clear README; PDF/identity are not in this rubric row |
+| Engineering and documentation | 10 | 10 | CMake, modular core/CLI, fail-closed CLI, Catch2/CTest, clear README; PDF/archive are not in this rubric row |
 | Performance evaluation | 10 | 10 | 1000/100/30 on both platforms, OpenSSL comparison, table-vs-computed and memory/cache/branch discussion, plots; no run-time log |
 | Security engineering discussion | 20 | 20 | `REPORT.md` §7 covers timing/cache, constant-time discussion (including why computed S-box is not constant-time), nonce reuse/two-time pad, malleability/no authentication, key wiping and AES-NI |
 | **Core** | **100** | **100** | |
@@ -381,8 +391,9 @@ the rubric wording:**
   citing Windows parity; Windows OpenSSL throughput is not required for the
   rubric but is an optional extra.
 
-**Submission gaps (not rubric deductions):** student identity,
-PDF/DOCX/archive, Windows rerun, and optionally Windows OpenSSL throughput.
+**Submission gaps (not rubric deductions):** PDF/DOCX/archive and the Windows
+CTest/cross-validation rerun after the OpenSSL switch. Windows OpenSSL
+throughput is now measured; the run-time log remains optional.
 
 ## Remaining actions
 
@@ -392,14 +403,15 @@ PDF/DOCX/archive, Windows rerun, and optionally Windows OpenSSL throughput.
    logs are CSVs under `output/ubuntu/benchmarks/` and the combined plot is
    `graphs/bench_ubuntu_gcc_ctr_summary.png`.
 3. ~~Add a test-only throughput target for the same sizes and compare.~~ Done:
-   `bench_openssl`; Ubuntu CSV/summary under `output/ubuntu/benchmarks/openssl/`.
-   Windows command is in `BENCHMARKS.md`.
-4. Rerun the Windows build/CTest/cross-validation and OpenSSL throughput after
-   the oracle switch; the committed Windows logs still say Crypto++.
+   `bench_openssl`; Ubuntu CSV/summary under `output/ubuntu/benchmarks/openssl/`
+   and Windows data under `output/windows/benchmarks/openssl/`.
+4. Rerun the Windows CTest/cross-validation after the oracle switch and update
+   `environment.txt`; the committed Windows test logs still say Crypto++.
 5. Optional: rerun Windows with the console environment header; the current
    1000/100/30 data is the chosen matrix.
-6. Add a PDF/DOCX export with student identity.
-7. Optional: stream CTR in chunks; optional Bonus C (AES-NI/bitsliced).
+6. Add a PDF/DOCX export (identity is already in the report).
+7. ~~Bonus C (AES-NI)~~ Done 2026-11-15 for AES-128 CTR. Still optional:
+   bitslicing and an AES-NI path for AES-192/256; streamed CTR.
 8. Optional: add a stateful nonce/IV registry if the course wants enforcement
    rather than documentation.
 9. ~~Add the academic-integrity statement to `lab02/REPORT.md` (C-16).~~ Done
@@ -464,7 +476,7 @@ the result is **100**; otherwise it is **115**. The old audit's "capped at 100"
 was an assumption, not a source rule.
 
 **Remaining non-rubric items:** Windows CTest/cross-validation after the OpenSSL
-switch, Windows OpenSSL throughput, and the PDF/identity/archive. The run-time
+switch and the PDF/archive. Windows OpenSSL throughput now exists; the run-time
 log and the Crypto++/OpenSSL choice are not rubric requirements.
 
 ## Regrade 2026-11-09 (Ubuntu recheck, plot labels)
@@ -492,6 +504,76 @@ wrap cannot occur; at 1 GiB the loop overhead is around 1% of the AES-CTR time.
 The tested single-thread overflow path in `ctr_crypt()` still fails closed.
 Changing the helper would add untestable code for no practical gain.
 
-Still open: Windows CTest/cross-validation after the OpenSSL switch, Windows
-OpenSSL throughput, and identity/PDF/archive. The 1000/100/30 benchmark data is
-unchanged and still valid.
+Still open: Windows CTest/cross-validation after the OpenSSL switch and the
+PDF/archive. Windows OpenSSL throughput now exists but is noisy.
+
+## Update 2026-11-10 (Windows benchmark and OpenSSL throughput)
+
+- Windows MSVC benchmark rerun at the chosen 1000/100/30: encrypt
+  6.580/6.444/8.644 MiB/s, decrypt 6.605/6.455/8.574 MiB/s for
+  1 MiB/100 MiB/1 GiB. CV 12.0/6.4/8.4% encrypt, zero flagged outliers.
+  The 1 GiB point is faster than 100 MiB; treat it as a host/affinity effect.
+- `AUDIT.md` was refreshed with the new hashes and numbers.
+- Windows OpenSSL throughput committed under
+  `output/windows/benchmarks/openssl/`. 1 MiB both directions, 100 MiB
+  encrypt and 1 GiB decrypt are flagged `noisy`; only medians or
+  order-of-magnitude ratios are defensible.
+- `BENCHMARKS.md`, `REPORT.md`, `README.md` and the root README now match the
+  committed CSVs. `AUDIT.md` no longer says Windows OpenSSL is missing.
+- Still open: Windows CTest/cross-validation logs and `environment.txt` predate
+  the OpenSSL switch; PDF/archive missing. Identity is filled.
+
+## Regrade 2026-11-11
+
+Rechecked the current Ubuntu GCC and Clang build trees: `ctest` passes 4/4 on
+both. The committed Ubuntu and Windows evidence contains 9/9 KAT, OpenSSL
+cross-validation, the required benchmark sizes, plots and report analysis.
+
+**Result:** **100/100 core + 15 bonus** (115 additive: +10 AES-192/256 and
++5 XTS; Bonus C is not implemented). The stale Windows `environment.txt` and
+test provenance should be refreshed before submission, but they do not remove
+an implemented rubric item. PDF/archive packaging remains open. No redundant
+Lab 2 documentation was found.
+
+## Regrade 2026-11-15 (Bonus C: AES-NI)
+
+Bonus C is now implemented for AES-128 CTR:
+
+- `lab02/src/aesni.cpp` uses `wmmintrin.h` intrinsics behind a per-function
+  `target("aes,sse2")` attribute, so the rest of the library still builds for
+  baseline x86 and non-x86 (stub). `aesni::available()` does run-time detection
+  (`__builtin_cpu_supports("aes")` on GCC/Clang, CPUID leaf 1 ECX bit 25 on
+  MSVC).
+- `Modes::ctr_crypt` dispatches to AES-NI only for 128-bit keys, an AES-capable
+  CPU, and a counter that will not wrap before the last block; every other case
+  (AES-192/256, wrap, no AES-NI) stays on the table-based path. The fast path
+  reuses the existing 176-byte schedule via `AES::round_key_data()` and encodes
+  four counter blocks per iteration.
+- `bench --impl auto|soft|ni` selects the implementation; `ni` rejects a
+  non-128-bit key or a CPU without AES-NI. Benchmark scripts default to
+  `IMPL=soft` so the existing report baseline reproduces.
+- New unit test compares AES-NI with the software path for 1/15/16/17/63/64/65/
+  1000/65537 bytes and checks that counter overflow still throws.
+- Verified on 2026-11-15: Ubuntu GCC 15.2 unit 370 assertions / 12 cases,
+  KAT 9/9, `ctest` 4/4; Ubuntu Clang 21.1 `ctest` 4/4. Logs are
+  `output/ubuntu/test_results/*_2026-11-15.txt`.
+
+Benchmark (1 thread pinned to CPU 2, GCC 15.2 `-O3`, i5-1135G7, governor
+`powersave`; `output/ubuntu/benchmarks/aesni/1t/`):
+
+| Size | soft enc | AES-NI enc | Speedup | soft dec | AES-NI dec | Speedup |
+|---|---:|---:|---:|---:|---:|---:|
+| 1 MiB | 16.779 MiB/s | 1466.603 MiB/s | 87.4x | 16.757 MiB/s | 1390.465 MiB/s | 83.0x |
+| 100 MiB | 17.085 MiB/s | 1148.157 MiB/s | 67.2x | 17.437 MiB/s | 1142.911 MiB/s | 65.5x |
+| 1 GiB | 15.410 MiB/s | 1195.220 MiB/s | 77.6x | 15.697 MiB/s | 1139.890 MiB/s | 72.6x |
+
+The 4-thread comparison also exists under `aesni/4t/`, but the thread harness
+copies each worker chunk, which dominates at AES-NI speed (1 GiB: 880 MiB/s at
+4 threads vs 1195 MiB/s at one). That is documented in `REPORT.md` §6.7 rather
+than fixed. No Windows/MSVC AES-NI measurement exists; the MSVC `__cpuid` path
+is compiled but unverified.
+
+**Result:** **100/100 core + 20 bonus = 120 additive** (100 if the course caps
+the final score). Rubric row: AES-NI / bitsliced +5, now claimed for AES-128.
+Remaining non-rubric gaps are unchanged: Windows CTest/cross-validation after
+the OpenSSL switch, a Windows AES-NI run, and the PDF/archive.

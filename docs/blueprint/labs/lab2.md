@@ -9,13 +9,16 @@
 > **Audit / regrade:** `docs/missing/lab2.md`
 > **Tool:** `aestool`
 >
-> **Status (2026-11-05):** AES-128/CTR core and bonuses A/B are implemented.
+> **Status (2026-11-15):** AES-128/CTR core and bonuses A/B/C are implemented.
+> Bonus C is AES-NI for AES-128 CTR (runtime detection, software fallback,
+> `bench --impl`); bitslicing and AES-192/256 AES-NI are not implemented.
 > Ubuntu KAT/CTest/cross-validation logs and the 1000/100/30 benchmark are
-> current; the OpenSSL comparison is measured on Ubuntu. Windows KAT and unit
-> logs are valid, but the Windows CTest/cross-validation logs predate the
-> OpenSSL switch and need a rerun. The Windows run-time environment log, the
-> Windows OpenSSL throughput, and the identity-filled PDF/archive remain open.
-> See `docs/missing/lab2.md`.
+> current; the 2026-11-15 AES-NI comparison is under
+> `lab02/output/ubuntu/benchmarks/aesni/`. Windows KAT and unit logs are valid;
+> the Windows benchmark and OpenSSL throughput were rerun on 2026-11-10, but the
+> Windows CTest/cross-validation logs and `environment.txt` still predate the
+> OpenSSL switch. There is no Windows AES-NI run. The Windows run-time
+> environment log and the PDF/archive remain open. See `docs/missing/lab2.md`.
 
 ## 1. What to do
 
@@ -149,18 +152,18 @@ After this lab you should be able to:
 
 ### Definition of done (grader evidence)
 
-- [ ] Pure C++ AES-128 core passes FIPS-197 vectors.
-- [ ] CTR passes NIST SP 800-38A vectors, including partial final blocks.
-- [ ] Counter overflow fails closed.
-- [ ] Cross-validation proves byte equality with Crypto++/OpenSSL.
-- [ ] Negative tests cover wrong key/IV, tampering, length errors, overflow.
-- [ ] `ctest` passes on Linux and Windows.
-- [ ] Benchmarks cover 1 MiB and 100 MiB (1 GiB if feasible) with statistics
+- [x] Pure C++ AES-128 core passes FIPS-197 vectors.
+- [x] CTR passes NIST SP 800-38A vectors, including partial final blocks.
+- [x] Counter overflow fails closed.
+- [x] Cross-validation proves byte equality with Crypto++/OpenSSL.
+- [x] Negative tests cover wrong key/IV, tampering, length errors, overflow.
+- [x] `ctest` passes on Linux and Windows.
+- [x] Benchmarks cover 1 MiB and 100 MiB (1 GiB if feasible) with statistics
       and plots; oracle throughput comparison included.
-- [ ] Security analysis covers cache/timing, two-time pad, malleability, and
+- [x] Security analysis covers cache/timing, two-time pad, malleability, and
       AES-NI.
-- [ ] README documents build, CLI, key/IV rules, and limitations.
-- [ ] Self-grade rubric and academic-integrity statement included.
+- [x] README documents build, CLI, key/IV rules, and limitations.
+- [x] Self-grade rubric and academic-integrity statement included.
 
 ## 4. Rubric (100 + 20 bonus)
 
@@ -233,7 +236,7 @@ cd lab02
 scripts\build_windows.bat msvc      rem or: gcc / clang
 cd build\windows-msvc && ctest -C Release --output-on-failure
 cd ..\..
-rem Windows benchmark already run on 2026-11-05 at the chosen 1000/100/30.
+rem Windows benchmark rerun on 2026-11-10 at the chosen 1000/100/30.
 rem Add RUNS_100MB=500 RUNS_1GB=50 only if the nominal 500/50 is required.
 scripts\run_benchmarks.bat msvc
 ```

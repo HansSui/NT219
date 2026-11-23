@@ -1,82 +1,133 @@
-\documentclass[12pt,a4paper]{report}
-\usepackage[a4paper,top=2.54cm,bottom=2.54cm,left=2.54cm,right=2.54cm]{geometry}
-\usepackage[utf8]{inputenc}
-\usepackage[T5]{fontenc}
-\usepackage[vietnamese,english]{babel}
-\usepackage{lmodern}
-\usepackage{amsmath,amssymb}
-\usepackage{array}
+\documentclass[12pt,a4paper,oneside]{report}
+
+% XeLaTeX is required here: the reports preserve Unicode box-drawing
+% characters and Vietnamese text inside code listings. pdfLaTeX cannot
+% typeset those bytes without altering the preserved source.
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{vietnamese}
+\setotherlanguage{english}
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{FreeMono}
+
+\usepackage[
+    a4paper,
+    top=2.54cm,
+    bottom=2.54cm,
+    left=2.54cm,
+    right=2.54cm,
+    headheight=15pt,
+    headsep=0.5cm
+]{geometry}
+
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{1cm}
+\setlength{\parskip}{0.25em}
+
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{float}
 \usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
 \usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{fvextra}
+\usepackage{seqsplit}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
-\usepackage{float}
-\usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{longtable}
-\usepackage{xcolor}
-\usepackage{listings}
-\usepackage{microtype}
+\usepackage{etoolbox}
 
-\definecolor{codegray}{gray}{0.95}
-\lstset{
-  basicstyle=\ttfamily\small,
-  backgroundcolor=\color{codegray},
-  breaklines=true,
-  columns=fullflexible,
-  frame=single,
-  keepspaces=true,
-  showstringspaces=false
-}
-\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
-\setcounter{tocdepth}{2}
+% Long file paths are common in this report; allow them to wrap instead of
+% running into the margin.
+\let\origtexttt\texttt
+\renewcommand{\texttt}[1]{\origtexttt{\seqsplit{#1}}}
+\setlength{\tabcolsep}{2pt}
 \setlength{\emergencystretch}{3em}
+\newcommand{\tablesize}{\footnotesize}
+\AtBeginEnvironment{longtable}{\tablesize}
+
+\usepackage[
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+]{hyperref}
+
+\captionsetup{font=small,labelfont=bf,labelsep=period}
+\fvset{
+    fontsize=\small,
+    breaklines=true,
+    breakanywhere=true,
+    frame=single,
+    numbers=left
+}
+
+\newcommand{\ReportNumber}{2}
+\newcommand{\ReportTitle}{AES-128 THUẦN C++ VÀ CHẾ ĐỘ CTR}
+\newcommand{\ReportCourse}{NT219 -- An toàn thông tin}
+\newcommand{\ReportInstructor}{[Tên giảng viên]}
+\newcommand{\GroupNumber}{[XX]}
+\newcommand{\ReportStudent}{Nguyễn Công Tuấn}
+\newcommand{\ReportId}{25522012}
+\newcommand{\ReportClass}{NT219.R11.ANTT}
+\newcommand{\ReportRole}{Trưởng nhóm}
+\newcommand{\ReportStart}{[Bắt đầu]}
+\newcommand{\ReportEnd}{15/11/2026}
+
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Báo cáo Lab NT219}
-\fancyhead[R]{\ReportTitleShort}
+\fancyhead[L]{\small Báo cáo Lab \ReportNumber\ -- \ReportCourse}
+\fancyhead[R]{\small Nhóm \GroupNumber}
 \fancyfoot[C]{\thepage}
-\setlength{\headheight}{15pt}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
 \renewcommand{\chaptername}{Chương}
 \renewcommand{\thechapter}{\Roman{chapter}}
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}.}
+\setcounter{tocdepth}{2}
 
-\newcommand{\ReportTitleShort}{\ReportTitle}
-\newcommand{\ReportTitle}{}
-\newcommand{\ReportStudent}{}
-\newcommand{\ReportId}{}
-\newcommand{\ReportClass}{}
-\newcommand{\ReportDate}{}
-
-\renewcommand{\ReportTitle}{BÁO CÁO LAB 2 -- AES-128 THUẦN C++ VÀ CHẾ ĐỘ CTR}
-\renewcommand{\ReportStudent}{Nguyễn Công Tuấn}
-\renewcommand{\ReportId}{25522012}
-\renewcommand{\ReportClass}{NT219.R11.ANTT}
-\renewcommand{\ReportDate}{15/11/2026}
 \begin{document}
 \begin{titlepage}
 \thispagestyle{empty}
 \begin{center}
 {\large\bfseries TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN, ĐHQG-HCM\par}
-\vspace{0.4cm}
+\vspace{0.3cm}
 {\large\bfseries KHOA MẠNG MÁY TÍNH VÀ TRUYỀN THÔNG\par}
-\vspace{2.2cm}
-{\Large\bfseries BÁO CÁO LAB\par}
+\vspace{2.0cm}
+{\Large\bfseries BÁO CÁO LAB \ReportNumber\par}
 \vspace{0.8cm}
-{\LARGE\bfseries \ReportTitle\par}
-\vfill
+{\LARGE\bfseries ĐỀ TÀI\par}
+\vspace{0.3cm}
+{\Large\bfseries \ReportTitle\par}
+\vspace{1.5cm}
 \begin{tabular}{rl}
-Học phần: & NT219 -- An toàn thông tin\\
-Sinh viên: & \ReportStudent\\
-MSSV: & \ReportId\\
-Lớp: & \ReportClass\\
+Môn học: & \ReportCourse\\
+Giảng viên hướng dẫn: & \ReportInstructor\\
 \end{tabular}
+\vspace{1.2cm}
+
+{\bfseries Thực hiện bởi nhóm \GroupNumber, bao gồm:}\\[0.4cm]
+\begin{tabular}{rll}
+1. & \ReportStudent & \ReportId \\
+   & \multicolumn{2}{l}{\ReportRole} \\
+\end{tabular}
+
 \vfill
-\ReportDate\par
+Thời gian thực hiện: \ReportStart\ -- \ReportEnd\par
 \end{center}
 \end{titlepage}
 \pagenumbering{arabic}
 \tableofcontents
 \clearpage
+
 
 
 \begin{quote}
@@ -87,7 +138,7 @@ Báo cáo dùng số liệu Ubuntu trong \texttt{lab02/output/ubuntu/benchmarks/
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Tóm tắt điều hành}
+\chapter{TÓM TẮT ĐIỀU HÀNH}
 
 
 Lab 2 yêu cầu cài đặt AES-128 từ đầu bằng C++17 chỉ với STL, tuân theo FIPS-197: 10 vòng, 44 word khoá, state ánh xạ theo cột. Chế độ CTR tuân theo NIST SP 800-38A: bộ đếm 128-bit tăng big-endian, xử lý khối cuối không đầy đủ, không padding, và dừng an toàn khi bộ đếm tràn thay vì quay vòng. Công cụ \texttt{aestool} hỗ trợ \texttt{encrypt}, \texttt{decrypt}, \texttt{bench}, \texttt{--kat}, cùng các cờ thống nhất như \texttt{--encode}, \texttt{--decode}, \texttt{--threads}, \texttt{--verbose} và \texttt{--nonce}.
@@ -115,7 +166,7 @@ Kết quả chính:
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Mục tiêu và phạm vi}
+\chapter{MỤC TIÊU VÀ PHẠM VI}
 
 
 \section{Mục tiêu của Lab 2}
@@ -186,13 +237,13 @@ CMake và tài liệu & CMake C++17, build ngoài source, README, BENCHMARKS & \
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Thiết kế và cài đặt}
+\chapter{THIẾT KẾ VÀ CÀI ĐẶT}
 
 
 \section{Cấu trúc mã nguồn}
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 lab02/
 ├── CMakeLists.txt          CMake C++17, static CRT cho MSVC khi cần
 ├── README.md               hướng dẫn build/test/CLI
@@ -214,7 +265,7 @@ lab02/
 ├── kat/vectors.json        9 vector KAT chính thức/derived
 ├── scripts/                build, benchmark, summarize, plot
 └── output/                 log, CSV, summary, biểu đồ, audit
-\end{lstlisting}
+\end{Verbatim}
 
 
 Kích thước phần code do sinh viên viết (không tính \texttt{catch.hpp}): khoảng 1.500 dòng C++ cho \texttt{src/} và khoảng 750 dòng cho test/script. Toàn bộ primitive nằm trong \texttt{AES.cpp} và \texttt{modes.cpp}; \texttt{main.cpp} chỉ lo CLI, KAT runner và benchmark.
@@ -278,27 +329,27 @@ Kích thước phần code do sinh viên viết (không tính \texttt{catch.hpp}
 Các cờ chính:
 
 
-\begin{longtable}{p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}}
+\begin{longtable}{p{0.35\textwidth}p{0.55\textwidth}}
 \toprule
-Cờ & Ý nghĩa &  &  \\
+Cờ & Ý nghĩa \\
 \midrule
 \endfirsthead
 \toprule
-Cờ & Ý nghĩa &  &  \\
+Cờ & Ý nghĩa \\
 \midrule
 \endhead
-`--mode ctr\textbackslash{} & xts` & Chế độ mã hoá &  \\
-\texttt{--key FILE} / \texttt{--key-hex HEX} & Khoá nhị phân hoặc hex &  &  \\
-\texttt{--iv FILE} / \texttt{--iv-hex HEX} / \texttt{--nonce ...} & Bộ đếm / data unit 16 byte &  &  \\
-\texttt{--in FILE} / \texttt{--text STRING} & Đầu vào &  &  \\
-\texttt{--out FILE} / \texttt{--out-hex} & Đầu ra &  &  \\
-`--encode hex\textbackslash{} & base64\textbackslash{} & raw` & Mã hoá đầu ra \\
-`--decode hex\textbackslash{} & base64\textbackslash{} & raw` & Giải mã đầu vào trước khi decrypt \\
-\texttt{--threads N} & Chỉ dùng cho \texttt{bench} &  &  \\
-`--impl auto\textbackslash{} & soft\textbackslash{} & ni` & Chọn đường AES cho \texttt{bench}; mặc định \texttt{auto} \\
-\texttt{--warmup SECONDS} & Warm-up theo thời gian cho \texttt{bench} &  &  \\
-\texttt{--verbose} & In metadata, tiến độ và ETA của \texttt{bench} ra stderr &  &  \\
-\texttt{--kat FILE} & Chạy Known Answer Tests &  &  \\
+\texttt{--mode ctr\textbar{}xts} & Chế độ mã hoá \\
+\texttt{--key FILE} / \texttt{--key-hex HEX} & Khoá nhị phân hoặc hex \\
+\texttt{--iv FILE} / \texttt{--iv-hex HEX} / \texttt{--nonce ...} & Bộ đếm / data unit 16 byte \\
+\texttt{--in FILE} / \texttt{--text STRING} & Đầu vào \\
+\texttt{--out FILE} / \texttt{--out-hex} & Đầu ra \\
+\texttt{--encode hex\textbar{}base64\textbar{}raw} & Mã hoá đầu ra \\
+\texttt{--decode hex\textbar{}base64\textbar{}raw} & Giải mã đầu vào trước khi decrypt \\
+\texttt{--threads N} & Chỉ dùng cho \texttt{bench} \\
+\texttt{--impl auto\textbar{}soft\textbar{}ni} & Chọn đường AES cho \texttt{bench}; mặc định \texttt{auto} \\
+\texttt{--warmup SECONDS} & Warm-up theo thời gian cho \texttt{bench} \\
+\texttt{--verbose} & In metadata, tiến độ và ETA của \texttt{bench} ra stderr \\
+\texttt{--kat FILE} & Chạy Known Answer Tests \\
 \bottomrule
 \end{longtable}
 
@@ -339,7 +390,7 @@ Các kiểm tra fail-closed:
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Kiểm chứng tính đúng đắn}
+\chapter{KIỂM CHỨNG TÍNH ĐÚNG ĐẮN}
 
 
 \section{Known Answer Tests}
@@ -373,9 +424,9 @@ Các kiểm tra fail-closed:
 Lệnh:
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 ./build/ubuntu-gcc/aestool --kat kat/vectors.json
-\end{lstlisting}
+\end{Verbatim}
 
 
 Kết quả đã lưu:
@@ -496,14 +547,14 @@ Các kiểm thử âm ở mức thư viện nằm trong \texttt{test\_ctr.cpp}/\
 Đã chạy lại ngày 15/11/2026 trên Ubuntu 26.04.1 LTS với GCC 15.2.0, OpenSSL 3.5.5, CMake 4.2.3: KAT 9/9, \texttt{ctest} 4/4, unit 370 assertion/12 test, cross-validation 22 assertion/3 test. Nhật ký mới nằm trong \texttt{output/ubuntu/test\_results/*\_2026-11-15.txt}. Lệnh tái lập:
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 cd lab02
 scripts/build_linux.sh gcc
 ./build/ubuntu-gcc/aestool --kat kat/vectors.json \
   | tee output/ubuntu/test_results/kat_gcc.txt
 (cd build/ubuntu-gcc && ctest --output-on-failure) \
   | tee output/ubuntu/test_results/ctest_gcc.txt
-\end{lstlisting}
+\end{Verbatim}
 
 
 Các CSVs Ubuntu bên dưới đã được đo lại ngày 05/11/2026 với giao thức hiện tại (4 thread, CPU 0-3, warm-up theo thời gian).
@@ -549,7 +600,7 @@ Fail-closed & Kiểm tra khoá/IV/tràn/CLL option & Đạt \\
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phương pháp đo hiệu năng}
+\chapter{PHƯƠNG PHÁP ĐO HIỆU NĂNG}
 
 
 \section{Mô hình đo}
@@ -579,21 +630,21 @@ Mỗi lần chạy \texttt{bench}:
 Với \texttt{n} mẫu thời gian \texttt{t\_i}:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 mean   = (1/n) * sum(t_i)
 median = giá trị giữa sau khi sắp xếp
 sd     = sqrt( sum((t_i - mean)^2) / (n - 1) )     # độ lệch chuẩn mẫu
 ci95   = 1.96 * sd / sqrt(n)                       # xấp xỉ chuẩn
 cv     = sd / mean
-\end{lstlisting}
+\end{Verbatim}
 
 
 Throughput của từng run:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 MiB/s = (size_bytes / 1024^2) / (time_us / 1e6)
-\end{lstlisting}
+\end{Verbatim}
 
 
 \texttt{summary.csv} dùng mean và các thống kê trên. \texttt{summary\_robust.csv} bổ sung:
@@ -709,14 +760,14 @@ Các bảng trên là môi trường quan sát được, không phải môi trư
 Ubuntu, giao thức chốt (1000/100/30, 4 thread, có pin CPU):
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 cd lab02
 scripts/build_linux.sh gcc
 THREADS=4 PIN_CPU=0-3 scripts/run_benchmarks.sh gcc
 python3 scripts/summarize_bench.py --dir output/ubuntu/benchmarks
 python3 scripts/plot_bench.py output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_*.csv \
   --out-dir output/ubuntu/benchmarks/graphs --platform ubuntu-gcc
-\end{lstlisting}
+\end{Verbatim}
 
 
 Nếu chỉ muốn nominal 500/50 của blueprint, thêm \texttt{RUNS\_100MB=500 RUNS\_1GB=50}; không cần thiết cho bài này.
@@ -725,18 +776,18 @@ Nếu chỉ muốn nominal 500/50 của blueprint, thêm \texttt{RUNS\_100MB=500
 Windows — đã chạy ngày 10/11/2026; dữ liệu và audit ở \texttt{output/windows/benchmarks/}:
 
 
-\begin{lstlisting}[language=DosBatch]
+\begin{Verbatim}
 cd lab02
 scripts\build_windows.bat msvc
 scripts\run_benchmarks.bat msvc
 python scripts\summarize_bench.py --dir output\windows\benchmarks
-\end{lstlisting}
+\end{Verbatim}
 
 
 So sánh throughput với OpenSSL trên Ubuntu (4 thread, cùng 1000/100/30):
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 mkdir -p output/ubuntu/benchmarks/openssl
 for pair in "1048576 1000" "104857600 100" "1073741824 30"; do
   set -- $pair
@@ -744,19 +795,19 @@ for pair in "1048576 1000" "104857600 100" "1073741824 30"; do
     --out "output/ubuntu/benchmarks/openssl/bench_openssl_gcc_ctr_$1.csv"
 done
 python3 scripts/summarize_bench.py --dir output/ubuntu/benchmarks/openssl
-\end{lstlisting}
+\end{Verbatim}
 
 
 Bonus C — so sánh AES-NI với bảng tra, 1 thread (cùng binary, cùng máy):
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 THREADS=1 PIN_CPU=2 RUNS_1MB=1000 RUNS_100MB=20 RUNS_1GB=3 IMPL=soft \
   OUT_DIR=output/ubuntu/benchmarks/aesni/1t/soft scripts/run_benchmarks.sh gcc
 THREADS=1 PIN_CPU=2 RUNS_1MB=1000 RUNS_100MB=20 RUNS_1GB=3 IMPL=ni \
   OUT_DIR=output/ubuntu/benchmarks/aesni/1t/ni scripts/run_benchmarks.sh gcc
 python3 scripts/plot_aesni.py
-\end{lstlisting}
+\end{Verbatim}
 
 
 \texttt{run\_benchmarks.sh} mặc định \texttt{IMPL=soft} để tái lập baseline của báo cáo; đặt \texttt{IMPL=ni} cho đường AES-NI.
@@ -765,7 +816,7 @@ python3 scripts/plot_aesni.py
 Windows (sau khi build):
 
 
-\begin{lstlisting}[language=DosBatch]
+\begin{Verbatim}
 cd lab02
 scripts\build_windows.bat msvc
 mkdir output\windows\benchmarks\openssl 2>nul
@@ -773,7 +824,7 @@ build\windows-msvc\Release\bench_openssl.exe --size 1048576 --runs 1000 --thread
 build\windows-msvc\Release\bench_openssl.exe --size 104857600 --runs 100 --threads 4 --out output\windows\benchmarks\openssl\bench_openssl_msvc_ctr_104857600.csv
 build\windows-msvc\Release\bench_openssl.exe --size 1073741824 --runs 30 --threads 4 --out output\windows\benchmarks\openssl\bench_openssl_msvc_ctr_1073741824.csv
 python scripts\summarize_bench.py --dir output\windows\benchmarks\openssl
-\end{lstlisting}
+\end{Verbatim}
 
 
 \texttt{bench\_openssl} chỉ là oracle test-only; nó không được link vào \texttt{aestool}.
@@ -782,7 +833,7 @@ python scripts\summarize_bench.py --dir output\windows\benchmarks\openssl
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Kết quả và so sánh hiệu năng}
+\chapter{KẾT QUẢ VÀ SO SÁNH HIỆU NĂNG}
 
 
 \section{Ubuntu GCC 15.2 (05/11/2026)}
@@ -791,18 +842,27 @@ python scripts\summarize_bench.py --dir output\windows\benchmarks\openssl
 Nguồn: \texttt{output/ubuntu/benchmarks/summary.csv}; 4 thread, CPU 0-3.
 
 
-\begin{longtable}{p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}}
+\begin{longtable}{p{0.30\textwidth}p{0.21\textwidth}p{0.21\textwidth}p{0.21\textwidth}}
 \toprule
-Kích thước & Runs & Enc mean (µs) & Enc median (µs) & Enc SD (µs) & Enc 95\% CI (µs) & Enc MiB/s & Dec mean (µs) & Dec median (µs) & Dec SD (µs) & Dec 95\% CI (µs) & Dec MiB/s & CV enc/dec \\
+Chỉ số & 1 MiB & 100 MiB & 1 GiB \\
 \midrule
 \endfirsthead
 \toprule
-Kích thước & Runs & Enc mean (µs) & Enc median (µs) & Enc SD (µs) & Enc 95\% CI (µs) & Enc MiB/s & Dec mean (µs) & Dec median (µs) & Dec SD (µs) & Dec 95\% CI (µs) & Dec MiB/s & CV enc/dec \\
+Chỉ số & 1 MiB & 100 MiB & 1 GiB \\
 \midrule
 \endhead
-1 MiB & 1000 & 16,165.442 & 15,322.930 & 2,328.783 & 144.339 & 62.761 & 16,275.808 & 15,337.110 & 2,397.519 & 148.600 & 62.384 & 14.4\% / 14.7\% \\
-100 MiB & 100 & 2,139,894.926 & 2,140,159.915 & 116,139.440 & 22,763.330 & 46.852 & 2,130,614.988 & 2,138,805.365 & 76,088.110 & 14,913.270 & 46.994 & 5.4\% / 3.6\% \\
-1 GiB & 30 & 22,486,434.036 & 22,353,894.970 & 891,519.608 & 319,026.194 & 45.604 & 22,307,107.643 & 22,146,696.030 & 1,193,782.731 & 427,189.664 & 46.011 & 4.0\% / 5.4\% \\
+Runs & 1000 & 100 & 30 \\
+Enc mean (µs) & 16,165.442 & 2,139,894.926 & 22,486,434.036 \\
+Enc median (µs) & 15,322.930 & 2,140,159.915 & 22,353,894.970 \\
+Enc SD (µs) & 2,328.783 & 116,139.440 & 891,519.608 \\
+Enc 95\% CI (µs) & 144.339 & 22,763.330 & 319,026.194 \\
+Enc MiB/s & 62.761 & 46.852 & 45.604 \\
+Dec mean (µs) & 16,275.808 & 2,130,614.988 & 22,307,107.643 \\
+Dec median (µs) & 15,337.110 & 2,138,805.365 & 22,146,696.030 \\
+Dec SD (µs) & 2,397.519 & 76,088.110 & 1,193,782.731 \\
+Dec 95\% CI (µs) & 148.600 & 14,913.270 & 427,189.664 \\
+Dec MiB/s & 62.384 & 46.994 & 46.011 \\
+CV enc/dec & 14.4\% / 14.7\% & 5.4\% / 3.6\% & 4.0\% / 5.4\% \\
 \bottomrule
 \end{longtable}
 
@@ -816,18 +876,27 @@ Kích thước & Runs & Enc mean (µs) & Enc median (µs) & Enc SD (µs) & Enc 9
 Nguồn: \texttt{output/windows/benchmarks/summary.csv}; kiểm tra đầy đủ ở \texttt{output/windows/benchmarks/AUDIT.md}.
 
 
-\begin{longtable}{p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}p{0.07\textwidth}}
+\begin{longtable}{p{0.30\textwidth}p{0.21\textwidth}p{0.21\textwidth}p{0.21\textwidth}}
 \toprule
-Kích thước & Runs & Enc mean (µs) & Enc median (µs) & Enc SD (µs) & Enc 95\% CI (µs) & Enc MiB/s & Dec mean (µs) & Dec median (µs) & Dec SD (µs) & Dec 95\% CI (µs) & Dec MiB/s & CV enc/dec \\
+Chỉ số & 1 MiB & 100 MiB & 1 GiB \\
 \midrule
 \endfirsthead
 \toprule
-Kích thước & Runs & Enc mean (µs) & Enc median (µs) & Enc SD (µs) & Enc 95\% CI (µs) & Enc MiB/s & Dec mean (µs) & Dec median (µs) & Dec SD (µs) & Dec 95\% CI (µs) & Dec MiB/s & CV enc/dec \\
+Chỉ số & 1 MiB & 100 MiB & 1 GiB \\
 \midrule
 \endhead
-1 MiB & 1000 & 153,831.808 & 145,036.450 & 18,393.203 & 1,140.023 & 6.580 & 153,273.536 & 144,445.900 & 18,585.208 & 1,151.923 & 6.605 & 12.0\% / 12.1\% \\
-100 MiB & 100 & 15,583,789.522 & 15,668,296.000 & 993,426.532 & 194,711.600 & 6.444 & 15,572,474.350 & 15,749,530.750 & 1,075,828.402 & 210,862.367 & 6.455 & 6.4\% / 6.9\% \\
-1 GiB & 30 & 119,328,113.467 & 121,040,361.850 & 10,064,999.595 & 3,601,713.849 & 8.644 & 120,224,194.507 & 122,959,054.700 & 9,623,132.327 & 3,443,593.678 & 8.574 & 8.4\% / 8.0\% \\
+Runs & 1000 & 100 & 30 \\
+Enc mean (µs) & 153,831.808 & 15,583,789.522 & 119,328,113.467 \\
+Enc median (µs) & 145,036.450 & 15,668,296.000 & 121,040,361.850 \\
+Enc SD (µs) & 18,393.203 & 993,426.532 & 10,064,999.595 \\
+Enc 95\% CI (µs) & 1,140.023 & 194,711.600 & 3,601,713.849 \\
+Enc MiB/s & 6.580 & 6.444 & 8.644 \\
+Dec mean (µs) & 153,273.536 & 15,572,474.350 & 120,224,194.507 \\
+Dec median (µs) & 144,445.900 & 15,749,530.750 & 122,959,054.700 \\
+Dec SD (µs) & 18,585.208 & 1,075,828.402 & 9,623,132.327 \\
+Dec 95\% CI (µs) & 1,151.923 & 210,862.367 & 3,443,593.678 \\
+Dec MiB/s & 6.605 & 6.455 & 8.574 \\
+CV enc/dec & 12.0\% / 12.1\% & 6.4\% / 6.9\% & 8.4\% / 8.0\% \\
 \bottomrule
 \end{longtable}
 
@@ -872,12 +941,12 @@ Mỗi nền tảng có một biểu đồ tổng hợp cho cả ba kích thướ
 Lệnh tạo:
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 python3 scripts/plot_bench.py output/ubuntu/benchmarks/bench_ubuntu_gcc_ctr_*.csv \
   --out-dir output/ubuntu/benchmarks/graphs --platform ubuntu-gcc
 python3 scripts/plot_bench.py output/windows/benchmarks/bench_windows_msvc_ctr_*.csv \
   --out-dir output/windows/benchmarks/graphs --platform windows-msvc
-\end{lstlisting}
+\end{Verbatim}
 
 
 Hai biểu đồ dùng cùng bố cục nên so sánh được xu hướng giữa hai nền tảng; lưu ý hai máy/compiler khác nhau nên chỉ so sánh hình dạng đường cong, không so sánh tuyệt đối (§6.3).
@@ -1015,7 +1084,7 @@ OpenSSL dùng AES-NI (một lệnh phần cứng cho mỗi vòng) và pipeline n
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phân tích bảo mật}
+\chapter{PHÂN TÍCH BẢO MẬT}
 
 
 \section{Mô hình mối đe dọa}
@@ -1188,7 +1257,7 @@ Lab 2 không có AEAD; vì vậy không thể so sánh trực tiếp độ an to
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Đối chiếu yêu cầu, rubric và tự chấm điểm}
+\chapter{ĐỐI CHIẾU YÊU CẦU, RUBRIC VÀ TỰ CHẤM ĐIỂM}
 
 
 \section{Rubric của Lab 2}
@@ -1301,7 +1370,7 @@ Limitations & Đạt; §9.2 \\
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Bài học rút ra và kết luận}
+\chapter{BÀI HỌC RÚT RA VÀ KẾT LUẬN}
 
 
 \section{Bài học kỹ thuật}
@@ -1355,7 +1424,7 @@ Lab 2 đã hoàn thành phần bắt buộc AES-128/CTR và cả ba bonus A/B/C,
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Tài liệu tham khảo}
+\chapter{NGUỒN THAM KHẢO}
 
 
 \begin{enumerate}[leftmargin=*]
@@ -1375,7 +1444,7 @@ Lab 2 đã hoàn thành phần bắt buộc AES-128/CTR và cả ba bonus A/B/C,
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phụ lục}
+\chapter{PHỤ LỤC}
 
 
 \section{Phụ lục A — Thống kê robust}
@@ -1384,23 +1453,25 @@ Lab 2 đã hoàn thành phần bắt buộc AES-128/CTR và cả ba bonus A/B/C,
 Nguồn: \texttt{output/ubuntu/benchmarks/summary\_robust.csv} và \texttt{output/windows/benchmarks/summary\_robust.csv}. Throughput median là median của từng giá trị throughput, không phải phép chia từ median thời gian.
 
 
-\begin{longtable}{p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}}
+{\renewcommand{\tablesize}{\scriptsize}\begin{longtable}{p{0.20\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}p{0.12\textwidth}}
 \toprule
-Nền tảng & Kích thước & Enc median (µs) & Enc median (MiB/s) & Enc outlier & Enc stability & Dec median (µs) & Dec median (MiB/s) & Dec outlier & Dec stability \\
+Chỉ số & Ubuntu 1 MiB & Ubuntu 100 MiB & Ubuntu 1 GiB & Windows 1 MiB & Windows 100 MiB & Windows 1 GiB \\
 \midrule
 \endfirsthead
 \toprule
-Nền tảng & Kích thước & Enc median (µs) & Enc median (MiB/s) & Enc outlier & Enc stability & Dec median (µs) & Dec median (MiB/s) & Dec outlier & Dec stability \\
+Chỉ số & Ubuntu 1 MiB & Ubuntu 100 MiB & Ubuntu 1 GiB & Windows 1 MiB & Windows 100 MiB & Windows 1 GiB \\
 \midrule
 \endhead
-Ubuntu GCC & 1 MiB & 15,322.930 & 65.260 & 0.30\% & ok & 15,337.110 & 65.205 & 0.20\% & ok \\
-Ubuntu GCC & 100 MiB & 2,140,159.915 & 46.725 & 0.00\% & ok & 2,138,805.365 & 46.755 & 0.00\% & ok \\
-Ubuntu GCC & 1 GiB & 22,353,894.970 & 45.810 & 0.00\% & ok & 22,146,696.030 & 46.240 & 0.00\% & ok \\
-Windows MSVC & 1 MiB & 145,036.450 & 6.890 & 0.00\% & ok & 144,445.900 & 6.920 & 0.00\% & ok \\
-Windows MSVC & 100 MiB & 15,668,296.000 & 6.385 & 0.00\% & ok & 15,749,530.750 & 6.350 & 0.00\% & ok \\
-Windows MSVC & 1 GiB & 121,040,361.850 & 8.460 & 0.00\% & ok & 122,959,054.700 & 8.325 & 0.00\% & ok \\
+Enc median (µs) & 15,322.930 & 2,140,159.915 & 22,353,894.970 & 145,036.450 & 15,668,296.000 & 121,040,361.850 \\
+Enc median (MiB/s) & 65.260 & 46.725 & 45.810 & 6.890 & 6.385 & 8.460 \\
+Enc outlier & 0.30\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% \\
+Enc stability & ok & ok & ok & ok & ok & ok \\
+Dec median (µs) & 15,337.110 & 2,138,805.365 & 22,146,696.030 & 144,445.900 & 15,749,530.750 & 122,959,054.700 \\
+Dec median (MiB/s) & 65.205 & 46.755 & 46.240 & 6.920 & 6.350 & 8.325 \\
+Dec outlier & 0.20\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% & 0.00\% \\
+Dec stability & ok & ok & ok & ok & ok & ok \\
 \bottomrule
-\end{longtable}
+\end{longtable}}
 
 
 \section{Phụ lục B — Danh mục bằng chứng}

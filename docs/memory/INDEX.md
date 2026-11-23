@@ -1,15 +1,18 @@
 # Repo memory — NT219 labs
 
-Last updated: 2026-11-09
+Last updated: 2026-11-19
 
 Entry point for the project brain. Read this first, then only the files the task
 needs. The code wins over memory.
 
 ## What this repo is
 
-Six self-contained NT219 cryptography labs. `lab01/`, `lab02/`, and `lab03/`
-(RSA-OAEP + hybrid AES-GCM) have implementations; Lab 3 is verified on Ubuntu.
-Labs 4–6 have briefs and blueprints only.
+Six self-contained NT219 cryptography labs. `lab01/`, `lab02/`, `lab03/`
+(RSA-OAEP + hybrid AES-GCM) and `lab04/` (`hashtool`: hashing, X.509, attack
+demos) have implementations. Labs 1–3 are verified on Ubuntu and Windows (Lab 2
+Windows CTest/crossval logs still predate the OpenSSL switch). Lab 4 is
+verified on Ubuntu GCC/Clang; its TLS deployment, Windows evidence and full
+chosen-prefix bonus remain open. Labs 5–6 have briefs and blueprints only.
 
 ## Map
 

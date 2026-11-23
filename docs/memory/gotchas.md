@@ -1,6 +1,6 @@
 # Gotchas
 
-Last updated: 2026-11-07
+Last updated: 2026-11-19
 
 - RSA-OAEP plaintext limit is `k - 2*hLen - 2` bytes (318 at 3072 bits, 446 at
   4096). Off-by-one here breaks the automatic hybrid switch.
@@ -22,3 +22,24 @@ Last updated: 2026-11-07
   CRT workaround does not apply.
 - Benchmarking 100 MiB × 1000 operations is ~100 GiB; cap block repetitions by
   size and record the block size in the CSV.
+- Lab 2 AES-NI: `aeskeygenassist` needs a compile-time round constant; a runtime
+  loop / register array segfaults. Expand keys with unrolled calls, or reuse the
+  existing schedule. `AES` zeroes its raw key and round keys, so the fast path
+  must read `round_key_data()` and never assume the key still exists.
+- Lab 2 `--impl ni` is deliberately strict (AES-128 + AES CPU only). Benchmark
+  scripts default to `IMPL=soft` so the report baseline reproduces. The
+  threaded harness copies worker chunks; at AES-NI speed that copy dominates,
+  so compare implementations at `THREADS=1`.
+- Lab 4 SHAKE `--outlen` is **bits**, not bytes, and must be a multiple of 8;
+  fixed-size hashes reject `--outlen` entirely.
+- OpenSSL 4.0 returns `const X509_NAME *` from `X509_get_subject_name`. Build a
+  fresh `X509_NAME`, add entries, then call `X509_set_subject_name`; casting
+  away const breaks compatibility with 3.5.
+- `md5_fastcoll` collision blocks only collide for the exact prefix used. For
+  the certificate fallback, compute the TBS prefix offset first and align the
+  colliding extension to a 64-byte boundary before invoking fastcoll.
+- This shell's `OPENSSL_CONF` points at a missing file. Prefix OpenSSL CLI
+  commands with `OPENSSL_CONF=/etc/ssl/openssl.cnf`; `hashtool` does not read
+  that variable.
+- Lab 4 certificate verification is one link only. `signature verified` in
+  `hashtool` never means the chain, root, revocation or hostname were checked.

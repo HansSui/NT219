@@ -1,11 +1,12 @@
 # BÁO CÁO LAB 1 — MÃ HOÁ ĐỐI XỨNG VỚI CRYPTO++
 
 **Học phần:** NT219 — An toàn thông tin  
-**Bài thực hành:** Lab 1 — Symmetric Encryption with Crypto++  
+**Bài thực hành:** Lab 1 — Mã hóa đối xứng với Crypto++  
 **Sinh viên:** Nguyễn Công Tuấn  
 **MSSV:** 25522012  
 **Lớp:** NT219.R11.ANTT  
 **Ngày hoàn thành:** 21/10/2026  
+**Ngày cập nhật:** 15/11/2026  
 
 > Báo cáo này được viết bằng tiếng Việt. Toàn bộ số liệu hiệu năng lấy từ các tệp CSV
 > trong `output/ubuntu/benchmarks/` và `output/windows/benchmarks/`; không có số liệu

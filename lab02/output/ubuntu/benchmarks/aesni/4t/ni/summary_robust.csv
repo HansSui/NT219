@@ -1,0 +1,4 @@
+platform,compiler,mode,size_bytes,size,runs,enc_median_us,dec_median_us,enc_trimmed_mean_us,dec_trimmed_mean_us,enc_median_MBps,dec_median_MBps,enc_outlier_pct,dec_outlier_pct,enc_cv,dec_cv,enc_stability,dec_stability
+ubuntu,gcc,CTR,1048576,1MB,1000,561.770,596.365,568.801,606.470,1780.080,1676.825,0.10,0.50,0.0934,0.1183,ok,ok
+ubuntu,gcc,CTR,104857600,100MB,30,79068.985,81520.015,80407.514,82440.811,1264.720,1226.690,0.00,0.00,0.0832,0.0431,ok,ok
+ubuntu,gcc,CTR,1073741824,1GB,10,1149293.430,1146733.305,1167458.370,1152691.011,891.090,892.970,0.00,0.00,0.0614,0.0389,ok,ok

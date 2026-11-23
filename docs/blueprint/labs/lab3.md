@@ -171,18 +171,18 @@ After this lab you should be able to:
 
 ### Definition of done (grader evidence)
 
-- [ ] `rsatool` builds on Ubuntu and Windows with CMake.
-- [ ] Keygen writes PEM, DER, and metadata JSON for 3072 and 4096 bits.
-- [ ] Direct OAEP round-trip and KAT vectors pass.
-- [ ] Hybrid envelope round-trip works above the RSA limit.
-- [ ] Tampered ciphertext, tag, header, label, key, and encoding all fail
+- [x] `rsatool` builds on Ubuntu and Windows with CMake.
+- [x] Keygen writes PEM, DER, and metadata JSON for 3072 and 4096 bits.
+- [x] Direct OAEP round-trip and KAT vectors pass.
+- [x] Hybrid envelope round-trip works above the RSA limit.
+- [x] Tampered ciphertext, tag, header, label, key, and encoding all fail
       closed.
-- [ ] `ctest` passes on both OSes.
-- [ ] Benchmarks cover RSA 3072/4096 and hybrid 1 KiB/1 MiB/100 MiB, with
+- [x] `ctest` passes on both OSes.
+- [x] Benchmarks cover RSA 3072/4096 and hybrid 1 KiB/1 MiB/100 MiB, with
       statistics and plots.
-- [ ] README documents the CLI, envelope format, key formats, and limitations.
-- [ ] Report covers OAEP, hybrid design, performance, and forward secrecy.
-- [ ] Self-grade rubric and academic-integrity statement included.
+- [x] README documents the CLI, envelope format, key formats, and limitations.
+- [x] Report covers OAEP, hybrid design, performance, and forward secrecy.
+- [x] Self-grade rubric and academic-integrity statement included.
 
 ## 4. Rubric (100 + 15 bonus)
 
@@ -285,7 +285,8 @@ pinned workers, 1000 runs for RSA and <=1 MiB payloads, and 100 runs for
 
 ### Risks / gaps
 
-- Ubuntu is verified; Windows build/test evidence still needs a Windows host.
+- Ubuntu and Windows (MSVC + MinGW GCC) are verified; the MinGW GCC log predates
+  the manual-OAEP/CTR+HMAC tests, and MinGW Clang was not rerun.
 - The envelope must stay versioned; retrofitting a format later breaks stored
   ciphertext.
 - OAEP label handling is easy to get wrong; the tests cover non-empty and wrong
@@ -296,11 +297,15 @@ pinned workers, 1000 runs for RSA and <=1 MiB payloads, and 100 runs for
   in CMake and the build scripts. Patch/minor releases such as 4.0.3 are
   accepted; pre-4.0 builds are rejected on purpose.
 
-### Status 2026-11-09
+### Status 2026-11-10
 
-Ubuntu GCC 15.2 + OpenSSL 4.0.2 re-verified: KAT 2/2, `ctest` 5/5, unit
-counts 24/7 (OAEP), 27/5 (hybrid), 20/5 (negative). The three plots are now
-grouped bars with 95% CI and value labels, and `BENCHMARKS.md`/`REPORT.md`
-tables were reconciled with the committed `summary_gcc.csv`. Windows build,
-KAT, CTest and benchmark remain unrun; the report identity/PDF/archive is
-still missing. See `docs/missing/lab3.md`.
+Ubuntu GCC 15.2 + OpenSSL 4.0.2 and Clang verified: KAT 2/2, `ctest` 5/5;
+the current GCC run confirms 36/9 + 36/6 + 20/5 assertions (the committed
+Ubuntu ctest logs only record pass/fail). Windows MSVC 2026-11-10 runs the same
+expanded suite; MinGW GCC 2026-11-09 passes the older 24/7 + 27/5 + 20/5 suite,
+before the manual-OAEP and CTR+HMAC tests were added.
+The MSVC benchmark CSV/summary/three plots are committed. Manual OAEP (+5) and
+AES-256-CTR+HMAC analysis (8/10) are implemented and tested; the CTR+HMAC
+variant is not benchmarked. The three plots are grouped bars with 95% CI and
+value labels. Remaining: PDF/archive, a MinGW GCC test refresh and an optional
+MinGW Clang rerun. See `docs/missing/lab3.md`.

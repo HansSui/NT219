@@ -24,6 +24,12 @@ public:
     std::array<uint8_t, BLOCK_SIZE> encrypt(const std::array<uint8_t, BLOCK_SIZE>& data) const;
     std::array<uint8_t, BLOCK_SIZE> decrypt(const std::array<uint8_t, BLOCK_SIZE>& ciphertext) const;
 
+    // AES-NI CTR fast path: 176-byte round-key schedule for AES-128.
+    size_t key_bits() const { return static_cast<size_t>(key_length_); }
+    const uint8_t* round_key_data() const {
+        return reinterpret_cast<const uint8_t*>(round_keys_.data());
+    }
+
     // Expose for testing
     static constexpr std::array<uint8_t, 256> S_BOX = {
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,

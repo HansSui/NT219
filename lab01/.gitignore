@@ -5,3 +5,5 @@ output/*/benchmarks/graph/
 output/*/benchmarks/bench.log
 output/package/
 __pycache__/
+.vscode/
+.opencode/

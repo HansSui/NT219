@@ -1,82 +1,132 @@
-\documentclass[12pt,a4paper]{report}
-\usepackage[a4paper,top=2.54cm,bottom=2.54cm,left=2.54cm,right=2.54cm]{geometry}
-\usepackage[utf8]{inputenc}
-\usepackage[T5]{fontenc}
-\usepackage[vietnamese,english]{babel}
-\usepackage{lmodern}
-\usepackage{amsmath,amssymb}
-\usepackage{array}
+\documentclass[12pt,a4paper,oneside]{report}
+
+% XeLaTeX is required here: the reports preserve Unicode box-drawing
+% characters and Vietnamese text inside code listings. pdfLaTeX cannot
+% typeset those bytes without altering the preserved source.
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{vietnamese}
+\setotherlanguage{english}
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{FreeMono}
+
+\usepackage[
+    a4paper,
+    top=2.54cm,
+    bottom=2.54cm,
+    left=2.54cm,
+    right=2.54cm,
+    headheight=15pt,
+    headsep=0.5cm
+]{geometry}
+
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{1cm}
+\setlength{\parskip}{0.25em}
+
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{graphicx}
+\usepackage{float}
 \usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
 \usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{fvextra}
+\usepackage{seqsplit}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
-\usepackage{float}
-\usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{longtable}
-\usepackage{xcolor}
-\usepackage{listings}
-\usepackage{microtype}
+\usepackage{etoolbox}
 
-\definecolor{codegray}{gray}{0.95}
-\lstset{
-  basicstyle=\ttfamily\small,
-  backgroundcolor=\color{codegray},
-  breaklines=true,
-  columns=fullflexible,
-  frame=single,
-  keepspaces=true,
-  showstringspaces=false
-}
-\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
-\setcounter{tocdepth}{2}
+% Long file paths are common in this report; allow them to wrap instead of
+% running into the margin.
+\let\origtexttt\texttt
+\renewcommand{\texttt}[1]{\origtexttt{\seqsplit{#1}}}
+\setlength{\tabcolsep}{2pt}
 \setlength{\emergencystretch}{3em}
+\AtBeginEnvironment{longtable}{\footnotesize}
+
+\usepackage[
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=blue
+]{hyperref}
+
+\captionsetup{font=small,labelfont=bf,labelsep=period}
+\fvset{
+    fontsize=\small,
+    breaklines=true,
+    breakanywhere=true,
+    frame=single,
+    numbers=left
+}
+
+\newcommand{\ReportNumber}{3}
+\newcommand{\ReportTitle}{RSA-OAEP VÀ MÃ HOÁ LAI}
+\newcommand{\ReportCourse}{NT219 -- An toàn thông tin}
+\newcommand{\ReportInstructor}{[Tên giảng viên]}
+\newcommand{\GroupNumber}{[XX]}
+\newcommand{\ReportStudent}{Nguyễn Công Tuấn}
+\newcommand{\ReportId}{25522012}
+\newcommand{\ReportClass}{NT219.R11.ANTT}
+\newcommand{\ReportRole}{Trưởng nhóm}
+\newcommand{\ReportStart}{[Bắt đầu]}
+\newcommand{\ReportEnd}{15/11/2026}
+
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Báo cáo Lab NT219}
-\fancyhead[R]{\ReportTitleShort}
+\fancyhead[L]{\small Báo cáo Lab \ReportNumber\ -- \ReportCourse}
+\fancyhead[R]{\small Nhóm \GroupNumber}
 \fancyfoot[C]{\thepage}
-\setlength{\headheight}{15pt}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
 \renewcommand{\chaptername}{Chương}
 \renewcommand{\thechapter}{\Roman{chapter}}
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}.}
+\setcounter{tocdepth}{2}
 
-\newcommand{\ReportTitleShort}{\ReportTitle}
-\newcommand{\ReportTitle}{}
-\newcommand{\ReportStudent}{}
-\newcommand{\ReportId}{}
-\newcommand{\ReportClass}{}
-\newcommand{\ReportDate}{}
-
-\renewcommand{\ReportTitle}{BÁO CÁO LAB 3 -- RSA-OAEP VÀ MÃ HÓA LAI}
-\renewcommand{\ReportStudent}{Nguyễn Công Tuấn}
-\renewcommand{\ReportId}{25522012}
-\renewcommand{\ReportClass}{NT219.R11.ANTT}
-\renewcommand{\ReportDate}{15/11/2026}
 \begin{document}
 \begin{titlepage}
 \thispagestyle{empty}
 \begin{center}
 {\large\bfseries TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN, ĐHQG-HCM\par}
-\vspace{0.4cm}
+\vspace{0.3cm}
 {\large\bfseries KHOA MẠNG MÁY TÍNH VÀ TRUYỀN THÔNG\par}
-\vspace{2.2cm}
-{\Large\bfseries BÁO CÁO LAB\par}
+\vspace{2.0cm}
+{\Large\bfseries BÁO CÁO LAB \ReportNumber\par}
 \vspace{0.8cm}
-{\LARGE\bfseries \ReportTitle\par}
-\vfill
+{\LARGE\bfseries ĐỀ TÀI\par}
+\vspace{0.3cm}
+{\Large\bfseries \ReportTitle\par}
+\vspace{1.5cm}
 \begin{tabular}{rl}
-Học phần: & NT219 -- An toàn thông tin\\
-Sinh viên: & \ReportStudent\\
-MSSV: & \ReportId\\
-Lớp: & \ReportClass\\
+Môn học: & \ReportCourse\\
+Giảng viên hướng dẫn: & \ReportInstructor\\
 \end{tabular}
+\vspace{1.2cm}
+
+{\bfseries Thực hiện bởi nhóm \GroupNumber, bao gồm:}\\[0.4cm]
+\begin{tabular}{rll}
+1. & \ReportStudent & \ReportId \\
+   & \multicolumn{2}{l}{\ReportRole} \\
+\end{tabular}
+
 \vfill
-\ReportDate\par
+Thời gian thực hiện: \ReportStart\ -- \ReportEnd\par
 \end{center}
 \end{titlepage}
 \pagenumbering{arabic}
 \tableofcontents
 \clearpage
+
 
 
 \begin{quote}
@@ -87,7 +137,7 @@ Báo cáo giữ nguyên các số liệu đã đo và truy vết chúng về mã
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Tóm tắt điều hành}
+\chapter{TÓM TẮT ĐIỀU HÀNH}
 
 
 Lab 3 yêu cầu xây dựng công cụ dòng lệnh \texttt{rsatool} có khả năng tạo cặp khóa RSA tối thiểu 3072 bit, thực hiện RSA-OAEP với SHA-256 và MGF1-SHA-256, hỗ trợ nhãn tùy chọn, đồng thời tự chuyển sang một gói mã hóa AES-256-GCM khi bản rõ vượt quá giới hạn của RSA. Khóa được lưu ở PEM và DER, kèm tệp JSON siêu dữ liệu. Mọi đầu vào sai định dạng hoặc bị sửa đổi phải làm thao tác thất bại an toàn và không làm lộ nguyên nhân chi tiết.
@@ -116,7 +166,7 @@ Kết quả chính:
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Mục tiêu và phạm vi}
+\chapter{MỤC TIÊU VÀ PHẠM VI}
 
 
 \section{Mục tiêu của Lab 3}
@@ -139,7 +189,7 @@ Theo đề bài và mục tiêu học phần, Lab 3 hướng tới các năng l�
 \section{Yêu cầu kỹ thuật và cách đáp ứng}
 
 
-\begin{longtable}{p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}p{0.23\textwidth}}
+\begin{longtable}{p{0.18\textwidth}p{0.34\textwidth}p{0.28\textwidth}p{0.065\textwidth}}
 \toprule
 Yêu cầu từ đề bài & Cài đặt trong bài & Bằng chứng & Trạng thái \\
 \midrule
@@ -158,7 +208,7 @@ Envelope JSON tự mô tả & \texttt{RSAENV1} + JSON header + payload nhị ph�
 Xác thực header & Header không gồm tag là AAD; sửa header làm tag fail & \texttt{src/hybrid.cpp}, \texttt{test\_negative.cpp} & Đạt \\
 Lưu PEM + DER + metadata & \texttt{keygen} ghi \texttt{.pem}, \texttt{.der}, \texttt{.json} & \texttt{src/rsa.cpp}, \texttt{tests/cli\_test.*} & Đạt \\
 Ciphertext raw/hex/base64 & \texttt{--encode}, \texttt{--decode}; raw mặc định cho tệp & \texttt{src/main.cpp}, \texttt{util.hpp} & Đạt \\
-Kiểm tra ciphertext sai định dạng & Parser kiểm tra magic/version/mode/hash/payload\_len/base64 & \texttt{src/hybrid.cpp} & Đạt \\
+Kiểm tra ciphertext sai định dạng & Parser kiểm tra \texttt{magic/version/mode/hash/payload\_len/base64} & \texttt{src/hybrid.cpp} & Đạt \\
 Sai nhãn/khóa bị từ chối & OAEP label và private key được kiểm tra & \texttt{test\_oaep.cpp}, \texttt{cli\_test.*} & Đạt \\
 Không tạo output khi lỗi & Ghi output sau khi giải mã/xác thực thành công & \texttt{src/main.cpp} & Đạt \\
 Lỗi không rò rỉ nguyên nhân & \texttt{decrypt} chỉ báo \texttt{error: decryption failed} & \texttt{src/main.cpp} & Đạt \\
@@ -169,7 +219,7 @@ Benchmark hybrid 1 KiB/1 MiB/100 MiB & AES-GCM + hybrid encrypt/decrypt & CSV/su
 Phân tích latency/throughput & §6 & Báo cáo này & Đạt \\
 Bonus: OAEP thủ công & MGF1/XOR/validate, tương tác OpenSSL & \texttt{rsa::oaepEncryptManual}, test & Đạt \\
 Bonus: phân tích bảo mật lai & §7.2–7.10 & Báo cáo này & Đạt \\
-Bonus tùy chọn: CTR+HMAC & Encrypt-then-MAC, so sánh GCM & \texttt{hybrid::aesCtrHmac*}, test & Đạt một phần; chưa benchmark \\
+Bonus tùy chọn: CTR+HMAC & Encrypt-then-MAC, so sánh GCM & \texttt{hybrid::aesCtrHmac*}, test & Đạt một phần; chưa bench\-mark \\
 \bottomrule
 \end{longtable}
 
@@ -189,13 +239,13 @@ Bonus tùy chọn: CTR+HMAC & Encrypt-then-MAC, so sánh GCM & \texttt{hybrid::a
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Thiết kế và cài đặt}
+\chapter{THIẾT KẾ VÀ CÀI ĐẶT}
 
 
 \section{Cấu trúc mã nguồn}
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 lab03/
 ├── CMakeLists.txt          CMake C++17; OpenSSL bắt buộc
 ├── README.md               build, CLI, định dạng, giới hạn
@@ -217,7 +267,7 @@ lab03/
 ├── kat/oaep_vectors.json   2 vector OAEP-SHA256 độc lập
 ├── scripts/                build, benchmark, summarize, plot
 └── output/                 log, CSV, summary, biểu đồ
-\end{lstlisting}
+\end{Verbatim}
 
 
 Kích thước phần code do sinh viên viết (không tính \texttt{catch.hpp}): khoảng 1.600 dòng C++ cho \texttt{src/} và khoảng 500 dòng cho test/script. \texttt{rsa.cpp} và \texttt{hybrid.cpp} chứa toàn bộ logic mật mã/định dạng; \texttt{main.cpp} chỉ lo CLI và benchmark.
@@ -259,13 +309,13 @@ RSA không padding là tất định và có thể bị thao túng. Padding mã 
 Cấu trúc EME-OAEP với \texttt{hLen = 32}:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 lHash   = SHA-256(label)
 DB      = lHash || PS || 0x01 || M
 dbMask  = MGF1(seed, k - hLen - 1)
 seedMask= MGF1(maskedDB, hLen)
 EM      = 0x00 || (seed XOR seedMask) || (DB XOR dbMask)
-\end{lstlisting}
+\end{Verbatim}
 
 
 Khi giải mã, thư viện kiểm tra byte đầu \texttt{0x00}, tách seed/maskedDB, unmask, so sánh \texttt{lHash}, tìm \texttt{0x01} và trả lỗi chung nếu bất kỳ bước nào sai. Đường manual của bài mô phỏng đúng các bước này (§3.8).
@@ -277,9 +327,9 @@ Khi giải mã, thư viện kiểm tra byte đầu \texttt{0x00}, tách seed/mas
 Với mô-đun có độ dài \texttt{k} byte và \texttt{hLen = 32}, OAEP trực tiếp chấp nhận:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 mLen <= k - 2*hLen - 2
-\end{lstlisting}
+\end{Verbatim}
 
 
 Do đó, RSA-3072 (\texttt{k = 384}) có giới hạn 318 byte, còn RSA-4096 (\texttt{k = 512}) có giới hạn 446 byte. CLI kiểm tra đúng biên này trước khi mã hóa và chuyển sang chế độ lai khi bản rõ lớn hơn. RSA không phù hợp để mã hóa tệp lớn trực tiếp vì mỗi phép toán RSA làm việc trên một số nguyên có kích thước cố định, trong khi OAEP đã sử dụng phần lớn không gian đó cho padding và seed.
@@ -294,12 +344,12 @@ Biên 318 byte từng là nguồn lỗi lệch một byte; test hiện kiểm tr
 Định dạng gói hiện tại:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 RSAENV1\n
 {"version":1,"mode":"RSA-OAEP-AES-GCM","rsa_modulus":3072,"hash":"SHA-256",
  "label":"...","wrapped_key":"...","iv":"...","payload_len":N,"tag":"..."}\n
 <bản mã AES-GCM nhị phân>
-\end{lstlisting}
+\end{Verbatim}
 
 
 Quy trình mã hóa sinh khóa AES 32 byte và IV 12 byte ngẫu nhiên, bọc khóa bằng RSA-OAEP với nhãn tùy chọn, rồi mã hóa dữ liệu bằng AES-256-GCM. Phần header chuẩn hóa, không gồm \texttt{tag}, được dùng làm AAD. Vì vậy mọi thay đổi đối với mode, mô-đun, hàm băm, nhãn, khóa đã bọc, IV hoặc độ dài payload đều làm xác thực GCM thất bại. Tag được kiểm tra trước khi ghi bất kỳ bản rõ nào. Định dạng có phiên bản và tự mô tả; khi giải mã không đoán chế độ trực tiếp/lai chỉ dựa trên độ dài.
@@ -417,7 +467,7 @@ GCM là chế độ mặc định vì xác thực trực tiếp header dưới d
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Kiểm chứng tính đúng đắn}
+\chapter{KIỂM CHỨNG TÍNH ĐÚNG ĐẮN}
 
 
 \section{Known Answer Tests}
@@ -467,9 +517,9 @@ Windows MinGW GCC 16.2.0 (09/11/2026) & \texttt{output/windows/test\_results/kat
 Lệnh:
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 ./build/ubuntu-gcc/rsatool --kat kat/oaep_vectors.json
-\end{lstlisting}
+\end{Verbatim}
 
 
 \section{Kiểm thử đơn vị}
@@ -618,12 +668,12 @@ Kết quả Windows MSVC: \texttt{cli\_test.cmake: all Lab 3 cases passed} (10/1
 Lệnh tái lập Ubuntu:
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 cd lab03
 scripts/build_linux.sh gcc
 (cd build/ubuntu-gcc && ctest --output-on-failure)
 ./build/ubuntu-gcc/rsatool --kat kat/oaep_vectors.json
-\end{lstlisting}
+\end{Verbatim}
 
 
 \section{Đối chiếu yêu cầu kiểm thử của học phần}
@@ -668,7 +718,7 @@ Cross-check với OpenSSL CLI & PEM + OAEP interop khi có CLI & Đạt trên Ub
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phương pháp đo hiệu năng}
+\chapter{PHƯƠNG PHÁP ĐO HIỆU NĂNG}
 
 
 \section{Mô hình đo}
@@ -677,9 +727,9 @@ Cross-check với OpenSSL CLI & PEM + OAEP interop khi có CLI & Đạt trên Ub
 \texttt{rsatool bench} chạy ma trận ca đo với 4 worker thread. Mỗi worker thực hiện các thao tác độc lập và ghi một dòng CSV cho mỗi thao tác:
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 case,bits,size_bytes,threads,run,elapsed_ms,mbps
-\end{lstlisting}
+\end{Verbatim}
 
 
 \begin{itemize}[leftmargin=*]
@@ -699,14 +749,14 @@ Mỗi case có warm-up 1 giây mỗi worker trước khi đo. Số lần: RSA 10
 \section{Công thức thống kê}
 
 
-\begin{lstlisting}
+\begin{Verbatim}
 mean   = (1/n) * sum(t_i)
 median = giá trị giữa sau khi sắp xếp
 sd     = sqrt( sum((t_i - mean)^2) / (n - 1) )
 ci95   = 1.96 * sd / sqrt(n)
 mbps   = (size_bytes / 1e6) / (elapsed_ms / 1000)     # per-op, MB thập phân
 aggregate = mbps * threads
-\end{lstlisting}
+\end{Verbatim}
 
 
 \texttt{summary\_*.csv} ghi mean, median, SD mẫu, CI 95\% và aggregate. Với RSA keygen, \texttt{mbps = 0} vì \texttt{size\_bytes = 0}; chỉ dùng \texttt{elapsed\_ms}.
@@ -821,50 +871,50 @@ Hai host không phải cùng một máy được kiểm soát. Ubuntu có log af
 Ubuntu:
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 cd lab03
 PIN_CPU=0-3 THREADS=4 RUNS_RSA=1000 RUNS_SMALL=1000 RUNS_LARGE=100 \
   WARMUP=1 scripts/run_benchmarks.sh gcc
-\end{lstlisting}
+\end{Verbatim}
 
 
 Windows:
 
 
-\begin{lstlisting}[language=DosBatch]
+\begin{Verbatim}
 cd lab03
 set "OPENSSL_ROOT_DIR=D:\cryptolibrary"
 scripts\run_benchmarks.bat msvc
-\end{lstlisting}
+\end{Verbatim}
 
 
 Hoặc chạy trực tiếp:
 
 
-\begin{lstlisting}[language=DosBatch]
+\begin{Verbatim}
 build\windows-msvc\Release\rsatool.exe bench --runs-rsa 1000 --runs-small 1000 ^
   --runs-large 100 --threads 4 --warmup 1 ^
   --out output\windows\benchmarks\bench_windows_msvc_rsa_hybrid.csv --verbose
-\end{lstlisting}
+\end{Verbatim}
 
 
 Tóm tắt và vẽ:
 
 
-\begin{lstlisting}[language=bash]
+\begin{Verbatim}
 python3 scripts/summarize_bench.py \
   --input output/ubuntu/benchmarks/bench_ubuntu_gcc_rsa_hybrid.csv \
   --out output/ubuntu/benchmarks/summary_gcc.csv
 python3 scripts/plot_bench.py \
   --input output/ubuntu/benchmarks/bench_ubuntu_gcc_rsa_hybrid.csv \
   --out-dir output/ubuntu/benchmarks/graph --platform ubuntu-gcc
-\end{lstlisting}
+\end{Verbatim}
 
 
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Kết quả và so sánh hiệu năng}
+\chapter{KẾT QUẢ VÀ SO SÁNH HIỆU NĂNG}
 
 
 \section{RSA trên Ubuntu}
@@ -929,7 +979,7 @@ RSA-4096/3072 theo mean: keygen 2.93×, encrypt 1.68×, decrypt 2.11×. Cùng xu
 \textbf{Ubuntu:}
 
 
-\begin{longtable}{p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}}
+\begin{longtable}{p{0.14\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}}
 \toprule
 Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
 \midrule
@@ -951,7 +1001,7 @@ aes\emph{gcm}decrypt & 100 MiB & 100 & 81.777 & 80.274 & 5.129 & 1.005 & 1287.03
 \textbf{Windows:}
 
 
-\begin{longtable}{p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}}
+\begin{longtable}{p{0.14\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}}
 \toprule
 Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
 \midrule
@@ -979,7 +1029,7 @@ AES-GCM đạt hàng GB/s nhờ AES-NI và GCM hardware. Con số 1 MiB Ubuntu 1
 Nguồn: \texttt{summary\_gcc.csv}; RSA-3072 + AES-256-GCM.
 
 
-\begin{longtable}{p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}}
+\begin{longtable}{p{0.14\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}}
 \toprule
 Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
 \midrule
@@ -1001,7 +1051,7 @@ hybrid\_decrypt & 100 MiB & 100 & 152.524 & 150.847 & 10.226 & 2.004 & 690.429 &
 \section{Chế độ lai trên Windows MSVC}
 
 
-\begin{longtable}{p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}p{0.10\textwidth}}
+\begin{longtable}{p{0.14\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}p{0.09\textwidth}}
 \toprule
 Case & Size & Runs & Mean (ms) & Median (ms) & SD (ms) & 95\% CI (ms) & Per-op MB/s & Aggregate MB/s \\
 \midrule
@@ -1127,7 +1177,7 @@ Windows có bộ tương ứng trong \texttt{output/windows/benchmarks/graph/}. 
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phân tích bảo mật}
+\chapter{PHÂN TÍCH BẢO MẬT}
 
 
 \section{Mô hình mối đe dọa}
@@ -1325,7 +1375,7 @@ Dùng RSA trực tiếp cho file lớn & Không thể hoặc phải chunk thủ 
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Đối chiếu yêu cầu, rubric và tự chấm điểm}
+\chapter{ĐỐI CHIẾU YÊU CẦU, RUBRIC VÀ TỰ CHẤM ĐIỂM}
 
 
 \section{Rubric của Lab 3}
@@ -1445,7 +1495,7 @@ Limitations & Đạt; §9.2 \\
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Bài học rút ra và kết luận}
+\chapter{BÀI HỌC RÚT RA VÀ KẾT LUẬN}
 
 
 \section{Bài học kỹ thuật}
@@ -1501,7 +1551,7 @@ RSA-OAEP với SHA-256 phù hợp cho dữ liệu ngắn trong giới hạn kíc
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Tài liệu tham khảo}
+\chapter{NGUỒN THAM KHẢO}
 
 
 \begin{enumerate}[leftmargin=*]
@@ -1522,7 +1572,7 @@ RSA-OAEP với SHA-256 phù hợp cho dữ liệu ngắn trong giới hạn kíc
 \par\noindent\rule{\textwidth}{0.4pt}
 
 
-\chapter{Phụ lục}
+\chapter{PHỤ LỤC}
 
 
 \section{Phụ lục A — Tỉ lệ dẫn xuất}

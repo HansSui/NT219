@@ -23,6 +23,7 @@ find_package(Threads REQUIRED)
 # ==============================================================================
 add_library(aes_core STATIC
     src/AES.cpp
+    src/aesni.cpp
     src/modes.cpp
 )
 target_include_directories(aes_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")

@@ -104,6 +104,7 @@ def main():
          labels, colors, "{:.1f}")
     ax_mbps.set_title("Throughput (mean, 95% CI)")
     ax_mbps.set_ylabel("MiB/s")
+    ax_mbps.set_ylim(0, max(point["total_mbps"][0] for point in points) * 1.35)
 
     bars(ax_ms, points, ("enc_ms", "dec_ms", "total_ms"), labels, colors,
          "{:.1f}", log=True)

@@ -41,7 +41,7 @@
 * **Build Targets:**
   * Static CLI: `build/ubuntu-gcc/aestool` (`scripts/build_linux.sh gcc`).
   * Shared Library (GUI): `build/ubuntu-gcc-shared/libaescore.so` (`cmake -S . -B build/ubuntu-gcc-shared -DBUILD_SHARED_LIBS=ON`).
-* **Validation Evidence:** KAT 20/20 in the committed log (`output/ubuntu/test_results/kat_gcc.txt`; 29-vector rerun pending), `ctest` 2/2 passed (`ctest_gcc.txt`), full 48-CSV benchmark matrix recorded under CPU pinning (`PIN_CPUS=2`, `performance` governor).
+* **Validation Evidence:** KAT 29/29 in the committed log (`output/ubuntu/test_results/kat_gcc.txt`), `ctest` 2/2 passed (`ctest_gcc.txt`), full 48-CSV benchmark matrix recorded under CPU pinning (`PIN_CPUS=2`, `performance` governor).
 
 #### Microsoft Windows (MinGW-w64)
 * **Role:** Portability verification and cross-compiler consistency testing on Windows.
@@ -73,7 +73,7 @@
   * CMake Invocation: `-DCMAKE_CXX_COMPILER=clang++`.
 * **Build Targets:**
   * Static CLI: `build/ubuntu-clang/aestool` (`scripts/build_linux.sh clang`).
-* **Validation Evidence:** KAT 20/20 in the committed log (`output/ubuntu/test_results/kat_clang.txt`; 29-vector rerun pending), `ctest` 2/2 passed (`ctest_clang.txt`). *(Note: Benchmarks were intentionally restricted to GCC in the final report to avoid mixed compiler noise).*
+* **Validation Evidence:** KAT 29/29 in the committed log (`output/ubuntu/test_results/kat_clang.txt`), `ctest` 2/2 passed (`ctest_clang.txt`). *(Note: Benchmarks were intentionally restricted to GCC in the final report to avoid mixed compiler noise).*
 
 #### Microsoft Windows (MinGW-w64 Clang)
 * **Role:** Verification of LLVM/Clang on Windows under the MinGW environment.
@@ -344,9 +344,9 @@ compiler and Crypto++ paths it actually uses):
 | OpenSSL libraries | `/usr/lib/x86_64-linux-gnu/libcrypto.so`, `/usr/lib/x86_64-linux-gnu/libssl.so` | 4.0.2 |
 | OpenSSL CLI | `/usr/bin/openssl` | 4.0.2 |
 
-Lab 2 uses **no** external crypto library in `aestool`; Crypto++ is linked only
-into the optional `test_crossval` oracle target. OpenSSL is installed for the
-course but is not linked by Lab 2.
+Lab 2 uses **no** external crypto library in `aestool`; OpenSSL is linked only
+into the test-only `test_crossval` and `bench_openssl` targets. Crypto++ is not
+linked by Lab 2.
 
 ### 5.3 Build & Test Verification Commands
 

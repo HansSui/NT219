@@ -1,0 +1,26 @@
+[  8%] Building CXX object CMakeFiles/hashcore.dir/src/x509_inspect.cpp.o
+[ 16%] Linking CXX static library libhashcore.a
+[ 33%] Built target hashcore
+[ 66%] Linking CXX executable hashtool
+[ 66%] Linking CXX executable test_lenext
+[ 66%] Linking CXX executable test_hashes
+[ 66%] Linking CXX executable test_x509
+[ 75%] Built target hashtool
+[ 83%] Built target test_lenext
+[ 91%] Built target test_hashes
+[100%] Built target test_x509
+Test project /home/han-sui/Downloads/NT219/lab04/build/ubuntu-gcc-system
+    Start 1: hashes
+1/5 Test #1: hashes ...........................   Passed    0.00 sec
+    Start 2: x509
+2/5 Test #2: x509 .............................   Passed    0.16 sec
+    Start 3: lenext
+3/5 Test #3: lenext ...........................   Passed    0.00 sec
+    Start 4: kat
+4/5 Test #4: kat ..............................   Passed    0.00 sec
+    Start 5: cli
+5/5 Test #5: cli ..............................   Passed    0.21 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =   0.38 sec

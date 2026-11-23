@@ -1,6 +1,6 @@
 # Architecture
 
-Last updated: 2026-11-07
+Last updated: 2026-11-19
 
 ## Repo
 
@@ -10,6 +10,7 @@ NT219/
   lab01/                 AES modes CLI (Crypto++)
   lab02/                 pure C++ AES core + CTR CLI
   lab03/                 RSA-OAEP + hybrid AES-GCM CLI (OpenSSL 4.0.x)
+  lab04/                 hashing, X.509 and attack demos CLI (OpenSSL ≥ 3.0)
 ```
 
 Each lab is standalone: no cross-lab library, no shared build target. This is
@@ -50,3 +51,19 @@ The envelope is `RSAENV1\n` + one-line canonical JSON header + raw AES-GCM
 ciphertext. The header (minus the tag) is the GCM AAD, so any field tamper fails
 authentication. Direct RSA-OAEP ciphertext has no header and is exactly one
 modulus long.
+
+## Lab 4 modules
+
+| Module | Responsibility |
+|---|---|
+| `hashcore` (`src/hash_core.*`) | EVP SHA-2/SHA-3/SHAKE, name/outlen validation, stream/mmap, KAT |
+| `sha256ext` (`src/sha256_ext.*`) | minimal SHA-256 and length-extension state continuation |
+| `x509` (`src/x509_inspect.*`) | PEM/DER parse, field extraction, one-link signature verify |
+| `io` (`src/io.hpp`) | read-only mmap (`MapViewOfFile` / `mmap`) |
+| `util` / `minijson` | hex/base64/file helpers, KAT JSON parser |
+| `main` | CLI: `hash`, `cert`, `lenext`, `bench`, `--kat` |
+
+`hashtool` never builds a certificate chain: `cert --issuer` verifies one link
+and reports chain/root trust as not evaluated. The SHA-256 implementation is
+not the hash backend; it exists only so `lenext` can continue a published MAC
+state. Demos are offline files under `demos/` and are never called by the tool.

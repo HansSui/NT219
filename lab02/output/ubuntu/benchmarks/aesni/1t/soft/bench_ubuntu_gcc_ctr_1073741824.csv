@@ -1,0 +1,4 @@
+run,mode,size_bytes,encrypt_us,decrypt_us,throughput_encrypt_MBps,throughput_decrypt_MBps
+0,ctr,1073741824,59365672.20,61138724.30,17.25,16.75
+1,ctr,1073741824,66016061.26,63902026.89,15.51,16.02
+2,ctr,1073741824,76015571.13,71501385.92,13.47,14.32

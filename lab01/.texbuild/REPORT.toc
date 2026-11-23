@@ -1,0 +1,62 @@
+\xpg@aux {}{vietnamese}
+\contentsline {chapter}{\numberline {I}Tóm tắt điều hành}{4}{chapter.1}%
+\contentsline {chapter}{\numberline {II}Mục tiêu và phạm vi}{6}{chapter.2}%
+\contentsline {section}{\numberline {II.1}Mục tiêu của Lab 1}{6}{section.2.1}%
+\contentsline {section}{\numberline {II.2}Yêu cầu kỹ thuật và cách đáp ứng}{6}{section.2.2}%
+\contentsline {section}{\numberline {II.3}Phạm vi và giới hạn của báo cáo}{11}{section.2.3}%
+\contentsline {chapter}{\numberline {III}Thiết kế và cài đặt}{12}{chapter.3}%
+\contentsline {section}{\numberline {III.1}Kiến trúc mã nguồn}{12}{section.3.1}%
+\contentsline {section}{\numberline {III.2}Ánh xạ chế độ sang Crypto++}{13}{section.3.2}%
+\contentsline {section}{\numberline {III.3}Định dạng container}{13}{section.3.3}%
+\contentsline {section}{\numberline {III.4}Xử lý IV và nonce}{14}{section.3.4}%
+\contentsline {section}{\numberline {III.5}Chống tái sử dụng nonce và bảo vệ bộ nhớ khoá}{14}{section.3.5}%
+\contentsline {section}{\numberline {III.6}Xử lý AEAD và fail-closed}{15}{section.3.6}%
+\contentsline {section}{\numberline {III.7}Chính sách ECB}{15}{section.3.7}%
+\contentsline {section}{\numberline {III.8}CLI và I/O}{16}{section.3.8}%
+\contentsline {section}{\numberline {III.9}GUI (bonus)}{16}{section.3.9}%
+\contentsline {section}{\numberline {III.10}Những quyết định thiết kế đáng chú ý}{18}{section.3.10}%
+\contentsline {chapter}{\numberline {IV}Kiểm chứng tính đúng đắn}{19}{chapter.4}%
+\contentsline {section}{\numberline {IV.1}Known Answer Tests (KAT)}{19}{section.4.1}%
+\contentsline {section}{\numberline {IV.2}Kiểm thử đơn vị}{22}{section.4.2}%
+\contentsline {section}{\numberline {IV.3}Kiểm thử âm và các trường hợp biên}{23}{section.4.3}%
+\contentsline {section}{\numberline {IV.4}Đối chiếu với yêu cầu kiểm thử của học phần}{24}{section.4.4}%
+\contentsline {section}{\numberline {IV.5}Hạn chế của phần kiểm chứng}{25}{section.4.5}%
+\contentsline {chapter}{\numberline {V}Phương pháp đo hiệu năng}{26}{chapter.5}%
+\contentsline {section}{\numberline {V.1}Mô hình đo}{26}{section.5.1}%
+\contentsline {section}{\numberline {V.2}Công thức thống kê}{26}{section.5.2}%
+\contentsline {section}{\numberline {V.3}Ma trận đo}{27}{section.5.3}%
+\contentsline {section}{\numberline {V.4}Môi trường đo}{27}{section.5.4}%
+\contentsline {section}{\numberline {V.5}Các yếu tố gây nhiễu}{28}{section.5.5}%
+\contentsline {section}{\numberline {V.6}Cách tái lập}{28}{section.5.6}%
+\contentsline {chapter}{\numberline {VI}Kết quả và so sánh hiệu năng}{30}{chapter.6}%
+\contentsline {section}{\numberline {VI.1}Tổng quan theo mode và compiler}{30}{section.6.1}%
+\contentsline {section}{\numberline {VI.2}Windows và Ubuntu}{30}{section.6.2}%
+\contentsline {section}{\numberline {VI.3}Stream và block}{33}{section.6.3}%
+\contentsline {section}{\numberline {VI.4}AEAD và non-AEAD}{35}{section.6.4}%
+\contentsline {section}{\numberline {VI.5}Chi phí tag của GCM và CCM}{36}{section.6.5}%
+\contentsline {section}{\numberline {VI.6}Ảnh hưởng của kích thước payload}{37}{section.6.6}%
+\contentsline {section}{\numberline {VI.7}Thống kê chi tiết tại 1 MB}{39}{section.6.7}%
+\contentsline {section}{\numberline {VI.8}Phân tích block và độ tin cậy của CI}{40}{section.6.8}%
+\contentsline {section}{\numberline {VI.9}Độ ổn định, outlier và scheduling}{41}{section.6.9}%
+\contentsline {section}{\numberline {VI.10}OS scheduling và system-call / I/O overhead}{41}{section.6.10}%
+\contentsline {chapter}{\numberline {VII}Phân tích bảo mật}{43}{chapter.7}%
+\contentsline {section}{\numberline {VII.1}Mô hình mối đe dọa}{43}{section.7.1}%
+\contentsline {section}{\numberline {VII.2}Bảo mật ở mức chế độ}{43}{section.7.2}%
+\contentsline {section}{\numberline {VII.3}Bảo mật ở mức cài đặt}{45}{section.7.3}%
+\contentsline {section}{\numberline {VII.4}Kịch bản sử dụng sai và biện pháp}{46}{section.7.4}%
+\contentsline {section}{\numberline {VII.5}Tấn công đã biết liên quan}{46}{section.7.5}%
+\contentsline {section}{\numberline {VII.6}Khuyến nghị cho môi trường thật}{47}{section.7.6}%
+\contentsline {chapter}{\numberline {VIII}Đối chiếu yêu cầu, rubric và tự chấm điểm}{48}{chapter.8}%
+\contentsline {section}{\numberline {VIII.1}Rubric của Lab 1}{48}{section.8.1}%
+\contentsline {section}{\numberline {VIII.2}Checklist nộp bài}{49}{section.8.2}%
+\contentsline {section}{\numberline {VIII.3}Đối chiếu yêu cầu chung của học phần}{50}{section.8.3}%
+\contentsline {chapter}{\numberline {IX}Bài học rút ra và kết luận}{52}{chapter.9}%
+\contentsline {section}{\numberline {IX.1}Bài học kỹ thuật}{52}{section.9.1}%
+\contentsline {section}{\numberline {IX.2}Bài học về bảo mật}{52}{section.9.2}%
+\contentsline {section}{\numberline {IX.3}Kết luận}{53}{section.9.3}%
+\contentsline {chapter}{\numberline {X}Tài liệu tham khảo}{54}{chapter.10}%
+\contentsline {chapter}{\numberline {XI}Phụ lục}{55}{chapter.11}%
+\contentsline {section}{\numberline {XI.1}Phụ lục A — Thống kê chi tiết tại 16 KB}{55}{section.11.1}%
+\contentsline {section}{\numberline {XI.2}Phụ lục B — Thông lượng giải mã theo kích thước}{56}{section.11.2}%
+\contentsline {section}{\numberline {XI.3}Phụ lục C — Danh mục bằng chứng}{57}{section.11.3}%
+\contentsline {section}{\numberline {XI.4}Phụ lục D — Cam kết liêm chính học thuật}{57}{section.11.4}%

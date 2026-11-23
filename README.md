@@ -13,6 +13,7 @@ NT219/
   lab01/              Lab 1 - symmetric encryption CLI (aestool)
   lab02/              Lab 2 - pure C++ AES/CTR
   lab03/              Lab 3 - RSA-OAEP + hybrid AES-GCM (rsatool)
+  lab04/              Lab 4 - hashing, X.509, MD5/length-extension demos (hashtool)
 ```
 
 ### lab01
@@ -27,7 +28,7 @@ scripts/              build, benchmark, summarise and plot scripts
 output/               benchmark evidence and generated charts
 README.md             CLI, container format and security design
 BENCHMARKS.md         full benchmark matrix and cross-platform charts
-REPORT.md             Vietnamese lab report (refresh pending)
+REPORT.md             Vietnamese lab report (current)
 ```
 
 ### docs
@@ -38,7 +39,7 @@ Lab2.txt ... Lab6.txt       Lab 2-6 briefs
 lab requirement.md          course/toolchain core
 GradingSystem.txt           performance, report and submission rules
 blueprint/                  plan-only blueprint and lab briefs
-missing/                    implementation audit for Labs 1-2
+missing/                    implementation audit for Labs 1-3
 memory/                     repo memory (Index, architecture, decisions, history)
 ```
 
@@ -96,7 +97,7 @@ benchmarked. The Windows benchmark matrix is the controlled 25/10 run, and
 `summary_robust.csv` records its remaining noisy configurations. See
 `lab01/README.md` for the CLI, `lab01/BENCHMARKS.md` for the benchmark method and
 the completed Vietnamese report in `lab01/REPORT.md` for results, statistics and
-analysis. The report is being refreshed separately for the new Windows run.
+analysis. The report is current for the committed Windows run.
 
 ## Quick start (Lab 2)
 
@@ -122,14 +123,15 @@ THREADS=4 PIN_CPU=0-3 scripts/run_benchmarks.sh gcc
 Lab 2 implements AES-128/192/256 and CTR in pure C++17; OpenSSL is linked only
 into `test_crossval` and `bench_openssl`. The current KAT has 9 vectors and
 CTest has 4 tests. Windows MSVC 19.51, MinGW GCC 16.2.0 and MinGW Clang 22.1.8
-each passed 9/9 KAT and 4/4 CTest before the oracle switch; rerun Windows with
-OpenSSL. Windows MSVC benchmark data exists at the chosen 1000/100/30 rows with
-summary, six plots and an audit under `lab02/output/windows/benchmarks/`.
-Ubuntu GCC 15.2 logs show 9/9 KAT, 4/4 CTest with OpenSSL, and the new
-1000/100/30 benchmark; OpenSSL throughput comparison is in
-`lab02/output/ubuntu/benchmarks/openssl/`; see `docs/missing/lab2.md`. The
-Vietnamese report is `lab02/REPORT.md`; benchmark details are in
-`lab02/BENCHMARKS.md`.
+each passed 9/9 KAT and 4/4 CTest before the oracle switch; the CTest/
+cross-validation logs still need a rerun with OpenSSL. The Windows MSVC
+benchmark and OpenSSL throughput were rerun on 2026-11-10 at the chosen
+1000/100/30 rows with summary, seven plots and an updated audit under
+`lab02/output/windows/benchmarks/`. Ubuntu GCC 15.2 logs show 9/9 KAT, 4/4
+CTest with OpenSSL, and the new 1000/100/30 benchmark; OpenSSL throughput
+comparison is in `lab02/output/ubuntu/benchmarks/openssl/`; see
+`docs/missing/lab2.md`. The Vietnamese report is `lab02/REPORT.md`; benchmark
+details are in `lab02/BENCHMARKS.md`. PDF/archive are still missing.
 
 ## Quick start (Lab 3)
 
@@ -160,4 +162,29 @@ headers, labels, keys and encodings. See `lab03/README.md` for the format and
 `lab03/REPORT.md` / `lab03/BENCHMARKS.md` for the report and measured results.
 Ubuntu GCC 15.2 + OpenSSL 4.0.2: KAT 2/2, `ctest` 5/5, CPU-pinned 4-thread
 benchmark (1000/100 runs) with summary and three plots under
-`lab03/output/ubuntu/benchmarks/`.
+`lab03/output/ubuntu/benchmarks/`. Windows MSVC 2026-11-10 and MinGW GCC
+2026-11-09 pass KAT 2/2 and `ctest` 5/5; the MSVC benchmark is under
+`lab03/output/windows/benchmarks/`. Manual OAEP and AES-CTR+HMAC tests are
+implemented; PDF/archive are still missing.
+
+## Quick start (Lab 4)
+
+Linux:
+
+```bash
+cd lab04
+export OPENSSL_ROOT_DIR="$HOME/CryptoLib/lib/openssl/gcc"
+scripts/build_linux.sh gcc
+./build/ubuntu-gcc/hashtool --algo sha256 --text abc
+./build/ubuntu-gcc/hashtool --algo shake256 --outlen 64 --text abc
+./build/ubuntu-gcc/hashtool --kat kat/hash_vectors.json
+(cd build/ubuntu-gcc && ctest --output-on-failure)
+```
+
+Lab 4 supports SHA-2, SHA-3 and SHAKE, streamed file hashing, X.509 field
+extraction with one-link signature verification, and offline MD5 collision and
+SHA-256 length-extension demos. Ubuntu GCC 15.2 + OpenSSL 4.0.2: KAT 31/31 and
+`ctest` 5/5; Clang 21.1.8 also passes. Benchmarks and plots are under
+`lab04/output/ubuntu/benchmarks/`. TLS deployment and Windows/MSVC evidence are
+not committed; the bonus chosen-prefix demo is an honest identical-prefix
+fallback. See `lab04/README.md`, `lab04/BENCHMARKS.md` and `lab04/REPORT.md`.

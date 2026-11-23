@@ -1,0 +1,25 @@
+# Lab 4 Apache HTTPS configuration (replace every example.com value).
+<VirtualHost *:80>
+    ServerName example.com
+    ServerAlias www.example.com
+    Redirect permanent / https://example.com/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName example.com
+    ServerAlias www.example.com
+    DocumentRoot /var/www/html
+
+    SSLEngine on
+    SSLCertificateFile      /etc/ssl/lab4/fullchain.pem
+    SSLCertificateKeyFile   /etc/ssl/lab4/privkey.pem
+
+    SSLProtocol             -all +TLSv1.2 +TLSv1.3
+    SSLCipherSuite          ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305
+    SSLHonorCipherOrder     off
+    SSLSessionTickets       off
+
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</VirtualHost>

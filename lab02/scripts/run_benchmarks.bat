@@ -13,6 +13,7 @@ if not exist "%bin%" (
 )
 
 set "out_dir=%root%\output\windows\benchmarks"
+if defined OUT_DIR set "out_dir=%OUT_DIR%"
 if not exist "%out_dir%" mkdir "%out_dir%"
 
 rem Chosen matrix: 1 MiB/1000, 100 MiB/100, 1 GiB/30.
@@ -30,6 +31,8 @@ if defined RUNS (
 if not defined WARMUP set "WARMUP=1.0"
 rem Benchmark worker threads. Override with THREADS=1 for a single-thread run.
 if not defined THREADS set "THREADS=4"
+rem soft keeps the pure-software baseline; use IMPL=ni or IMPL=auto explicitly.
+if not defined IMPL set "IMPL=soft"
 
 rem ---- Noise reduction ----
 rem PIN_MASK: hex CPU affinity mask (no 0x). F = logical CPUs 0-3, 4 = CPU 2.
@@ -52,7 +55,7 @@ powercfg /setactive SCHEME_MIN >nul 2>&1
 
 echo Running Lab 2 AES-128 CTR benchmarks using %compiler%...
 echo Matrix: 1 MiB/%RUNS_1MB%, 100 MiB/%RUNS_100MB%, 1 GiB/%RUNS_1GB%, warm-up %WARMUP%s
-echo Priority: %PRIORITY%, affinity mask: %PIN_MASK%, threads: %THREADS%
+echo Priority: %PRIORITY%, affinity mask: %PIN_MASK%, threads: %THREADS%, impl: %IMPL%
 if %THREADS% GTR 1 if "%PIN_MASK%"=="4" echo WARNING: PIN_MASK=4 selects one logical CPU; %THREADS% threads will share it. Use PIN_MASK=0 or a 4-CPU mask such as PIN_MASK=F.
 
 set "rc=0"
@@ -74,7 +77,7 @@ set "size=%~1"
 set "runs=%~2"
 set "csv=%out_dir%\bench_windows_%compiler%_ctr_%size%.csv"
 echo Benchmarking size %size% bytes, %runs% runs -^> %csv%
-start "" %start_opts% "%bin%" bench --mode ctr --size %size% --runs %runs% --warmup %WARMUP% --threads %THREADS% --verbose --out "%csv%"
+start "" %start_opts% "%bin%" bench --mode ctr --size %size% --runs %runs% --warmup %WARMUP% --threads %THREADS% --impl %IMPL% --verbose --out "%csv%"
 if errorlevel 1 (
     echo FAIL: benchmark size=%size%
     exit /b 1

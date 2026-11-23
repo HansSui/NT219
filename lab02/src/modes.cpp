@@ -1,4 +1,5 @@
 #include "modes.hpp"
+#include "aesni.hpp"
 #include <algorithm>
 #include <stdexcept>
 
@@ -12,7 +13,29 @@ bool inc128(Block& ctr) {
     return true;
 }
 
-std::vector<uint8_t> ctr_crypt(const AES& cipher, const std::vector<uint8_t>& data, Block counter) {
+// True if the counter would wrap before the final block. Such a counter goes
+// through the software path, which owns the overflow error.
+bool ctr_wrap_before_end(const Block& ctr, size_t blocks) {
+    uint64_t hi = 0;
+    uint64_t lo = 0;
+    for (int i = 0; i < 8; ++i) hi = (hi << 8) | ctr[i];
+    for (int i = 8; i < 16; ++i) lo = (lo << 8) | ctr[i];
+    const uint64_t lo_sum = lo + blocks;
+    const uint64_t carry = lo_sum < lo ? 1 : 0;
+    const uint64_t hi_sum = hi + carry;
+    return hi_sum < hi && lo_sum != 0;
+}
+
+std::vector<uint8_t> ctr_crypt(const AES& cipher, const std::vector<uint8_t>& data, Block counter,
+                               bool allow_aesni) {
+    if (allow_aesni && cipher.key_bits() == 128 && aesni::available() &&
+        !ctr_wrap_before_end(counter, (data.size() + 15) / 16)) {
+        std::vector<uint8_t> out(data.size());
+        aesni::ctr_crypt_128(cipher.round_key_data(), counter.data(),
+                             data.data(), out.data(), data.size());
+        return out;
+    }
+
     std::vector<uint8_t> out(data.size());
 
     for (size_t pos = 0; pos < data.size(); pos += 16) {
@@ -113,12 +136,14 @@ std::vector<uint8_t> xts_crypt(const AES& data_cipher, const AES& tweak_cipher,
 
 } // namespace
 
-std::vector<uint8_t> Modes::ctr_encrypt(const AES& cipher, const std::vector<uint8_t>& plaintext, Block counter) {
-    return ctr_crypt(cipher, plaintext, counter);
+std::vector<uint8_t> Modes::ctr_encrypt(const AES& cipher, const std::vector<uint8_t>& plaintext, Block counter,
+                                        bool allow_aesni) {
+    return ctr_crypt(cipher, plaintext, counter, allow_aesni);
 }
 
-std::vector<uint8_t> Modes::ctr_decrypt(const AES& cipher, const std::vector<uint8_t>& ciphertext, Block counter) {
-    return ctr_crypt(cipher, ciphertext, counter);
+std::vector<uint8_t> Modes::ctr_decrypt(const AES& cipher, const std::vector<uint8_t>& ciphertext, Block counter,
+                                        bool allow_aesni) {
+    return ctr_crypt(cipher, ciphertext, counter, allow_aesni);
 }
 
 std::vector<uint8_t> Modes::xts_encrypt(const AES& key1, const AES& key2,

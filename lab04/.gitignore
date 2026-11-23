@@ -1,0 +1,7 @@
+build/
+__pycache__/
+demos/chosen_prefix_cert/make_certs
+demos/chosen_prefix_cert/demo_key.pem
+demos/chosen_prefix_cert/prefix.bin
+demos/chosen_prefix_cert/collision*.bin
+.ipynb_checkpoints/

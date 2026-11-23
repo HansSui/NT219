@@ -11,11 +11,12 @@
 | `windows/test_results/unit_*.txt` | Catch2 unit tests | 351 assertions / 11 cases |
 | `windows/test_results/crossval_*.txt` | prior Crypto++ parity tests | stale; rerun with OpenSSL |
 | `windows/test_results/environment.txt` | prior Windows host/oracle versions | stale Crypto++ note; update after rerun |
-| `windows/benchmarks/` | Windows benchmark CSVs, summary, plots, audit | 1000/100/30 rows, 2026-11-05; combined 3-series summary plot added; see `AUDIT.md` |
+| `windows/benchmarks/` | Windows benchmark CSVs, summary, plots, audit | 1000/100/30 rows, 2026-11-10; combined summary + own-vs-OpenSSL comparison; see `AUDIT.md` |
+| `windows/benchmarks/openssl/` | Windows OpenSSL throughput oracle CSVs + summary | 4 threads, 2026-11-10; several points flagged noisy |
 | `ubuntu/benchmarks/*.csv` | Ubuntu GCC benchmark rows | 1000/100/30, 2026-11-05 |
 | `ubuntu/benchmarks/*.log` | system-tracking logs | old run; current script is console-only |
 | `ubuntu/benchmarks/summary*.csv` | statistics | 2026-11-05 |
-| `ubuntu/benchmarks/graphs/` | one combined throughput + latency summary plot (encrypt, decrypt, total) | all three sizes, 2026-11-05 |
+| `ubuntu/benchmarks/graphs/` | combined throughput + latency summary and own-vs-OpenSSL comparison | all three sizes; regenerated 2026-11-15 |
 | `ubuntu/benchmarks/openssl/` | OpenSSL throughput oracle CSVs + summary | 4 threads, 2026-11-05 |
 | `ubuntu/test_results/` | Ubuntu GCC KAT/CTest/unit/crossval/environment logs | 9/9 KAT, 4/4 CTest, OpenSSL oracle, 2026-11-05 |
 
@@ -57,7 +58,7 @@ scripts\run_benchmarks.bat msvc
 python scripts\summarize_bench.py --dir output\windows\benchmarks
 ```
 
-OpenSSL throughput comparison (Ubuntu data exists; Windows not run):
+OpenSSL throughput comparison (Ubuntu and Windows data exist):
 
 ```bash
 mkdir -p output/ubuntu/benchmarks/openssl
@@ -82,4 +83,5 @@ python scripts\summarize_bench.py --dir output\windows\benchmarks\openssl
 The Ubuntu data now uses the chosen 1000/100/30 matrix with 4 threads and
 CPUs 0-3, but it has no environment log (the script is console-only) and the
 1 MiB CV is 14.4%. The Windows data uses the same counts and also has no
-run-time environment log.
+run-time environment log; its benchmark CVs are 6.4–12.1%, and the Windows
+OpenSSL comparison is noisier than Ubuntu's.

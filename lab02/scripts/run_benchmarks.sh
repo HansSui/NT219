@@ -18,6 +18,8 @@ run_100mb="${RUNS_100MB:-${RUNS:-100}}"
 run_1gb="${RUNS_1GB:-${RUNS:-30}}"
 warmup="${WARMUP:-1.0}"
 threads="${THREADS:-4}"
+# soft keeps the pure-software baseline the report tables were measured on.
+impl="${IMPL:-soft}"
 
 if [[ -z "${PIN_CPU:-}" ]]; then
     if (( threads > 1 )); then PIN_CPU="0-3"; else PIN_CPU="2"; fi
@@ -56,7 +58,7 @@ if [[ "${BENCH_1GB:-1}" == "1" ]]; then
     matrix+=", 1 GiB/$run_1gb"
 fi
 echo "$matrix, warm-up ${warmup}s"
-echo "Affinity: $PIN_CPU, threads: $threads"
+echo "Affinity: $PIN_CPU, threads: $threads, impl: $impl"
 echo "Results: $out_dir"
 mkdir -p "$out_dir"
 
@@ -65,7 +67,7 @@ run_one() {
     local csv="$out_dir/bench_ubuntu_${compiler}_ctr_${size}.csv"
     echo "Benchmarking size $size bytes, $runs runs -> $csv"
     "${launcher[@]}" "$bin" bench --mode ctr --size "$size" --runs "$runs" \
-        --warmup "$warmup" --threads "$threads" --verbose --out "$csv"
+        --warmup "$warmup" --threads "$threads" --impl "$impl" --verbose --out "$csv"
 }
 
 run_one 1048576 "$run_1mb"

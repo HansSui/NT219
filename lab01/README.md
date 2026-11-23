@@ -457,7 +457,8 @@ statistical tables (mean, median, SD, CI95, CV), security engineering, the
 Tkinter GUI bonus, limitations and a self-grade table. The current benchmark
 evidence is the 96 CSVs under `output/` (48 Ubuntu GCC + 48 Windows MSVC).
 
-Fill the identity fields when packaging rather than editing the tracked report:
+The tracked report already has the identity; the packaging script can overwrite
+the staged copy from these arguments if needed:
 
 ```bash
 python scripts/package_lab1.py --student "..." --student-id ... --class-name ... \

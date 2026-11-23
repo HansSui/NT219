@@ -1,13 +1,14 @@
 # Lab 3 - Missing / Lacking
 
-**Audit date:** 2026-11-09
+**Audit date:** 2026-11-10
 **Sources:** `docs/Lab3.txt`, `docs/lab requirement.md`,
 `docs/GradingSystem.txt`, `docs/blueprint/labs/lab3.md`, `lab03/`
 **Method:** rebuilt Lab 3 on Ubuntu 26.04 with GCC 15.2 and OpenSSL 4.0.2,
 ran `--kat`, all CTest targets and the report tables against the committed
 benchmark CSV; reviewed the CLI, negative tests, build scripts and plot
-pipeline; regenerated the three plots as grouped bars. No Windows host was
-available, so Windows is **not verified** here.
+pipeline; regenerated the three plots as grouped bars. Windows evidence is
+taken from the committed MSVC 2026-11-10 and MinGW GCC 2026-11-09 logs; MinGW
+Clang was not rerun here.
 
 Status legend: **OK** = present and verified, **Partial** = present but
 incomplete, **Missing** = not present, **Not verified** = no evidence here.
@@ -17,9 +18,9 @@ incomplete, **Missing** = not present, **Not verified** = no evidence here.
 The Lab 3 implementation meets the functional brief: RSA-3072/4096 OAEP with
 SHA-256 and an optional label, PEM/DER/metadata key output, automatic
 AES-256-GCM hybrid envelope, fail-closed negative tests, and a complete
-benchmark matrix. The 2026-11-09 regrade is **97/100 core** plus **6/10
-optional hybrid-analysis bonus** (manual OAEP bonus not attempted). The
-unscored gaps are submission work and Windows evidence, not a broken RSA or
+benchmark matrix. The 2026-11-10 regrade is **99/100 core** plus **13/15
+optional bonus** (manual OAEP +5, hybrid analysis 8/10). The unscored gaps are
+submission work (PDF/archive) and a MinGW Clang rerun, not a broken RSA or
 envelope path.
 
 Two real documentation defects were fixed in this pass: the report/benchmark
@@ -33,7 +34,7 @@ hybrid-vs-AES comparison.
 |---|---|---|
 | Build and `ctest` | Pass, 5/5 (GCC 15.2; committed Clang log also 5/5) | Pass, 5/5 (MSVC 2026-11-10; MinGW GCC 2026-11-09) |
 | CLI KAT | `2 passed, 0 failed` (GCC and Clang logs) | `2 passed, 0 failed` (MSVC + MinGW GCC) |
-| Unit/negative tests | OAEP 24/7; hybrid 27/5; negative 20/5 (older Ubuntu log) | MSVC OAEP 36/9; hybrid 36/6; negative 20/5 |
+| Unit/negative tests | OAEP 36/9; hybrid 36/6; negative 20/5 (current GCC run; committed ctest log has no counts) | MSVC OAEP 36/9; hybrid 36/6; negative 20/5; MinGW GCC 24/7, 27/5, 20/5 (predates the two new tests) |
 | CLI negative suite | Pass (label, wrong key, tampered payload/header, malformed input) | Pass (`cli_test.cmake`) |
 | Benchmark data | 18-case CSV, summary, 3 plots (1000/1000/100, 4 threads) | 18-case CSV, summary, 3 plots |
 | Docs vs evidence | Tables now match `summary_gcc.csv` | N/A |
@@ -57,7 +58,7 @@ scripts/build_linux.sh gcc
 | L3-04 | Report/BENCHMARKS tables disagreed with the committed CSV | Report quality | Fixed 2026-11-09 | N/A | Closed |
 | L3-05 | Line plots obscured the required comparisons | Performance plots | Fixed 2026-11-09 | N/A | Closed |
 | L3-06 | Manual OAEP padding bonus not implemented | Bonus +5 | Fixed 2026-11-10 | Fixed 2026-11-10 | Closed |
-| L3-07 | Hybrid security analysis is partial | Bonus +10 | Partial (6/10) | N/A | Optional |
+| L3-07 | Hybrid security analysis is partial | Bonus +10 | Partial (8/10) | N/A | Optional |
 
 ### L3-01 - Windows build, tests and KAT (fixed 2026-11-10)
 
@@ -71,7 +72,8 @@ Committed Windows evidence:
   36/6, negative 20/5, KAT 2/2, CLI all passed.
 - `kat_msvc.txt`: `2 passed, 0 failed`.
 - `ctest_mingw_gcc.txt` and `kat_mingw_gcc.txt`: 5/5 and 2/2 (MinGW GCC,
-  2026-11-09).
+  2026-11-09). Its unit counts (24/7 and 27/5) predate the manual-OAEP and
+  CTR+HMAC test additions.
 
 Reproduce on a Windows host:
 
@@ -84,16 +86,16 @@ scripts\build_windows.bat msvc
 ### L3-02 - Final report package is not produced
 
 `REPORT.md`, `README.md` and `BENCHMARKS.md` contain the objectives, design,
-security discussion, test evidence, performance analysis and self-grade, but:
+security discussion, test evidence, performance analysis and self-grade. The
+student identity is filled (Nguyễn Công Tuấn / 25522012 / NT219.R11.ANTT), but:
 
-- Student name, student ID and class are blank.
 - No PDF/DOCX export exists.
 - No submission archive exists.
 
-This is the only core deduction besides Windows evidence: report quality
-9/10. The rubric content itself is present.
+This is the only core deduction: report quality 9/10. The rubric content itself
+is present; Windows evidence is no longer a deduction.
 
-### L3-03 - No Windows benchmark data
+### L3-03 - Windows benchmark data (fixed 2026-11-10)
 
 **Fixed 2026-11-10.** `scripts/run_benchmarks.bat` now mirrors the Linux
 wrapper (build-if-needed, CPU affinity, High performance plan, CSV, summary and
@@ -103,19 +105,21 @@ The benchmark is not required on both OSes by the brief, but the Windows run now
 strengthens the performance evidence. Reproduce with
 `scripts\run_benchmarks.bat msvc`.
 
-### L3-04 - Documentation tables were stale (fixed)
+### L3-04 - Documentation tables were stale (fixed 2026-11-11)
 
 `BENCHMARKS.md` and `REPORT.md` were written at 14:02 on 2026-11-07, then the
-benchmark was rerun at 14:38. For example, the docs said RSA-3072 keygen
-207.04 ms while `summary_gcc.csv` says 186.41 ms; AES-GCM 1 MiB encryption was
-2814.4 MB/s in the docs and 3756.7 MB/s in the committed summary. The tables,
-ratio statements and GB/s figures were corrected against the committed CSV on
-2026-11-09. The CSV/summary are the evidence of record; do not hand-edit them.
+benchmark was rerun. The 2026-11-09 pass reconciled them to the then-current
+summary (RSA-3072 keygen 186.41 ms, AES-GCM 1 MiB encryption 3756.7 MB/s), but a
+later Ubuntu rerun and the Windows rerun changed both committed summaries again
+and left the tables stale. The tables, ratio statements and GB/s figures are now
+reconciled with `summary_gcc.csv` (RSA-3072 keygen 180.16 ms, AES-GCM 1 MiB
+3021.5 MB/s) and `summary_msvc.csv` (369.27 ms, 691.5 MB/s). The CSV/summary are
+the evidence of record; do not hand-edit them.
 
 ### L3-05 - Line-chart plots hid the comparisons (fixed)
 
 The old `plot_bench.py` drew lines between 3072 and 4096 bits. RSA keygen
-(~186/605 ms) swamped encrypt (0.05/0.11 ms) and decrypt (1.20/2.64 ms) on a
+(~180/606 ms) swamped encrypt (0.05/0.10 ms) and decrypt (1.22/2.66 ms) on a
 linear scale, and the AES/hybrid throughput lines connected discrete payload
 sizes. The script now draws grouped bars with 95% CI whiskers and value labels,
 matching the Lab 1/Lab 2 comparison style:
@@ -139,16 +143,19 @@ python3 scripts/plot_bench.py \
 `src/rsa.cpp` now implements OAEP encoding/decoding with MGF1-SHA-256, XOR
 masking and a best-effort constant-time padding check, while the EVP path
 remains available. `tests/test_oaep.cpp` and `tests/test_hybrid.cpp` cover the
-manual path. The optional +5 bonus can now be claimed after a Windows test run.
+manual path. It passes on Ubuntu and MSVC, so the +5 bonus is claimed; the
+MinGW GCC log predates these test additions.
 
 ### L3-07 - Hybrid security analysis bonus is partial
 
 `REPORT.md` compares the envelope with direct RSA, explains the TLS hybrid
-design and the forward-secrecy limitation, and proposes ECDHE/ML-KEM. It does
-not include the optional AES-CTR+HMAC comparison or authentication-failure
-timing variance, so 6/10 of the bonus is claimed.
+design and the forward-secrecy limitation, and proposes ECDHE/ML-KEM. The
+optional AES-256-CTR + HMAC-SHA256 comparison is now implemented in
+`src/hybrid.cpp` and unit-tested (round-trip, wrong AAD/tag/IV, tampered
+ciphertext, empty payload), but it is not benchmarked and there is no
+authentication-failure timing study, so 8/10 of the bonus is claimed.
 
-## Rubric regrade 2026-11-09
+## Rubric regrade 2026-11-10
 
 Rubric from `docs/Lab3.txt`: 100 core + 15 bonus.
 
@@ -158,17 +165,16 @@ Rubric from `docs/Lab3.txt`: 100 core + 15 bonus.
 | Correct hybrid envelope | 20 | 20 | Auto-switch, AES-256-GCM, 96-bit IV, RSA-wrapped key, authenticated decrypt |
 | Key management and formats | 15 | 15 | PEM + DER + metadata; <3072 rejected; 3072/4096 tested |
 | Negative tests and secure errors | 15 | 15 | Altered ciphertext/tag/IV/wrapped key/header, wrong key/label, malformed input; no output on failure |
-| Performance study and analysis | 15 | 14 | Full matrix, CI, grouped plots and interpretation; single host, no Windows run |
-| Cross-platform build and documentation | 5 | 4 | Ubuntu GCC + Clang verified; Windows script exists but is unrun |
-| Report quality | 10 | 9 | Content complete; identity/PDF/archive missing |
-| **Core** | **100** | **97** | |
-| Bonus: manual OAEP | +5 | 0 | Library OAEP, no manual MGF1 |
-| Bonus: hybrid security analysis | +10 | 6 | TLS/envelope/forward secrecy; no CTR+HMAC timing study |
-| **Total** | **115** | **103** | |
+| Performance study and analysis | 15 | 15 | Full matrix, CI, grouped plots and interpretation on Ubuntu and Windows MSVC |
+| Cross-platform build and documentation | 5 | 5 | Ubuntu GCC/Clang and Windows MSVC/MinGW GCC verified; MinGW Clang not rerun |
+| Report quality | 10 | 9 | Content complete; PDF/archive missing |
+| **Core** | **100** | **99** | |
+| Bonus: manual OAEP | +5 | +5 | MGF1/XOR/manual decode, interop, limit and fail-closed tests |
+| Bonus: hybrid security analysis | +10 | 8 | TLS/envelope/forward secrecy plus implemented/tested CTR+HMAC; no timing study |
+| **Total** | **115** | **112** | |
 
-A lenient grader who accepts the committed Windows build script in place of a
-run, or does not deduct for a single-host benchmark, could reach 99/100 core.
-The safe claim is 97 until Windows logs and the report package exist.
+The safe claim is **99/100 core + 13 bonus = 112** until the PDF/archive
+exists. MinGW Clang is not required by the brief and is not a deduction.
 
 ## Per-environment actions
 
@@ -183,7 +189,8 @@ The safe claim is 97 until Windows logs and the report package exist.
 
 ### Windows
 
-1. Build with OpenSSL 4.0.x and run KAT + `ctest` (see L3-01).
+1. ~~Build with OpenSSL 4.0.x and run KAT + `ctest` (see L3-01).~~ Done for
+   MSVC 2026-11-10 and MinGW GCC 2026-11-09; MinGW Clang remains optional.
 2. ~~Run the benchmark and commit CSV/summary/plots under `output/windows/`.~~
    Done 2026-11-10; reproduce with `scripts\run_benchmarks.bat msvc`.
 3. Windows benchmark is now in `BENCHMARKS.md`; keep it labelled Windows MSVC.
@@ -219,8 +226,8 @@ The wrapper pins CPUs 0-3, sets the High performance plan, and writes the CSV,
 
 ## Residual risk
 
-- Windows MSVC and MinGW GCC build/KAT/CTest logs now exist; MinGW Clang was not
-  rerun for the manual-OAEP change.
+- Windows MSVC and MinGW GCC build/KAT/CTest logs now exist; the MinGW GCC log
+  predates the manual-OAEP/CTR+HMAC tests, and MinGW Clang was not rerun.
 - OpenSSL is the sole implementation; the two KAT vectors and OpenSSL CLI
   interoperability are the independent checks.
 - Benchmarks are single-host and indicative; 100 MiB runs use 100 samples.
@@ -234,8 +241,23 @@ The wrapper pins CPUs 0-3, sets the High performance plan, and writes the CSV,
 - `scripts/run_benchmarks.bat` added; Windows MSVC benchmark CSV, summary and
   plots are committed.
 - Manual OAEP (MGF1-SHA-256 + XOR masking + constant-time padding check) is
-  implemented; the optional +5 bonus can be claimed after the Windows test run.
+  implemented and passes Ubuntu and MSVC; the +5 bonus is claimed. The MinGW
+  GCC log predates these tests.
+- AES-256-CTR + HMAC-SHA256 comparison is implemented and unit-tested; the
+  hybrid-analysis bonus is 8/10 because it is not benchmarked and has no
+  failure-timing study.
 - `build_windows.bat` now copies `LastTest.log` and runs the KAT into
   `output/windows/test_results/` automatically. MSVC and MinGW GCC logs are
   committed.
-- Report identity filled. Remaining: PDF/archive.
+- Report identity filled. Remaining: PDF/archive; MinGW Clang rerun optional.
+
+## Regrade 2026-11-11
+
+Rechecked the current Ubuntu GCC and Clang build trees: `ctest` passes 5/5 on
+both. The committed Windows MSVC and MinGW GCC evidence shows KAT 2/2 and
+CTest 5/5; benchmark CSVs, summaries and grouped plots are present.
+
+**Result:** **99/100 core + 13 bonus** (112/115 additive). The remaining core
+deduction is the missing PDF/archive; the bonus deduction is the unbenchmarked
+CTR+HMAC comparison and absent failure-timing study. No redundant Lab 3
+documentation was found.

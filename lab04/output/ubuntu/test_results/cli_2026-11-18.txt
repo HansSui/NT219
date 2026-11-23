@@ -1,0 +1,16 @@
+# Lab 4 CLI & negative tests — Ubuntu GCC + OpenSSL 4.0.2
+2026-11-18T14:41:41Z
+
+sha256 1 MiB stream: 1 runs
+sha256 1 MiB mmap: 1 runs
+all Lab 4 CLI cases passed
+
+# Additional edge cases
+SHAKE256 --outlen 64 (expect 16 hex chars):
+483366601360a877
+md5 rejected:
+error: unsupported algorithm: md5
+exit=1
+bad outlen rejected:
+error: --outlen must be a positive multiple of 8, at most 8388608
+exit=1

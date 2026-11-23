@@ -1,0 +1,12 @@
+date: 2026-11-15T12:54:23+07:00
+host: Linux 7.0.0-42-generic x86_64
+cpu: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+aes_flag: aes
+threads: 1 (taskset CPU 2)
+warmup_s: 1.0
+runs: 1MiB=1000, 100MiB=20, 1GiB=3
+compiler: c++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+binary: build/ubuntu-gcc/aestool (GCC, -O3)
+soft: IMPL=soft (--impl soft)
+ni: IMPL=ni (--impl ni)
+governor: powersave

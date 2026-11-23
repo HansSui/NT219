@@ -1,0 +1,22 @@
+# Fdb version 4
+["pdflatex"] 1795421383.59123 "/home/han-sui/Downloads/NT219/lab01/REPORT.tex" "REPORT.pdf" "REPORT" 1795421383.7666 2
+  "/etc/texmf/web2c/texmf.cnf" 1794730936.83554 475 c0e671620eb5563b2130f56340a5fde8 ""
+  "/home/han-sui/Downloads/NT219/lab01/REPORT.tex" 1795416859.78603 107837 b47a0f9cd71af57a5b7cb45158135ba9 ""
+  "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
+  "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmr12.tfm" 1136768653 1288 655e228510b4c2a1abe905c368440826 ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/report.cls" 1748806692 23203 f495085ac76be4e20c5e1e88646a241e ""
+  "/usr/share/texlive/texmf-dist/tex/latex/base/size12.clo" 1748806692 8449 8dc66c6c313c8eb2d774af83bca435dd ""
+  "/usr/share/texlive/texmf-dist/tex/latex/fontspec/fontspec.sty" 1759176595 3804 debc05110ffb506cef68ea4e72c7bcee ""
+  "/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def" 1761248321 30662 bfd6e864f4ffc5018b0e2b6260c3181c ""
+  "/usr/share/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty" 1769028462 6558 45786cbbf5684a09ee65aa45a7b367e0 ""
+  "/usr/share/texlive/texmf-dist/tex/latex/l3packages/xparse/xparse.sty" 1761248321 10176 c2fc1c663b3f3899ddac6e6ed3fb1d7e ""
+  "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1769369718 41603 27f93b3067076450172040dcd57ca8b3 ""
+  "/usr/share/texmf/web2c/texmf.cnf" 1769369718 41603 27f93b3067076450172040dcd57ca8b3 ""
+  "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1794731010 3638776 c0e77f6696d03ccb64b82b4ea26db01e ""
+  "REPORT.aux" 1795421375.59064 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "REPORT.tex" 1795416859.78603 107837 b47a0f9cd71af57a5b7cb45158135ba9 ""
+  (generated)
+  "REPORT.aux"
+  "REPORT.log"
+  "REPORT.pdf"
+  (rewritten before read)

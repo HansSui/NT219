@@ -1,6 +1,6 @@
 # Lab 1 - Missing / Lacking
 
-**Audit date:** 2026-11-02 (Ubuntu rerun and rubric audit 2026-11-05)
+**Audit date:** 2026-11-02 (Ubuntu rerun 2026-11-05; doc sync 2026-11-10)
 **Fixes applied:** 2026-11-02 (L1-03, L1-04, L1-05, L1-07, L1-08, L1-09,
 L1-10; packaging helper for L1-01/L1-02); 2026-11-05 Ubuntu KAT/ctest/nonce
 logs refreshed
@@ -17,13 +17,13 @@ incomplete, **Missing** = not present, **Not verified** = no evidence here.
 ## Verdict
 
 The Lab 1 implementation is complete on the code, KAT and evidence side, on
-Ubuntu and Windows. **Rubric audit 2026-11-05:** every technical row is full.
+Ubuntu and Windows. **Rubric audit 2026-11-10:** every technical row is full.
 The core is **99/100**, with the only withheld point in report quality because
-the report header identity and PDF/DOCX are not produced. If the grader treats
-identity/PDF as packaging rather than report quality, the rubric content is
-100/100; do not claim that until the package exists. The remaining gaps are
-submission identity/PDF/archive and optional binaries (L1-01, L1-02); neither
-indicates a broken AES implementation.
+no PDF/DOCX is produced. Identity is filled and a submission archive exists
+(uncommitted, no binaries). If the grader treats PDF as packaging rather than
+report quality, the rubric content is 100/100; do not claim that until the PDF
+exists. The remaining gaps are the PDF and optional binaries (L1-01, L1-02);
+neither indicates a broken AES implementation.
 
 Sidecar nonce reuse, automatic XTS tweaks, broken documentation links, thin
 AES-256/XTS KAT coverage, the untested nonce lock, and the unsupported Clang
@@ -55,7 +55,7 @@ scripts/build_linux.sh gcc
 
 | ID | Gap | Requirement | Ubuntu | Windows | Severity |
 |---|---|---|---|---|---|
-| L1-01 | Final report/archive not produced | C-13, C-14 | Partial | Partial | High (submission) |
+| L1-01 | Final PDF/archive incomplete | C-13, C-14 | Partial | Partial | High (submission) |
 | L1-02 | Windows/Linux binaries not packaged | C-13 | Missing | Missing | Medium (ambiguous) |
 | L1-03 | Sidecar header was not checked for nonce reuse | C-06 | Fixed | Fixed; rerun done | Closed |
 | L1-04 | XTS auto-generated an IV when omitted | C-06 | Fixed | Fixed; rerun done | Closed |
@@ -66,27 +66,24 @@ scripts/build_linux.sh gcc
 | L1-09 | Deleted checklist files leave broken links | C-02 | Fixed | Fixed | Closed |
 | L1-10 | Report claims Clang benchmark data that is not in the tree | C-11, C-14 | Fixed | N/A | Closed |
 
-### L1-01 - Final report and archive are not produced
+### L1-01 - Final PDF and archive are incomplete
 
-`lab01/REPORT.md` exists and is detailed, but:
+`lab01/REPORT.md` exists and is detailed. Student identity is filled, and
+`output/package/lab01-submission.zip` was generated (5.5 MiB, 255 files, no
+binaries; uncommitted). Remaining:
 
-- Student, student ID, and class fields are blank.
 - No PDF/DOCX export exists.
-- No single submission archive exists (source, binaries, report, self-grade,
-  integrity statement).
+- The archive is not final until the PDF and optional binaries are added.
 
 Requirement: C-13 and C-14; Lab 1 rubric gives 20 points to report quality.
-One point is withheld here for the blank identity fields and absent PDF; the
-rest of the report-quality evidence (objectives, design, tests, performance,
-security, limitations, citations, self-grade, integrity statement) is present.
+One point is withheld here for the absent PDF; the rest of the report-quality
+evidence (objectives, design, tests, performance, security, limitations,
+citations, self-grade, integrity statement) is present.
 
-Fix: fill the three identity fields, export the report, and package the archive.
-`lab01/scripts/package_lab1.py` now stages the source, report, evidence and
-optional binaries, fills the report header from `--student`, `--student-id` and
-`--class-name`, writes `SUBMISSION.md` with the integrity statement, and creates
-`output/package/lab01-submission.zip`. PDF/DOCX export still needs the student's
-details and a converter; do not duplicate the report into another format unless
-the instructor asks.
+Fix: export the report to PDF/DOCX, then rerun
+`lab01/scripts/package_lab1.py` with the PDF and, if required, `--windows-bin`
+and `--linux-bin`. The script stages source, report, evidence and optional
+binaries, writes `SUBMISSION.md`, and creates the zip.
 
 ### L1-02 - Binaries are not in the submission
 
@@ -239,7 +236,8 @@ only the Clang **performance** claim was unsupported.
 
 Requirement: C-11 and C-14; report quality is 20 points.
 
-Remaining: export the corrected report and fill the identity fields (L1-01).
+Remaining: export the corrected report to PDF/DOCX (L1-01); the identity is
+already filled.
 
 ## Per-environment actions
 
@@ -249,7 +247,7 @@ Remaining: export the corrected report and fill the identity fields (L1-01).
    and 19-case evidence.
 2. Optionally regenerate the per-case logs in `output/ubuntu/neg_results/` to
    match the shared 19-case list.
-3. Export the corrected report to PDF/DOCX and fill student fields.
+3. Export the corrected report to PDF/DOCX; the identity is already filled.
 4. Run `scripts/package_lab1.py` with a Linux binary if the archive includes
    binaries.
 
@@ -349,15 +347,14 @@ Not run in this pass:
 - Ubuntu KAT/`ctest`: rerun on 2026-11-05 on Ubuntu 26.04 with GCC 15.2 and
   Clang 21.1.8; both pass 29/29 KAT and `ctest` 2/2. The nonce-race log was
   also refreshed (`1 success, 7 rejections`).
-- PDF/DOCX export and the final named archive: both need the student's name,
-  MSSV and class, and a PDF converter is not installed here.
+- PDF/DOCX export: no converter is installed here. The final named archive is
+  generated but uncommitted and lacks the PDF and binaries.
 
 Regrade after this log: **99/100 core plus +5 bonus** (capped at 100). The
 2026-11-05 Ubuntu rerun closes the KAT/ctest evidence gap, so correctness is
-25/25; report quality stays 19/20 because the identity fields and PDF/DOCX are
-still absent. L1-01 and L1-02 remain **Partial** because the final
-identity-filled archive has not been produced. The AES/KAT/security/UX/
-performance items are closed.
+25/25; report quality stays 19/20 because the PDF/DOCX export is absent. L1-01
+and L1-02 remain **Partial** because the generated archive lacks the PDF and
+optional binaries. The AES/KAT/security/UX/performance items are closed.
 
 ## Grade
 
@@ -370,15 +367,15 @@ Rubric from `docs/blueprint/labs/lab1.md`: 100 core points + 5 bonus.
 | UX and I/O design | 10 | 9 | 10 | `--threads`, base64 decode and optional sidecar path fixed |
 | Performance methodology | 20 | 16 | 20 | 96 honest CSVs and controlled Windows/Linux runs; Clang claim removed |
 | Cross-platform build | 10 | 10 | 10 | MSVC, MinGW GCC/Clang, Linux GCC/Clang verified |
-| Report quality | 20 | 13 | 19 | False Clang data fixed, KAT/test evidence updated; identity and PDF still need the student's details |
+| Report quality | 20 | 13 | 19 | False Clang data fixed, KAT/test evidence updated; identity filled, PDF/DOCX still absent |
 | **Core total** | **100** | **83** | **99** | |
 | Bonus: library + GUI | +5 | +5 | +5 | Shared library + Tkinter GUI |
 | **Total** | **105** | **88** | **104** | 100/100 after the bonus cap |
 
 Baseline **88/100**, post-fix **99/100** core plus **+5 bonus** (capped at 100).
 The Ubuntu 29/29 KAT and 19-case `ctest` logs now exist. The remaining gap is
-submission work (identity fields, optional PDF export, archive), not the AES
-implementation. Do not claim a final PDF until it exists.
+submission work (optional PDF export and archive), not the AES implementation.
+Do not claim a final PDF until it exists.
 
 ## Regrade 2026-11-05 (report excluded)
 
@@ -399,8 +396,8 @@ excluded from this regrade, so the core is out of 80.
 
 With the report counted at 19/20, the core is **99/100**: correctness is
 25/25 after the 2026-11-05 Ubuntu KAT/ctest refresh, and report quality keeps a
-1-point deduction for the blank identity/PDF. The exclusion above only removes
-the 20-point report row.
+1-point deduction for the absent PDF/DOCX. The exclusion above only removes the
+20-point report row.
 
 ## Rubric maximization audit 2026-11-05
 
@@ -415,7 +412,7 @@ behaviour.
 | UX and I/O design | 10 | 10 | Uniform CLI, UTF-8, binary-safe files, hex/base64/raw, optional sidecar, useful errors |
 | Performance methodology | 20 | 20 | Six required sizes, 1,000 runs, mean/median/SD/CI95, mode and OS comparisons, plots, syscall/I-O analysis |
 | Cross-platform build | 10 | 10 | MSVC, MinGW GCC/Clang, Linux GCC/Clang build and test |
-| Report quality | 20 | 19 | Content complete; 1 point withheld for blank identity and no PDF/DOCX |
+| Report quality | 20 | 19 | Content complete; 1 point withheld for no PDF/DOCX |
 | **Core** | **100** | **99** | |
 | Bonus: library + GUI | +5 | +5 | Shared library + Tkinter GUI through the C ABI |
 | **Total** | **105** | **104 -> 100** | Bonus cap at 100 |
@@ -424,7 +421,7 @@ No code or KAT gaps remain. `lab01/REPORT.md` was corrected from its stale
 24/98 self-grade to 25/99. The per-case Ubuntu negative logs are still the old
 12-case set, but `ctest` runs the shared 19-case suite on both platforms, so
 this is documentation cleanup rather than a rubric deduction. The final
-submission still needs identity, PDF/DOCX, an archive and (if the TA requires
+submission still needs PDF/DOCX, a finalized archive and (if the TA requires
 them) binaries.
 
 ## Applied fixes
@@ -467,9 +464,9 @@ standard: one bar per case, one bar per platform, value labels, clear title
 and a host caveat. Lab 2 and Lab 3 now use the same grouped-bar style with 95%
 CI whiskers.
 
-Core remains **99/100**. The only withheld point is report identity/PDF/archive
-(L1-01); L1-02 (optional binaries) is unchanged. Windows was not rerun in this
-pass, so the committed 2026-11-02 MSVC/MinGW logs remain the Windows evidence.
+Core remains **99/100**. The only withheld point is the absent PDF (L1-01);
+L1-02 (optional binaries) is unchanged. The committed Windows MSVC/MinGW logs
+remain the Windows evidence; no Windows rerun was needed for this doc pass.
 
 Packaging update: the report identity is now filled (Nguyễn Công Tuấn /
 25522012 / NT219.R11.ANTT) and
@@ -477,4 +474,16 @@ Packaging update: the report identity is now filled (Nguyễn Công Tuấn /
 no binaries). The archive is a generated artifact and stays uncommitted. L1-01
 is therefore reduced to the missing PDF/DOCX export; L1-02 remains optional.
 
-Not checked: Windows rerun, PDF/DOCX export.
+Not checked: PDF/DOCX export (no converter installed here).
+
+## Regrade 2026-11-11
+
+Rechecked the current Ubuntu GCC and Clang build trees: `ctest` passes 2/2 on
+both. The existing Windows MSVC/MinGW evidence still shows 29/29 KAT and 2/2
+CTest, and the repository contains the required benchmark, GUI and negative-test
+evidence.
+
+**Result:** **99/100 core + 5 bonus** (104 additive; apply the course's 100-point
+cap if applicable). The only core deduction remains the missing PDF/DOCX export.
+No redundant Lab 1 documentation was found; `docs/missing/lab1.md` remains the
+audit record.

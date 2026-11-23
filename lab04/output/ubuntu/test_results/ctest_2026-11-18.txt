@@ -1,0 +1,18 @@
+# Lab 4 CTest — Ubuntu GCC 15.2.0 + OpenSSL 4.0.2, build/ubuntu-gcc
+2026-11-18T14:41:40Z
+
+Test project /home/han-sui/Downloads/NT219/lab04/build/ubuntu-gcc
+    Start 1: hashes
+1/5 Test #1: hashes ...........................   Passed    0.00 sec
+    Start 2: x509
+2/5 Test #2: x509 .............................   Passed    0.19 sec
+    Start 3: lenext
+3/5 Test #3: lenext ...........................   Passed    0.00 sec
+    Start 4: kat
+4/5 Test #4: kat ..............................   Passed    0.00 sec
+    Start 5: cli
+5/5 Test #5: cli ..............................   Passed    0.20 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =   0.40 sec
