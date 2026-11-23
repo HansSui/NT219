@@ -1,9 +1,26 @@
-build/
-build_*/
-.aestool_nonces
+# Build outputs & compiled binaries
+build*/
+*.o
+*.so
+*.out
+*.exe
+
+# Benchmarks, packages & tool states
 output/*/benchmarks/graph/
 output/*/benchmarks/bench.log
 output/package/
+.aestool_nonces
+
+# Python
 __pycache__/
-.vscode
-.opencode
+*.py[cod]
+.venv/
+venv/
+
+# Editors & AI tools
+.vscode/
+.opencode/
+
+# OS
+.DS_Store
+Thumbs.db
